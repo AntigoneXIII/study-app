@@ -1,0 +1,1250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Geography Grade 12 — Study Dashboard</title>
+<style>
+:root{
+  --parchment:#F1E9D2;
+  --parchment-deep:#E6D9B4;
+  --ink:#1B2A1E;
+  --ink-soft:#4E5C41;
+  --river:#1F7A6C;
+  --river-deep:#0E3D2C;
+  --soil:#C1502E;
+  --soil-soft:#E0894F;
+  --contour:#7E9B6E;
+  --gold-flag:#D4A017;
+  --card-line:#D8C79E;
+  --danger:#A63C3C;
+  --radius:6px;
+}
+html{font-size:18px;}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:var(--parchment);
+  color:var(--ink);
+  font-family:"Iowan Old Style","Palatino Linotype",Georgia,serif;
+  background-image:
+    repeating-radial-gradient(circle at 15% 20%, rgba(147,164,137,0.07) 0px, rgba(147,164,137,0.07) 1px, transparent 1px, transparent 38px),
+    repeating-radial-gradient(circle at 85% 75%, rgba(28,110,140,0.05) 0px, rgba(28,110,140,0.05) 1px, transparent 1px, transparent 52px);
+}
+.app{display:flex;min-height:100vh;}
+
+/* Sidebar */
+.sidebar{
+  width:250px;flex-shrink:0;
+  background:linear-gradient(190deg, #163826 0%, #0E3D2C 45%, #0A2E22 100%);
+  color:#EFF5E9;
+  padding:22px 0;
+  position:sticky;top:0;height:100vh;overflow-y:auto;
+  border-right:3px solid #D4A017;
+}
+.brand{
+  font-family:Georgia,serif;
+  font-size:1.05rem;letter-spacing:.03em;
+  padding:0 20px 18px 20px;border-bottom:1px solid rgba(255,255,255,0.15);
+  margin-bottom:14px;
+}
+.brand .sub{display:block;font-size:.7rem;color:#B7CBA8;font-family:"Courier New",monospace;letter-spacing:.08em;margin-top:4px;text-transform:uppercase;}
+.papertabs{display:flex;margin:0 20px 16px 20px;border:1px solid rgba(255,255,255,0.25);border-radius:var(--radius);overflow:hidden;}
+.papertab{
+  flex:1;text-align:center;padding:7px 4px;font-family:"Courier New",monospace;font-size:.72rem;
+  letter-spacing:.06em;cursor:pointer;background:transparent;color:#CBDDC0;border:none;text-transform:uppercase;
+}
+.papertab.active{background:var(--soil);color:#fff;}
+.navsection{margin-bottom:6px;}
+.navlabel{font-size:.68rem;text-transform:uppercase;letter-spacing:.1em;color:#8FAE7B;padding:10px 20px 6px;font-family:"Courier New",monospace;}
+.navitem{
+  display:flex;align-items:center;gap:8px;
+  padding:9px 20px;font-size:.88rem;cursor:pointer;color:#DDEAD1;
+  border-left:3px solid transparent;
+}
+.navitem:hover{background:rgba(255,255,255,0.06);}
+.navitem.active{background:rgba(255,255,255,0.1);border-left-color:var(--gold-flag);color:#fff;font-weight:600;}
+.navitem .dot{width:6px;height:6px;border-radius:50%;background:#6B8F5E;flex-shrink:0;}
+.navitem.done .dot{background:var(--gold-flag);}
+.navitem.pending{opacity:.55;font-style:italic;}
+
+/* Main */
+.main{flex:1;padding:36px 48px 80px;max-width:920px;}
+.view{display:none;}
+.view.active{display:block;}
+.pageheader{margin-bottom:28px;border-bottom:3px solid transparent;border-image:linear-gradient(90deg,#0E3D2C,#1F7A6C 40%,#D4A017 75%,#C1502E) 1;padding-bottom:14px;}
+.pageheader h1{font-size:1.9rem;margin:0 0 4px;font-weight:600;}
+.pageheader .meta{font-family:"Courier New",monospace;font-size:.78rem;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em;}
+
+.section{margin-bottom:38px;scroll-margin-top:20px;}
+.section h2{
+  font-size:1.3rem;color:var(--river-deep);border-bottom:1px solid var(--card-line);
+  padding-bottom:6px;margin-bottom:14px;display:flex;align-items:center;gap:10px;
+}
+.section h2 .tag{
+  font-family:"Courier New",monospace;font-size:.62rem;background:var(--river);color:#fff;
+  padding:2px 7px;border-radius:3px;letter-spacing:.05em;
+}
+.section h3{font-size:1.02rem;color:var(--soil);margin:20px 0 8px;}
+.card{
+  background:#FFFDF8;border:1px solid var(--card-line);border-radius:var(--radius);
+  padding:16px 20px;margin-bottom:14px;box-shadow:0 1px 2px rgba(0,0,0,0.03);
+}
+.card p{margin:6px 0;line-height:1.55;font-size:.94rem;}
+.card ul{margin:6px 0;padding-left:20px;}
+.card li{margin-bottom:5px;line-height:1.5;font-size:.94rem;}
+.term{font-weight:700;color:var(--ink);}
+.callout{
+  border-left:4px solid var(--gold-flag);background:#FCF3DC;padding:10px 16px;
+  font-size:.88rem;margin:10px 0;border-radius:0 4px 4px 0;
+}
+.callout.exam{border-left-color:var(--river);background:#E5F1E9;}
+.callout.warn{border-left-color:var(--danger);background:#F7EAEA;}
+.callout .label{font-family:"Courier New",monospace;font-size:.66rem;text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:3px;font-weight:700;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+@media(max-width:760px){.grid2{grid-template-columns:1fr;}}
+.diagram{background:#FFFDF8;border:1px solid var(--card-line);border-radius:var(--radius);padding:14px;text-align:center;margin:12px 0;}
+.diagram figcaption{font-size:.78rem;color:var(--ink-soft);margin-top:6px;font-style:italic;}
+table.notes{width:100%;border-collapse:collapse;font-size:.88rem;margin:10px 0;}
+table.notes th{background:var(--parchment-deep);text-align:left;padding:6px 10px;border:1px solid var(--card-line);font-family:"Courier New",monospace;font-size:.72rem;text-transform:uppercase;letter-spacing:.04em;}
+table.notes td{padding:6px 10px;border:1px solid var(--card-line);vertical-align:top;}
+.placeholder{padding:60px 20px;text-align:center;color:var(--ink-soft);}
+.placeholder h2{color:var(--ink-soft);border:none;}
+.progress-strip{display:flex;gap:4px;margin-bottom:24px;}
+.progress-strip div{flex:1;height:4px;background:var(--card-line);border-radius:2px;}
+.progress-strip div.on{background:var(--gold-flag);}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <nav class="sidebar">
+    <div class="brand">Geography <span style="color:#D4A017;">Study Deck</span><span class="sub">Grade 12 &middot; CAPS</span></div>
+    <div class="papertabs">
+      <button class="papertab active" data-paper="p1">Paper 1</button>
+      <button class="papertab" data-paper="p2">Paper 2</button>
+    </div>
+
+    <div id="nav-p1">
+      <div class="navlabel">Section A — Climate</div>
+      <div class="navitem done" data-view="climate-mlc"><span class="dot"></span>Mid-Latitude Cyclones</div>
+      <div class="navitem done" data-view="climate-pressure"><span class="dot"></span>Pressure Systems &amp; SA Charts</div>
+      <div class="navitem done" data-view="climate-tc"><span class="dot"></span>Tropical Cyclones</div>
+      <div class="navitem done" data-view="climate-valley"><span class="dot"></span>Valley Climates</div>
+      <div class="navitem done" data-view="climate-urban"><span class="dot"></span>Urban Climates</div>
+
+      <div class="navlabel">Section B — Fluvial</div>
+      <div class="navitem done active" data-view="fluvial-basins"><span class="dot"></span>Drainage Basins &amp; Patterns</div>
+      <div class="navitem done" data-view="fluvial-order"><span class="dot"></span>Stream Order &amp; Discharge</div>
+      <div class="navitem done" data-view="fluvial-hydro"><span class="dot"></span>Hydrographs</div>
+      <div class="navitem done" data-view="fluvial-course"><span class="dot"></span>River Course &amp; Erosion</div>
+      <div class="navitem done" data-view="fluvial-features"><span class="dot"></span>River Features &amp; Meanders</div>
+      <div class="navitem done" data-view="fluvial-rejuv"><span class="dot"></span>Base Levels &amp; Rejuvenation</div>
+      <div class="navitem done" data-view="fluvial-capture"><span class="dot"></span>River Capture</div>
+      <div class="navitem done" data-view="fluvial-mgmt"><span class="dot"></span>Catchment Management</div>
+
+      <div class="navlabel">Section C — Settlement &amp; Economic</div>
+      <div class="navitem done" data-view="settle-hierarchy"><span class="dot"></span>Settlement Hierarchy</div>
+      <div class="navitem done" data-view="settle-rural"><span class="dot"></span>Rural Settlement</div>
+      <div class="navitem done" data-view="settle-urban"><span class="dot"></span>Urban Settlement</div>
+      <div class="navitem done" data-view="econ-industry"><span class="dot"></span>Industry &amp; Location</div>
+      <div class="navitem done" data-view="econ-ec"><span class="dot"></span>Eastern Cape Economy</div>
+      <div class="navitem done" data-view="econ-gold"><span class="dot"></span>Gold Mining</div>
+    </div>
+
+    <div id="nav-p2" style="display:none;">
+      <div class="navlabel">Mapwork Skills</div>
+      <div class="navitem pending" data-view="p2-overview"><span class="dot"></span>Overview &amp; Topic List</div>
+    </div>
+  </nav>
+
+  <main class="main">
+
+    <!-- ================= FLUVIAL: DRAINAGE BASINS ================= -->
+    <section class="view active" id="view-fluvial-basins">
+      <div class="pageheader">
+        <h1>Drainage Basins &amp; Drainage Patterns</h1>
+        <div class="meta">Paper 1 &middot; Section B: Fluvial Processes</div>
+      </div>
+
+      <div class="section">
+        <h2>Core terminology</h2>
+        <div class="card">
+          <ul>
+            <li><span class="term">Drainage basin</span> — the area containing a river and all of its tributaries.</li>
+            <li><span class="term">Watershed</span> — the high-lying land (boundary) separating one drainage basin/tributary from another.</li>
+            <li><span class="term">Catchment area</span> — the area of land that naturally collects water into a drainage basin.</li>
+            <li><span class="term">Interfluve</span> — high land separating one tributary valley from another.</li>
+            <li><span class="term">Confluence</span> — the point where two or more rivers meet.</li>
+            <li><span class="term">Thalweg</span> — the line connecting the lowest/deepest points along a river channel; shows the line of fastest flow.</li>
+          </ul>
+          <div class="callout exam"><span class="label">Exam pattern</span>These definitions are consistently asked as 1–2 mark recall questions across your papers (2024 May, 2024 Trials, 2023 Trials). Know them word-perfect.</div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>Drainage patterns <span class="tag">know all 8</span></h2>
+        <p style="font-size:.9rem;color:var(--ink-soft);margin-top:-6px;">The pattern a drainage network forms is controlled by the underlying <b>geology</b> (rock type, jointing, structure) and <b>relief</b>.</p>
+
+        <div class="diagram">
+          <svg viewBox="0 0 720 190" width="100%" style="max-width:680px;">
+            <!-- Dendritic -->
+            <g transform="translate(10,10)">
+              <rect width="150" height="150" fill="#FFFDF8" stroke="#D8C79E"/>
+              <path d="M75 140 L70 100 L50 70 M70 100 L90 60 M50 70 L35 40 M50 70 L55 30 M90 60 L100 25 M90 60 L75 20" stroke="#1F7A6C" fill="none" stroke-width="2.5" stroke-linecap="round"/>
+              <text x="75" y="168" text-anchor="middle" font-size="11" fill="#4E5C41" font-family="Georgia">Dendritic</text>
+            </g>
+            <!-- Trellis -->
+            <g transform="translate(190,10)">
+              <rect width="150" height="150" fill="#FFFDF8" stroke="#D8C79E"/>
+              <path d="M75 140 L75 20" stroke="#1F7A6C" stroke-width="2.5" fill="none"/>
+              <path d="M75 110 L40 90 M75 110 L110 90 M75 70 L40 50 M75 70 L110 50 M75 30 L110 15" stroke="#1F7A6C" stroke-width="2" fill="none" stroke-linecap="round"/>
+              <text x="75" y="168" text-anchor="middle" font-size="11" fill="#4E5C41" font-family="Georgia">Trellis</text>
+            </g>
+            <!-- Radial -->
+            <g transform="translate(370,10)">
+              <rect width="150" height="150" fill="#FFFDF8" stroke="#D8C79E"/>
+              <circle cx="75" cy="75" r="4" fill="#C1502E"/>
+              <g stroke="#1F7A6C" stroke-width="2" stroke-linecap="round">
+                <line x1="75" y1="75" x2="75" y2="20"/>
+                <line x1="75" y1="75" x2="120" y2="35"/>
+                <line x1="75" y1="75" x2="132" y2="75"/>
+                <line x1="75" y1="75" x2="120" y2="115"/>
+                <line x1="75" y1="75" x2="75" y2="130"/>
+                <line x1="75" y1="75" x2="30" y2="115"/>
+                <line x1="75" y1="75" x2="18" y2="75"/>
+                <line x1="75" y1="75" x2="30" y2="35"/>
+              </g>
+              <text x="75" y="168" text-anchor="middle" font-size="11" fill="#4E5C41" font-family="Georgia">Radial</text>
+            </g>
+            <!-- Rectangular -->
+            <g transform="translate(550,10)">
+              <rect width="150" height="150" fill="#FFFDF8" stroke="#D8C79E"/>
+              <path d="M40 140 L40 90 L80 90 L80 50 L120 50 L120 20" stroke="#1F7A6C" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M40 110 L20 110 M80 70 L60 70 M120 35 L100 35" stroke="#1F7A6C" stroke-width="2" fill="none"/>
+              <text x="75" y="168" text-anchor="middle" font-size="11" fill="#4E5C41" font-family="Georgia">Rectangular</text>
+            </g>
+          </svg>
+          <figcaption>Four of the eight patterns — sketch these quickly and correctly in the exam.</figcaption>
+        </div>
+
+        <table class="notes">
+          <tr><th>Pattern</th><th>How it forms</th><th>Typical setting</th></tr>
+          <tr><td><b>Dendritic</b></td><td>Tree/branch-like network; develops on uniformly resistant rock that erodes at the same rate in all directions.</td><td>Most common pattern; e.g. Buffalo River, East London.</td></tr>
+          <tr><td><b>Trellis</b></td><td>Parallel main valleys with tributaries joining at right angles; forms on folded sedimentary rock or alternating hard/soft rock layers — tributaries erode the soft rock, ridges are the hard rock.</td><td>Folded mountain belts (e.g. Cape Fold Belt).</td></tr>
+          <tr><td><b>Parallel</b></td><td>Streams flow parallel to each other, following the dip/slope of the land. Common along a ridge, or as part of a trellis system.</td><td>Steep uniform slopes.</td></tr>
+          <tr><td><b>Rectangular</b></td><td>Forms on well-jointed (faulted) rock; water flows along exposed joints so tributaries meet at right angles.</td><td>Waterberg, Limpopo (Mogalakwena River).</td></tr>
+          <tr><td><b>Radial</b></td><td>Streams flow outward in all directions from a central high point.</td><td>Dome-shaped features, volcanoes.</td></tr>
+          <tr><td><b>Centripetal</b></td><td>The reverse of radial — streams flow inward toward a low-lying centre.</td><td>Lake, depression, swamp, pan.</td></tr>
+          <tr><td><b>Deranged</b></td><td>No specific pattern; small streams, many lakes/marshes, on flat land recently scoured by glaciation.</td><td>Not found in SA (no recent glaciation) — classic example is Canada.</td></tr>
+          <tr><td><b>Superimposed / Antecedent</b></td><td>Present-day pattern doesn't match the underlying geology, because the river's pattern developed on rock that has since eroded away, exposing new rock below. Both are <i>older</i> than the structures they now flow through.</td><td>Kgaswane River, Rustenburg (antecedent) — appeared in your 2023 Trials.</td></tr>
+        </table>
+
+        <div class="callout warn"><span class="label">Common mistake</span>Don't confuse <b>superimposed</b> and <b>antecedent</b> in a written answer — you won't usually be asked to distinguish them in Grade 12, but you must recognise both as "pattern doesn't match current geology."</div>
+      </div>
+    </section>
+
+    <!-- ================= FLUVIAL: STREAM ORDER ================= -->
+    <section class="view" id="view-fluvial-order">
+      <div class="pageheader">
+        <h1>Stream Order &amp; River Discharge</h1>
+        <div class="meta">Paper 1 &middot; Section B: Fluvial Processes</div>
+      </div>
+
+      <div class="section">
+        <h2>Stream order</h2>
+        <div class="card">
+          <p>A ranking system used to describe and compare drainage basins.</p>
+          <ul>
+            <li>A <span class="term">1st order</span> stream has no tributaries feeding into it.</li>
+            <li>When <b>two streams of the same order</b> meet, a stream of the <b>next order up</b> is formed (two 1st order → one 2nd order; two 2nd order → one 3rd order, etc.)</li>
+            <li>If a lower-order stream joins a higher-order stream, the higher order is <b>unchanged</b>.</li>
+          </ul>
+        </div>
+        <div class="diagram">
+          <svg viewBox="0 0 420 170" width="100%" style="max-width:420px;">
+            <g stroke="#1F7A6C" stroke-width="2" fill="none" stroke-linecap="round">
+              <line x1="40" y1="150" x2="60" y2="110"/>
+              <line x1="80" y1="150" x2="60" y2="110"/>
+              <line x1="60" y1="110" x2="90" y2="70"/>
+              <line x1="120" y1="150" x2="90" y2="70"/>
+              <line x1="90" y1="70" x2="140" y2="30"/>
+              <line x1="220" y1="140" x2="200" y2="90" stroke-width="3"/>
+              <line x1="180" y1="140" x2="200" y2="90" stroke-width="3"/>
+              <line x1="200" y1="90" x2="140" y2="30" stroke-width="3"/>
+              <line x1="140" y1="30" x2="320" y2="20" stroke-width="4"/>
+            </g>
+            <text x="60" y="163" font-size="9" fill="#4E5C41" text-anchor="middle">1</text>
+            <text x="80" y="163" font-size="9" fill="#4E5C41" text-anchor="middle">1</text>
+            <text x="90" y="83" font-size="9" fill="#4E5C41" text-anchor="middle">2</text>
+            <text x="120" y="163" font-size="9" fill="#4E5C41" text-anchor="middle">1</text>
+            <text x="180" y="153" font-size="9" fill="#4E5C41" text-anchor="middle">1</text>
+            <text x="220" y="153" font-size="9" fill="#4E5C41" text-anchor="middle">1</text>
+            <text x="200" y="103" font-size="9" fill="#4E5C41" text-anchor="middle">2</text>
+            <text x="140" y="43" font-size="10" fill="#C1502E" font-weight="bold" text-anchor="middle">3</text>
+            <text x="320" y="12" font-size="10" fill="#4E5C41" text-anchor="middle">mouth</text>
+          </svg>
+          <figcaption>Two 1st order streams → 2nd order. Two 2nd order streams → 3rd order.</figcaption>
+        </div>
+        <div class="callout"><span class="label">Laws of stream order</span>
+          <ul style="margin:4px 0 0;">
+            <li>More streams of a lower order than higher order.</li>
+            <li>The lower the order, the steeper the gradient.</li>
+            <li>The lower the order, the shorter the stream length.</li>
+            <li>The lower the order, the smaller the drainage basin.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>River discharge &amp; flow types</h2>
+        <div class="card">
+          <p><span class="term">River discharge</span> — the volume of water flowing down a river, measured in <b>cumecs</b> (cubic metres per second).</p>
+          <div class="grid2">
+            <div>
+              <p><span class="term">Laminar flow</span></p>
+              <p>Water moves in smooth, parallel sheets with very little friction — found where the riverbed is smooth (e.g. on a floodplain). Speeds can actually be great because there's little turbulence to slow the water.</p>
+            </div>
+            <div>
+              <p><span class="term">Turbulent flow</span></p>
+              <p>Water moves unevenly, with eddies, bubbles and white water, caused by friction over a rocky, uneven bed and steep gradient — typical of the upper course.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= FLUVIAL: HYDROGRAPHS ================= -->
+    <section class="view" id="view-fluvial-hydro">
+      <div class="pageheader">
+        <h1>Hydrographs</h1>
+        <div class="meta">Paper 1 &middot; Section B: Fluvial Processes</div>
+      </div>
+
+      <div class="section">
+        <h2>Reading a storm hydrograph</h2>
+        <div class="diagram">
+          <svg viewBox="0 0 460 220" width="100%" style="max-width:460px;">
+            <line x1="40" y1="20" x2="40" y2="190" stroke="#1B2A1E" stroke-width="1.5"/>
+            <line x1="40" y1="190" x2="430" y2="190" stroke="#1B2A1E" stroke-width="1.5"/>
+            <text x="10" y="30" font-size="9" fill="#4E5C41">discharge</text>
+            <text x="390" y="205" font-size="9" fill="#4E5C41">time</text>
+            <!-- rainfall bar -->
+            <rect x="90" y="30" width="10" height="30" fill="#C1502E"/>
+            <text x="95" y="26" font-size="8" text-anchor="middle" fill="#C1502E">peak rainfall</text>
+            <!-- base flow -->
+            <path d="M40 175 L430 175" stroke="#7E9B6E" stroke-width="1.5" stroke-dasharray="3,3"/>
+            <text x="330" y="170" font-size="8" fill="#5C7A4C">base flow</text>
+            <!-- hydrograph curve -->
+            <path d="M40 175 C 90 174, 110 174, 130 168 C 170 150, 190 70, 215 62 C 240 55, 280 90, 340 150 C 380 172, 410 175, 430 175"
+                  fill="none" stroke="#1F7A6C" stroke-width="2.5"/>
+            <circle cx="215" cy="62" r="3" fill="#C1502E"/>
+            <text x="215" y="50" font-size="8.5" text-anchor="middle" fill="#C1502E" font-weight="bold">flood peak</text>
+            <!-- lag time bracket -->
+            <line x1="95" y1="205" x2="215" y2="205" stroke="#1F7A6C" stroke-width="1"/>
+            <text x="155" y="216" font-size="8.5" text-anchor="middle" fill="#1F7A6C">lag time</text>
+            <text x="115" y="185" font-size="8" fill="#4E5C41">rising limb</text>
+            <text x="280" y="110" font-size="8" fill="#4E5C41">falling (receding) limb</text>
+            <line x1="40" y1="190" x2="40" y2="196" stroke="#1B2A1E"/>
+          </svg>
+          <figcaption>Standard storm hydrograph shape and terminology.</figcaption>
+        </div>
+        <div class="card">
+          <table class="notes">
+            <tr><th>Term</th><th>Meaning</th></tr>
+            <tr><td>Peak rainfall</td><td>The point of highest precipitation intensity during the storm.</td></tr>
+            <tr><td>Lag time</td><td>Time delay between peak rainfall and flood peak (peak discharge).</td></tr>
+            <tr><td>Flood peak / peak discharge</td><td>The highest discharge reached in the river during the event.</td></tr>
+            <tr><td>Rising limb</td><td>The steep rise in discharge as floodwater reaches the channel.</td></tr>
+            <tr><td>Falling / receding limb</td><td>The gradual decline in discharge after the peak.</td></tr>
+            <tr><td>Base flow</td><td>The normal, steady discharge level from groundwater seepage, before/after the storm's influence.</td></tr>
+            <tr><td>Bankfull discharge</td><td>The discharge level at which the river is about to overflow its banks.</td></tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>What controls the shape of a hydrograph</h2>
+        <div class="card">
+          <table class="notes">
+            <tr><th>Factor</th><th>Short lag time / high, sharp peak</th><th>Long lag time / lower, flatter peak</th></tr>
+            <tr><td>Land cover</td><td>Urban/concrete surfaces — fast surface runoff</td><td>Vegetated area — absorption &amp; infiltration slow the water down</td></tr>
+            <tr><td>Basin shape</td><td>Narrow, elongated basin — water reaches the channel and travels down it quickly</td><td>Circular/wide basin — water arrives from many directions at different times</td></tr>
+            <tr><td>Rainfall type</td><td>Short, intense storm</td><td>Prolonged, steady rainfall</td></tr>
+          </table>
+          <div class="callout exam"><span class="label">Exam pattern</span>You will almost always be given two hydrographs (A vs B) and asked to match statements to the correct one, or account for their shape. Practice writing the <i>reason</i>, not just the label — "urban area → more surface runoff from concrete → shorter lag time, higher peak" is the full-mark answer format.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= FLUVIAL: RIVER COURSE ================= -->
+    <section class="view" id="view-fluvial-course">
+      <div class="pageheader">
+        <h1>River Course &amp; Erosion Processes</h1>
+        <div class="meta">Paper 1 &middot; Section B: Fluvial Processes</div>
+      </div>
+
+      <div class="section">
+        <h2>Evidence for river course (upper / middle / lower)</h2>
+        <div class="card">
+          <table class="notes">
+            <tr><th>Feature</th><th>Upper course</th><th>Lower course</th></tr>
+            <tr><td>Gradient</td><td>Steep</td><td>Gentle / flat</td></tr>
+            <tr><td>Valley shape</td><td>V-shaped, narrow</td><td>Wide, flat floodplain</td></tr>
+            <tr><td>Volume / discharge</td><td>Low (close to source, few tributaries joined)</td><td>High (many tributaries joined)</td></tr>
+            <tr><td>Bed material</td><td>Large boulders, angular</td><td>Fine silt/sand, well-rounded</td></tr>
+            <tr><td>Flow</td><td>Turbulent, uneven riverbed</td><td>Laminar, smooth</td></tr>
+            <tr><td>Dominant process</td><td>Vertical erosion</td><td>Deposition, lateral erosion (meandering)</td></tr>
+          </table>
+          <div class="callout exam"><span class="label">Exam pattern</span>"Provide THREE pieces of evidence that this river is in its upper course" is a recurring question (2024 Trials). Always pair each piece of evidence with a brief reason, e.g. "boulders present → indicates mountainous, upper-course terrain".</div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>Erosion processes</h2>
+        <div class="card">
+          <ul>
+            <li><span class="term">Hydraulic action</span> — the sheer force of moving water loosening and removing material from the bed and banks.</li>
+            <li><span class="term">Abrasion / corrasion</span> — rock fragments carried by the river grind and wear away the bed and banks.</li>
+            <li><span class="term">Attrition</span> — rock particles collide with each other, breaking down into smaller, rounder fragments.</li>
+            <li><span class="term">Corrosion / solution</span> — chemical dissolving of soluble minerals in the rock by the river water.</li>
+          </ul>
+        </div>
+        <h2>Transportation processes</h2>
+        <div class="card">
+          <ul>
+            <li><span class="term">Traction</span> — large boulders rolled/dragged along the riverbed (upper course).</li>
+            <li><span class="term">Saltation</span> — smaller stones bounced/hopped along the bed.</li>
+            <li><span class="term">Suspension</span> — fine silt and clay particles carried within the water column.</li>
+            <li><span class="term">Solution</span> — dissolved minerals carried invisibly in the water.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= FLUVIAL: FEATURES ================= -->
+    <section class="view" id="view-fluvial-features">
+      <div class="pageheader">
+        <h1>River Features &amp; Meanders</h1>
+        <div class="meta">Paper 1 &middot; Section B: Fluvial Processes</div>
+      </div>
+
+      <div class="section">
+        <h2>Depositional features</h2>
+        <div class="card">
+          <ul>
+            <li><span class="term">Levee</span> — as a river floods, coarser/heavier material is deposited closest to the bank first, building up a raised natural embankment over time.</li>
+            <li><span class="term">Floodplain</span> — the flat land bordering a river, built up from repeated deposits of fine, fertile alluvium during flood events. Very good for farming: rich alluvial soil, close to water for irrigation, flat and easy to work, open with plenty of sun.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>Meanders &amp; oxbow lakes</h2>
+        <div class="diagram">
+          <svg viewBox="0 0 480 210" width="100%" style="max-width:480px;">
+            <!-- STAGE 1: developed meander loop -->
+            <g transform="translate(10,10)">
+              <text x="70" y="14" font-size="10" fill="#4E5C41" text-anchor="middle" font-weight="bold">1. Meander develops</text>
+              <path d="M5 55 L45 55 C 15 60, 8 95, 25 120 C 45 148, 95 148, 108 118 C 118 95, 100 68, 70 62 L140 58" fill="none" stroke="#1F7A6C" stroke-width="7" stroke-linecap="round"/>
+              <path d="M5 55 L45 55 C 15 60, 8 95, 25 120 C 45 148, 95 148, 108 118 C 118 95, 100 68, 70 62 L140 58" fill="none" stroke="#0E3D2C" stroke-width="7" stroke-linecap="round" opacity="0" />
+              <!-- erosion / deposition arrows -->
+              <line x1="112" y1="105" x2="128" y2="112" stroke="#C1502E" stroke-width="2" marker-end="url(#arrowRed)"/>
+              <text x="132" y="116" font-size="8" fill="#C1502E">erosion</text>
+              <line x1="45" y1="120" x2="30" y2="130" stroke="#1F7A6C" stroke-width="2" marker-end="url(#arrowBlue)"/>
+              <text x="-2" y="142" font-size="8" fill="#1F7A6C">deposition</text>
+            </g>
+            <!-- STAGE 2: neck narrows -->
+            <g transform="translate(180,10)">
+              <text x="70" y="14" font-size="10" fill="#4E5C41" text-anchor="middle" font-weight="bold">2. Neck narrows</text>
+              <path d="M5 55 L50 55 C 20 55, 15 100, 35 128 C 55 152, 100 150, 110 118 C 118 92, 105 62, 78 58 C 65 56, 58 58, 55 62 L140 58"
+                    fill="none" stroke="#1F7A6C" stroke-width="7" stroke-linecap="round"/>
+              <text x="60" y="50" font-size="8" fill="#C1502E" font-weight="bold">neck</text>
+              <line x1="60" y1="55" x2="70" y2="58" stroke="#C1502E" stroke-width="1.5" stroke-dasharray="2,2"/>
+            </g>
+            <!-- STAGE 3: cut off -->
+            <g transform="translate(350,10)">
+              <text x="65" y="14" font-size="10" fill="#4E5C41" text-anchor="middle" font-weight="bold">3. Cut-off &amp; oxbow lake</text>
+              <path d="M5 57 L130 57" fill="none" stroke="#1F7A6C" stroke-width="7" stroke-linecap="round"/>
+              <path d="M35 60 C 15 65, 12 100, 30 125 C 50 148, 92 146, 100 116 C 106 92, 92 66, 68 62 C 58 60, 45 58, 35 60 Z"
+                    fill="#DCEBE4" stroke="#7E9B6E" stroke-width="2.5" stroke-dasharray="5,3"/>
+              <text x="65" y="180" font-size="8.5" fill="#4E5C41" text-anchor="middle">oxbow lake</text>
+              <line x1="65" y1="100" x2="65" y2="172" stroke="#7E9B6E" stroke-width="1" stroke-dasharray="2,2"/>
+            </g>
+            <defs>
+              <marker id="arrowRed" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#C1502E"/></marker>
+              <marker id="arrowBlue" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#1F7A6C"/></marker>
+            </defs>
+          </svg>
+          <figcaption>Outer bank erosion + inner bank deposition widen the loop until the neck is cut through in a flood — the abandoned loop becomes an oxbow lake, later a meander scar once dry.</figcaption>
+        </div>
+        <div class="card">
+          <p>Meanders form through a combination of <b>erosion on the outer bank</b> (faster flow, deeper water) and <b>deposition on the inner bank</b> (slower flow, shallower water — forms a point bar/slip-off slope).</p>
+          <ul>
+            <li>As meanders migrate, the <b>neck</b> of the loop narrows.</li>
+            <li>During a flood, the river cuts straight across the neck, abandoning the loop.</li>
+            <li>The abandoned loop becomes an <span class="term">oxbow lake</span>.</li>
+            <li>Once it dries out completely, it becomes a <span class="term">meander scar</span>.</li>
+          </ul>
+          <div class="callout"><span class="label">Related term</span><span class="term">Incised meander</span>: forms when a meandering river is rejuvenated (gains energy) and starts eroding <i>vertically</i> down into its bed instead of laterally, cutting a meander shape deep into the landscape (e.g. Horse-shoe Bend, Kowie River).</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= FLUVIAL: REJUVENATION ================= -->
+    <section class="view" id="view-fluvial-rejuv">
+      <div class="pageheader">
+        <h1>Base Levels &amp; Rejuvenation</h1>
+        <div class="meta">Paper 1 &middot; Section B: Fluvial Processes</div>
+      </div>
+
+      <div class="section">
+        <h2>Base levels</h2>
+        <div class="card">
+          <p><span class="term">Base level of erosion</span> — the lowest level to which a river can erode.</p>
+          <ul>
+            <li><span class="term">Permanent base level</span> — the sea (the ultimate base level for any river).</li>
+            <li><span class="term">Temporary base level</span> — anything that temporarily interrupts a river's profile: a lake, a dam, a resistant rock layer, a waterfall.</li>
+          </ul>
+          <p>A river profile with temporary base levels is <span class="term">ungraded</span> (not a smooth concave curve). A fully graded river has a smooth, concave longitudinal profile down to its permanent base level.</p>
+          <div class="callout exam"><span class="label">Exam pattern</span>"Draw a longitudinal profile and label TWO temporary base levels and ONE permanent base level" appears almost every year (2024, 2025 Trials). Practice sketching a profile with dips/steps at dams or resistant rock, ending at sea level.</div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>Rejuvenation</h2>
+        <div class="card">
+          <p><span class="term">Rejuvenation</span> occurs when a river's speed and erosive power increase, causing it to erode a new valley into an old one. Causes include:</p>
+          <ul>
+            <li>A worldwide drop in sea level (e.g. onset of an ice age)</li>
+            <li>Uplift of the land by internal geologic forces (isostasy)</li>
+            <li>A significant increase in rainfall</li>
+            <li>A fast tributary joining the main river</li>
+            <li>After river capture has occurred</li>
+          </ul>
+        </div>
+        <div class="diagram">
+          <svg viewBox="0 0 420 170" width="100%" style="max-width:420px;">
+            <path d="M20 40 C 100 45, 180 90, 260 95 C 320 98, 360 130, 400 150" fill="none" stroke="#7E9B6E" stroke-width="2" stroke-dasharray="4,3"/>
+            <path d="M20 40 C 100 45, 170 60, 200 95 C 230 130, 340 140, 400 150" fill="none" stroke="#1F7A6C" stroke-width="2.5"/>
+            <circle cx="200" cy="95" r="4" fill="#C1502E"/>
+            <text x="200" y="82" font-size="9" fill="#C1502E" text-anchor="middle" font-weight="bold">knickpoint</text>
+            <text x="330" y="60" font-size="8.5" fill="#5C7A4C">old profile</text>
+            <text x="330" y="170" font-size="8.5" fill="#1F7A6C">new (rejuvenated) profile</text>
+          </svg>
+          <figcaption>Knickpoint — the sharp break in slope where the new erosion level meets the old profile; often marked by a waterfall.</figcaption>
+        </div>
+        <div class="card">
+          <p><span class="term">Features resulting from rejuvenation:</span></p>
+          <ul>
+            <li><span class="term">Knickpoint</span> — a sharp break in the river's profile where the new (lower) erosion level intersects the old one; often a waterfall. It slowly migrates upstream (headward erosion) until the profile smooths out again.</li>
+            <li><span class="term">River terraces</span> — when a river in a wide valley is rejuvenated, it carves a new, narrower valley into its own old floodplain, leaving flat "steps" on either side.</li>
+            <li><span class="term">Incised meanders</span> — a meandering river gains energy and cuts down (vertically) faster than its valley widens, preserving the meander shape as a deep gorge.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>Waterfalls</h2>
+        <div class="card">
+          <ul>
+            <li>Formed where a river crosses from a <b>resistant (hard) rock</b> layer onto a <b>softer</b> layer.</li>
+            <li>The soft rock is undercut faster than the hard rock, forming a <b>plunge pool</b> and an overhang.</li>
+            <li>As the overhang collapses repeatedly, the waterfall retreats <b>upstream</b> — this is <span class="term">headward erosion</span>.</li>
+            <li>A waterfall acts as a <span class="term">temporary base level</span> and is typically found in the <b>upper course</b>.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= FLUVIAL: RIVER CAPTURE ================= -->
+    <section class="view" id="view-fluvial-capture">
+      <div class="pageheader">
+        <h1>River Capture (Stream Piracy)</h1>
+        <div class="meta">Paper 1 &middot; Section B: Fluvial Processes</div>
+      </div>
+      <div class="section">
+        <div class="card">
+          <p>River capture happens when a more powerful, faster-eroding stream erodes headward through a watershed (this process is called <span class="term">abstraction</span>) and "captures" the flow of a neighbouring, less powerful stream.</p>
+          <p><span class="term">Why one stream captures another:</span></p>
+          <ul>
+            <li>It may be on the windward side of the watershed, receiving more rainfall and therefore more erosive energy.</li>
+            <li>It may have a steeper gradient, giving it more energy.</li>
+            <li>It may be eroding through weaker or more fractured rock.</li>
+          </ul>
+          <p><span class="term">Resulting features:</span></p>
+          <ul>
+            <li><span class="term">Elbow of capture</span> — the sharp bend where the capturing stream intercepts the captured one.</li>
+            <li><span class="term">Misfit stream</span> — the remaining downstream section of the captured river, now carrying far less water than its valley suggests it once did.</li>
+            <li><span class="term">Wind gap</span> — the dry, gravel-floored valley left behind between the elbow of capture and the misfit stream.</li>
+          </ul>
+          <div class="callout">The capturing river is <b>rejuvenated</b> by the extra volume of water — this links river capture directly to the rejuvenation topic above.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= FLUVIAL: MANAGEMENT ================= -->
+    <section class="view" id="view-fluvial-mgmt">
+      <div class="pageheader">
+        <h1>Catchment &amp; River Management</h1>
+        <div class="meta">Paper 1 &middot; Section B: Fluvial Processes</div>
+      </div>
+
+      <div class="section">
+        <h2>Human impacts on drainage basins</h2>
+        <div class="card">
+          <ul>
+            <li><span class="term">Pollution</span> — chemical (pesticides, industrial chemicals) and physical (oil runoff from urban roads, heavy metals).</li>
+            <li><span class="term">Siltation</span> — build-up of silt/clay in the water, reducing water depth, lowering dam capacity, and making the gradient gentler (energy loss).</li>
+            <li><span class="term">Eutrophication</span> — excess nutrients (often from fertiliser runoff and waste) cause algae and fungi to overgrow, depleting oxygen in the water.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>Preserving &amp; managing drainage basins</h2>
+        <div class="card">
+          <ul>
+            <li><span class="term">Remove alien vegetation</span> — invasive plants use excessive water, reducing stream flow by an estimated 10%.</li>
+            <li><span class="term">Inter-basin transfer schemes</span> — move water from wetter to drier basins to support agriculture and urban use.</li>
+            <li><span class="term">Manage groundwater supply</span> — prevents overuse that lowers the water table.</li>
+            <li><span class="term">Recycle water</span> — reduces demand for new water. Pretoria/Johannesburg reuse around 50% of urban and industrial water; Cape Town/Durban reuse roughly 5–15%.</li>
+            <li><span class="term">Conserve wetlands</span> — reed beds naturally filter out toxins and silt; wetland loss to development reduces fresh water supply.</li>
+            <li><span class="term">Preserve vegetation cover</span> — slows runoff, increases infiltration, reduces soil erosion and siltation of dams.</li>
+            <li><span class="term">Better farming practices</span> — controlled fertiliser use, re-vegetation programmes.</li>
+            <li><span class="term">Upgrade and maintain sewage systems</span> — reduces pollution input.</li>
+          </ul>
+          <div class="callout warn"><span class="label">Verify</span>The 10% figure (alien vegetation) and the 50% / 5–15% reuse figures came from your own notes rather than a citable published source I can verify independently — treat them as approximately correct and usable for exam purposes, but don't stake a general-knowledge claim on them outside this context.</div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>Riparian vegetation</h2>
+        <div class="card">
+          <ul>
+            <li>Reduces riverbank erosion — root systems hold soil in place.</li>
+            <li>Improves water quality — acts as a natural filter for pollutants and silt.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= CLIMATE: MLC ================= -->
+    <section class="view" id="view-climate-mlc">
+      <div class="pageheader">
+        <h1>Mid-Latitude Cyclones (MLCs)</h1>
+        <div class="meta">Paper 1 &middot; Section A: Climate</div>
+      </div>
+
+      <div class="section">
+        <h2>Formation — four stages</h2>
+        <div class="card">
+          <ul>
+            <li><span class="term">Initial stage</span> — a front (boundary) separates warm and cold air masses; the two masses slide past each other, and their interaction causes condensation and precipitation along the boundary.</li>
+            <li><span class="term">Mature stage</span> — warm air pushes into the low-pressure area left by the retreating cold air; a well-developed warm sector forms between the two fronts.</li>
+            <li><span class="term">Occlusion stage</span> — the denser cold front catches up with the (slower) warm front, lifting the warm air off the ground and forming an occluded front.</li>
+            <li><span class="term">Dissipating stage</span> — the cold front completely overtakes the warm front; the supply of warm, moist air is cut off and the system weakens.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>Characteristics &amp; movement</h2>
+        <div class="card">
+          <ul>
+            <li>Winds spiral <b>clockwise</b> in the Southern Hemisphere (Coriolis effect).</li>
+            <li>MLCs move from <b>west to east</b>, carried along in the westerly wind belt.</li>
+            <li>They bring high wind speeds and rainfall, especially to coastal regions.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>Weather sequence as an MLC passes over</h2>
+        <div class="card">
+          <table class="notes">
+            <tr><th>Stage</th><th>Wind</th><th>Temperature</th><th>Rainfall</th><th>Clouds</th></tr>
+            <tr><td>Ahead of warm front</td><td>NE</td><td>Low, gradually rising</td><td>Steady, continuous</td><td>Nimbostratus, altostratus</td></tr>
+            <tr><td>Warm sector (between fronts)</td><td>N / NW</td><td>High</td><td>Light or none</td><td>More settled, some sun</td></tr>
+            <tr><td>Cold front approaching</td><td>Shifts SW</td><td>Drops sharply</td><td>Heavy, sudden</td><td>Cumulonimbus</td></tr>
+          </table>
+          <div class="callout exam"><span class="label">Exam pattern</span>"Account for the changes in wind direction / temperature as a mid-latitude cyclone makes landfall" is asked almost every year — answer in sequence (ahead of front → warm sector → cold front) rather than just describing one moment.</div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>Related terms</h2>
+        <div class="card">
+          <ul>
+            <li><span class="term">Occluded front / occlusion</span> — where the cold front has fully overtaken the warm front, lifting all the warm air off the surface.</li>
+            <li><span class="term">Family of cyclones</span> — the term for when two or more MLCs join together along the same frontal boundary.</li>
+            <li><span class="term">Cut-off low</span> — an isolated pocket of cold, unstable upper-air low pressure that has become cut off from the main westerly flow; more intense than a normal frontal system because it stalls in place, dumping sustained heavy rain (can cause flooding, and in the interior, snow).</li>
+            <li>Warm fronts rarely have a strong effect on South African weather — by the time systems reach us, occlusion has often already occurred, so we mostly feel cold front effects.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= CLIMATE: PRESSURE SYSTEMS ================= -->
+    <section class="view" id="view-climate-pressure">
+      <div class="pageheader">
+        <h1>Pressure Systems &amp; South African Synoptic Charts</h1>
+        <div class="meta">Paper 1 &middot; Section A: Climate</div>
+      </div>
+
+      <div class="section">
+        <h2>High vs low pressure</h2>
+        <div class="card">
+          <table class="notes">
+            <tr><th></th><th>High pressure (anticyclone)</th><th>Low pressure</th></tr>
+            <tr><td>Air movement</td><td>Sinking</td><td>Rising</td></tr>
+            <tr><td>Cloud cover</td><td>Clear skies</td><td>Cloudy</td></tr>
+            <tr><td>Temperature</td><td>Warm (sinking/compressing air)</td><td>Cool (rising, expanding air)</td></tr>
+            <tr><td>Weather</td><td>Dry, stable, little/no rain</td><td>Often wet, unstable</td></tr>
+            <tr><td>Wind speed</td><td colspan="2">Depends on the pressure gradient — closer isobars = stronger wind, in both systems</td></tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>South Africa — summer conditions</h2>
+        <div class="card">
+          <ul>
+            <li><span class="term">Thermal low</span> forms over the heated interior — rising, unstable air produces Highveld thunderstorms.</li>
+            <li><span class="term">Tropical cyclones</span> occur off the east coast (sea temperatures are at their warmest).</li>
+            <li>South Atlantic &amp; South Indian high-pressure cells shift <b>further south</b> (following the ITCZ), which tends to <b>block MLCs</b> from reaching the country.</li>
+            <li>Temperatures generally warmer countrywide.</li>
+          </ul>
+        </div>
+        <h2>South Africa — winter conditions</h2>
+        <div class="card">
+          <ul>
+            <li><span class="term">Kalahari high</span> forms over the interior — cool, sinking air brings stable, dry weather.</li>
+            <li>MLCs become more frequent, bringing rain to the <b>west coast</b>.</li>
+            <li>High-pressure cells shift <b>further north</b>, allowing MLCs to reach further into the continent.</li>
+            <li><span class="term">Cut-off lows</span> and <span class="term">coastal lows</span> are common, bringing heavy rain or even snow.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>Named local systems</h2>
+        <div class="card">
+          <ul>
+            <li><span class="term">Cape Doctor</span> — a strong, dry south-easterly wind over Cape Town, created by ridging of the South Atlantic high-pressure system along the coast.</li>
+          </ul>
+          <div class="callout warn"><span class="label">Watch this</span>Your own Trials paper tests the Cape Doctor as being created by ridging of the <b>South Atlantic</b> high (not South Indian) — double-check this against your teacher's version since sources vary slightly on which high dominates.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= CLIMATE: TROPICAL CYCLONES ================= -->
+    <section class="view" id="view-climate-tc">
+      <div class="pageheader">
+        <h1>Tropical Cyclones</h1>
+        <div class="meta">Paper 1 &middot; Section A: Climate</div>
+      </div>
+
+      <div class="section">
+        <h2>Conditions needed for formation</h2>
+        <div class="card">
+          <ul>
+            <li>Sea surface temperature of <b>27°C or above</b> (warm ocean = energy source).</li>
+            <li>Located between roughly <b>5° and 30°</b> latitude — far enough from the equator for the Coriolis force to create rotation, but not so far that it's too cool.</li>
+            <li>Clear, relatively windless upper-atmosphere conditions, allowing an intense low pressure system to organise without being sheared apart.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>Evidence of a mature system</h2>
+        <div class="card">
+          <ul>
+            <li>A clearly visible <b>eye</b> at the centre of the storm.</li>
+            <li>Large-scale spiralling <b>cumulonimbus</b> cloud bands.</li>
+            <li>The system has been formally <b>named</b> and classified (e.g. given a category).</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>Impacts &amp; tracking</h2>
+        <div class="card">
+          <ul>
+            <li><span class="term">Storm surge</span> — gale-force winds push a mound of sea water ahead of the storm onto the coast, flooding low-lying coastal areas.</li>
+            <li>Tropical cyclones are tracked using <b>polar-orbiting satellites</b> rather than geostationary ones, because polar orbiters pass much closer to the surface and can capture higher-resolution detail as they cross the storm.</li>
+            <li>Typical path: cyclones generally track from <b>east to west</b> initially (steered by the trade/tropical easterlies), then curve <b>poleward</b> as they lose their easterly steering influence.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= CLIMATE: VALLEY CLIMATES ================= -->
+    <section class="view" id="view-climate-valley">
+      <div class="pageheader">
+        <h1>Valley Climates</h1>
+        <div class="meta">Paper 1 &middot; Section A: Climate</div>
+      </div>
+
+      <div class="section">
+        <h2>Mountain &amp; valley winds</h2>
+        <div class="diagram">
+          <svg viewBox="0 0 420 170" width="100%" style="max-width:420px;">
+            <path d="M20 150 L180 40 L340 150 Z" fill="none" stroke="#4E5C41" stroke-width="2"/>
+            <path d="M20 150 L340 150" stroke="#4E5C41" stroke-width="2"/>
+            <line x1="150" y1="90" x2="110" y2="140" stroke="#1F7A6C" stroke-width="2.5" marker-end="url(#arrB)"/>
+            <line x1="210" y1="90" x2="250" y2="140" stroke="#1F7A6C" stroke-width="2.5" marker-end="url(#arrB)"/>
+            <text x="180" y="20" font-size="9" text-anchor="middle" fill="#4E5C41">night: cold air sinks (katabatic)</text>
+            <text x="180" y="165" font-size="9" text-anchor="middle" fill="#C1502E">valley floor: cold air pools</text>
+            <defs><marker id="arrB" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#1F7A6C"/></marker></defs>
+          </svg>
+          <figcaption>At night, cold air drains down the valley sides under gravity.</figcaption>
+        </div>
+        <div class="card">
+          <ul>
+            <li><span class="term">Katabatic / mountain winds</span> — at night, air in contact with the valley sides cools, becomes denser, and sinks down the full length of the valley to the floor.</li>
+            <li><span class="term">Anabatic / valley winds</span> — during the day, the valley sides heat up faster than the valley floor; warm air rises up the slopes.</li>
+            <li><span class="term">Valley (temperature) inversion</span> — cold, dense air sinks and pools at the valley floor at night, sitting <i>below</i> a layer of warmer air — the reverse of the normal temperature pattern. Needs <b>clear, calm</b> conditions to form (no cloud cover to trap heat, no wind to mix the air).</li>
+            <li><span class="term">Thermal belt</span> — the zone partway up the valley side where temperatures are warmest at night, because the coldest air has drained further down and settled on the floor.</li>
+            <li><span class="term">Frost pocket</span> — where temperatures at the valley floor drop below 0°C at night; the coldest, lowest point in the valley.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>Frost &amp; farming</h2>
+        <div class="card">
+          <ul>
+            <li>Frost is most common in <b>winter</b>, on clear, windless nights (the same conditions needed for a temperature inversion).</li>
+            <li>Ice/frost forms when the <b>dew point</b> drops below 0°C and water droplets on surfaces freeze.</li>
+            <li><span class="term">Large diameter fans</span> prevent frost by mechanically mixing the air — stopping cold air from settling and stagnating at ground level, so the dew point at crop height doesn't reach freezing.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>Aspect</h2>
+        <div class="card">
+          <p><span class="term">Aspect</span> — the direction a slope faces, which controls how much direct sun it receives.</p>
+          <p>In the <b>Southern Hemisphere</b>, north-facing slopes receive more direct sunlight (face the equator) and are warmer, with a smaller shadow zone. South-facing slopes are cooler, shadier, and have a larger shadow zone.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= CLIMATE: URBAN CLIMATES ================= -->
+    <section class="view" id="view-climate-urban">
+      <div class="pageheader">
+        <h1>Urban Climates</h1>
+        <div class="meta">Paper 1 &middot; Section A: Climate</div>
+      </div>
+
+      <div class="section">
+        <h2>Urban heat island</h2>
+        <div class="card">
+          <p>Cities are consistently warmer than surrounding rural areas — most noticeable at night.</p>
+          <ul>
+            <li>Concrete, tar, and building materials absorb heat during the day and release it slowly overnight, keeping night-time temperatures higher and giving the CBD a <b>smaller diurnal temperature range</b> than a vegetated area (e.g. CBD 24°C day / 16°C night = 8°C range, vs a park at 22°C / 11°C = 11°C range).</li>
+            <li>Vegetated areas cool down faster at night since they don't retain heat the way hard surfaces do — giving them a larger diurnal range.</li>
+          </ul>
+          <div class="callout exam"><span class="label">Exam pattern</span>"Compare, then account for" diurnal range questions are standard — always give the CBD's smaller range as a fact first, then explain using heat absorption/retention of urban surfaces.</div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>Night (temperature) inversion &amp; pollution dome</h2>
+        <div class="card">
+          <ul>
+            <li><span class="term">Night inversion</span> — the term for why CBD temperatures stay warmer at night (heat retained by concrete/tar radiating back out).</li>
+            <li><span class="term">Pollution dome</span> — at night the air over a city cools and becomes denser, sinking and compacting; this traps pollutants close to the ground in a dome shape over the CBD.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>Green zones &amp; mitigation</h2>
+        <div class="card">
+          <p><span class="term">Green zones</span> (parks, gardens, reserves) moderate city climate by absorbing CO₂, providing shade, boosting O₂ levels, and offering recreation space.</p>
+          <p>Other methods to curb the urban heat island effect:</p>
+          <ul>
+            <li>Sustainable energy systems &amp; reduced carbon emissions</li>
+            <li>Increased public transport (fewer vehicle emissions)</li>
+            <li>Painting buildings white/pale to increase the albedo effect (more heat reflected)</li>
+            <li>Rooftop gardens</li>
+            <li>Afforestation / tree planting</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= SETTLEMENT: HIERARCHY ================= -->
+    <section class="view" id="view-settle-hierarchy">
+      <div class="pageheader">
+        <h1>Settlement Hierarchy</h1>
+        <div class="meta">Paper 1 &middot; Section C: Settlement</div>
+      </div>
+
+      <div class="section">
+        <h2>What is it?</h2>
+        <div class="card">
+          <p>The arrangement of settlements from smallest to largest, based on <b>population size</b>, <b>range/type of services</b>, <b>sphere of influence (hinterland)</b>, and <b>economic activities</b>.</p>
+          <p>Moving <b>up</b> the hierarchy: population increases, services become more specialised, <b>threshold</b> increases (more people needed to support the service), and <b>frequency</b> of visits decreases.</p>
+        </div>
+        <div class="diagram">
+          <svg viewBox="0 0 300 260" width="100%" style="max-width:280px;">
+            <g font-size="10" fill="#1B2A1E" text-anchor="middle" font-family="Georgia">
+              <polygon points="150,10 190,45 110,45" fill="#1F7A6C" opacity="0.85"/>
+              <text x="150" y="32" fill="#fff" font-size="8">Metropolis</text>
+              <polygon points="150,50 210,85 90,85" fill="#1F7A6C" opacity="0.7"/>
+              <text x="150" y="72" fill="#fff" font-size="8">City</text>
+              <polygon points="150,90 230,125 70,125" fill="#1F7A6C" opacity="0.58"/>
+              <text x="150" y="112" fill="#fff" font-size="8">Major Regional Town</text>
+              <polygon points="150,130 250,165 50,165" fill="#1F7A6C" opacity="0.46"/>
+              <text x="150" y="152" fill="#1B2A1E" font-size="8">Minor Country Town</text>
+              <polygon points="150,170 270,205 30,205" fill="#1F7A6C" opacity="0.34"/>
+              <text x="150" y="192" fill="#1B2A1E" font-size="8">Village / Low-Order Centre</text>
+              <polygon points="150,210 290,245 10,245" fill="#1F7A6C" opacity="0.22"/>
+              <text x="150" y="232" fill="#1B2A1E" font-size="8">Hamlet</text>
+            </g>
+          </svg>
+          <figcaption>Settlement hierarchy pyramid — fewer, bigger settlements at the top; many small ones at the base.</figcaption>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>The levels</h2>
+        <div class="card">
+          <table class="notes">
+            <tr><th>Level</th><th>Characteristics</th><th>Typical services</th></tr>
+            <tr><td>Isolated farmstead</td><td>One household; no services; tiny sphere of influence</td><td>None</td></tr>
+            <tr><td>Hamlet</td><td>Very small cluster of houses; often at a crossroads</td><td>Maybe one shop or church</td></tr>
+            <tr><td>Village / low-order centre</td><td>Basic, everyday services; small hinterland; visited frequently</td><td>Spaza shop, primary school, clinic, petrol pump</td></tr>
+            <tr><td>Minor country town</td><td>Basic + some specialised services; hub for surrounding villages</td><td>Supermarket, high school, police station, bank</td></tr>
+            <tr><td>Major regional town</td><td>Significant population; industrial activity; services a whole district</td><td>Hospitals, government offices, shopping centres</td></tr>
+            <tr><td>City</td><td>Very large population; CBD, suburbs, industry; major employer</td><td>Universities, airports, major hospitals</td></tr>
+            <tr><td>Metropolis</td><td>Cluster of linked cities/suburbs; national/global influence</td><td>e.g. Johannesburg, Cape Town, Durban</td></tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>Threshold &amp; range</h2>
+        <div class="card">
+          <ul>
+            <li><span class="term">Threshold population</span> — the minimum number of people needed to support a service. Low-order service (spaza shop) = low threshold; high-order service (specialist hospital) = high threshold.</li>
+            <li><span class="term">Range of a service</span> — the maximum distance people are willing to travel for it. Low-order = short range; high-order = long range.</li>
+            <li><span class="term">Sphere of influence / hinterland</span> — the area served by a settlement. Grows with settlement size.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= SETTLEMENT: RURAL ================= -->
+    <section class="view" id="view-settle-rural">
+      <div class="pageheader">
+        <h1>Rural Settlement</h1>
+        <div class="meta">Paper 1 &middot; Section C: Settlement</div>
+      </div>
+
+      <div class="section">
+        <h2>Describing a settlement</h2>
+        <div class="card">
+          <ul>
+            <li><span class="term">Site</span> — the actual physical land the settlement sits on. Determined by aspect, relief, natural resources, shelter (bay/inlet), and water availability (a <b>wet-point site</b> has reliable water; a <b>dry-point site</b> avoids flooding, e.g. built above a floodplain).</li>
+            <li><span class="term">Situation</span> — the location relative to surrounding features: physical features (mountains, coast), neighbouring settlements, communication links (highways, rivers).</li>
+            <li><span class="term">Function</span> — the settlement's main economic/social activities.</li>
+            <li><span class="term">Shape</span> — its physical layout pattern.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>Settlement patterns</h2>
+        <div class="card">
+          <table class="notes">
+            <tr><th></th><th>Nucleated (clustered)</th><th>Dispersed (scattered)</th></tr>
+            <tr><td>Description</td><td>Houses built closely together in a small area</td><td>Houses spread widely apart (typical of farm homesteads)</td></tr>
+            <tr><td>Advantages</td><td>Social interaction, efficient shared services, good transport links, safety in numbers, help always available</td><td>More space, freedom, quieter, less pollution</td></tr>
+            <tr><td>Disadvantages</td><td>Noisy, less space, more pollution</td><td>Far from services, less social interaction, expensive transport</td></tr>
+          </table>
+          <p><span class="term">Shape terms</span> (used to describe rural settlement layout): linear, cross-roads, round, T-junction, star-shaped.</p>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>Farming types</h2>
+        <div class="card">
+          <ul>
+            <li><span class="term">Subsistence farming</span> — small scale, produces mainly for the family, small surplus for income.</li>
+            <li><span class="term">Commercial farming</span> — run as a business for profit, uses modern technology and machinery; can be <b>small-scale/intensive</b> (e.g. market gardening) or <b>large-scale/extensive</b>.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>Forces &amp; rural development</h2>
+        <div class="card">
+          <ul>
+            <li><span class="term">Centrifugal forces</span> — factors that push people <b>away</b> from an area (droughts, other natural disasters, farm attacks, land reform uncertainty, unproductive soil).</li>
+            <li><span class="term">Centripetal forces</span> — factors that draw people <b>toward</b> an area (new infrastructure, economic growth, employment opportunities).</li>
+            <li><span class="term">Farm diversification</span> — farmers add income sources beyond one crop (e.g. agritourism, wine tasting) so that if one crop or season fails, other income continues; different harvest times keep cash flow steady year-round.</li>
+          </ul>
+          <p><span class="term">Rural development strategies</span> (to reduce rural-urban migration):</p>
+          <ul>
+            <li><b>Basic needs strategy</b> — providing essential services: water, electricity, sanitation.</li>
+            <li><b>Ecotourism / special events</b> — draws visitor spending into the local economy, creates jobs.</li>
+            <li><b>Industrialisation / decentralisation</b> — relocating industry into rural areas for jobs and infrastructure investment.</li>
+            <li><b>New Ruralism</b> — a movement/trend of people actively choosing to relocate to rural towns (often linked to remote work, lifestyle, or a specific town's growth, e.g. Nongoma).</li>
+            <li><b>Sustainability practices</b>, e.g. Agenda 21 principles.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= SETTLEMENT: URBAN ================= -->
+    <section class="view" id="view-settle-urban">
+      <div class="pageheader">
+        <h1>Urban Settlement</h1>
+        <div class="meta">Paper 1 &middot; Section C: Settlement</div>
+      </div>
+
+      <div class="section">
+        <h2>CBD &amp; land values</h2>
+        <div class="card">
+          <p>Property prices are highest in the CBD because land is limited and in high demand — the CBD has the greatest concentration of businesses and services, so competition for space drives prices up.</p>
+          <p><span class="term">Inner city problems:</span> traffic congestion, high pollution, crime (highest population concentration), urban decay (graffiti, slum formation).</p>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>Gentrification &amp; renewal</h2>
+        <div class="card">
+          <ul>
+            <li><span class="term">Gentrification</span> — upgrading/redeveloping older inner-city buildings and areas, attracting wealthier residents and businesses back into the CBD — vital for inner-city renewal, reviving investment and infrastructure.</li>
+            <li><span class="term">Drawback</span> — can price out lower-income original residents, displacing established communities (a key socio-economic cost to weigh against the benefits).</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>Township issues &amp; redevelopment</h2>
+        <div class="card">
+          <p>Traditional South African townships often face poor service delivery: bad road infrastructure, limited electricity and water supply, sporadic refuse removal, poor sanitation, and few schools/hospitals/retail options.</p>
+          <p><span class="term">Township redevelopment</span> (e.g. shopping malls, transport upgrades) matters because it brings services and jobs directly into townships, reducing the need for residents to migrate elsewhere for opportunity — directly addressing rural/township-to-city migration pressure.</p>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>Key urban terminology</h2>
+        <div class="card">
+          <table class="notes">
+            <tr><th>Term</th><th>Meaning</th></tr>
+            <tr><td>Anchor tenant</td><td>The largest retail store in a centre, seen as the main drawcard for customers</td></tr>
+            <tr><td>Brownfield site</td><td>Vacant land from a demolished urban building, identified for redevelopment</td></tr>
+            <tr><td>Greenfield site</td><td>Vacant land in a rural area identified for new development</td></tr>
+            <tr><td>Break-of-bulk point</td><td>A place where the mode of transport changes (e.g. port, rail yard)</td></tr>
+            <tr><td>Dormitory town</td><td>Settlement where people live but commute elsewhere for work</td></tr>
+            <tr><td>Zoom town</td><td>A town with a population surge from an influx of remote workers</td></tr>
+            <tr><td>Edge city</td><td>A newly developed commercial node on a major city's outskirts</td></tr>
+            <tr><td>Outlying business district</td><td>A secondary commercial node away from the main CBD</td></tr>
+            <tr><td>Densification</td><td>Increased use of space in urban areas (building up/infilling rather than sprawling out)</td></tr>
+            <tr><td>Functional convenience</td><td>Similar services/businesses (e.g. banks) clustering together so customers can compare/access them easily</td></tr>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= ECONOMIC: INDUSTRY ================= -->
+    <section class="view" id="view-econ-industry">
+      <div class="pageheader">
+        <h1>Industry &amp; Industrial Location</h1>
+        <div class="meta">Paper 1 &middot; Section C: Economic Geography of South Africa</div>
+      </div>
+
+      <div class="section">
+        <h2>Types of industry (by location factor)</h2>
+        <div class="card">
+          <table class="notes">
+            <tr><th>Type</th><th>Located because of</th><th>Example</th></tr>
+            <tr><td>Raw material orientated</td><td>Close to the source of a raw material (often bulky/perishable)</td><td>Sugar milling near sugar plantations</td></tr>
+            <tr><td>Market orientated</td><td>Close to its local market/consumers</td><td>Bakeries, soft-drink bottling, fresh produce sellers</td></tr>
+            <tr><td>Footloose</td><td>Not tied to raw materials or a market — transport costs are low relative to product value</td><td>Microchip manufacturing, software, jewellery</td></tr>
+            <tr><td>Ubiquitous</td><td>Raw materials are widely available almost everywhere</td><td>Brick making, furniture, cell phone assembly</td></tr>
+            <tr><td>Link industry</td><td>Uses one industry's output as its input, and supplies another industry in turn</td><td>Tyre manufacturing supplying the motor industry</td></tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>Economic sectors</h2>
+        <div class="card">
+          <table class="notes">
+            <tr><th>Sector</th><th>Activity type</th><th>Example</th></tr>
+            <tr><td>Primary</td><td>Extraction of raw materials</td><td>Coal mining, farming</td></tr>
+            <tr><td>Secondary</td><td>Processing/manufacturing raw materials into goods</td><td>Car assembly, food processing</td></tr>
+            <tr><td>Tertiary</td><td>Providing services</td><td>Transporting goods, retail</td></tr>
+            <tr><td>Quaternary</td><td>Information/knowledge-based services</td><td>GIS/IT specialists, research</td></tr>
+            <tr><td>Quinary</td><td>Highest-level decision-making</td><td>Senior government/corporate leadership</td></tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>Centralisation vs decentralisation</h2>
+        <div class="card">
+          <p><span class="term">Problems with centralisation</span> of industry (many industries clustered together):</p>
+          <ul>
+            <li>Pollution — concentrated factories become a health hazard (e.g. Sasolburg, Wentworth).</li>
+            <li>Overcrowding — rural-urban migration in search of jobs.</li>
+            <li>Localised unemployment once an area is oversupplied with job-seekers.</li>
+          </ul>
+          <p><span class="term">Government response — decentralisation</span>, promoted through Special Economic Zones (SEZs) / Industrial Development Zones (IDZs), using tax rebates, free skills training, and cheaper land.</p>
+          <table class="notes">
+            <tr><th>Zone type</th><th>Purpose</th></tr>
+            <tr><td>Free port</td><td>Duty-free area at a port of entry for unloading/processing/storage of imports</td></tr>
+            <tr><td>Free trade zone</td><td>Duty-free storage/distribution area for goods destined for export</td></tr>
+            <tr><td>Sector development zone</td><td>Focused on growing one specific industry/sector through targeted infrastructure and incentives</td></tr>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= ECONOMIC: EASTERN CAPE ================= -->
+    <section class="view" id="view-econ-ec">
+      <div class="pageheader">
+        <h1>Eastern Cape Industrial Region</h1>
+        <div class="meta">Paper 1 &middot; Section C: Economic Geography of South Africa</div>
+      </div>
+
+      <div class="section">
+        <h2>Core industrial areas</h2>
+        <div class="card">
+          <p><b>Coega SEZ</b> (near Gqeberha) and the <b>East London Industrial Development Zone (ELIDZ)</b> anchor the province's economy. Main activity: motor vehicle assembly (Mercedes-Benz — East London; Volkswagen — Kariega/Uitenhage; Isuzu — Gqeberha), vehicle parts, and agro-processing.</p>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>Factors favouring development</h2>
+        <div class="card">
+          <ul>
+            <li><span class="term">Ports</span> — Ngqura, Gqeberha, and East London give access to international trade; Ngqura is one of SA's deepest, most modern ports.</li>
+            <li><span class="term">SEZ incentives</span> — Coega and ELIDZ offer world-class infrastructure and investment incentives.</li>
+            <li><span class="term">Automotive strength</span> — SA's leading vehicle-manufacturing region, drawing supporting/link industries.</li>
+            <li><span class="term">Labour</span> — large workforce, supported by universities and TVET colleges.</li>
+            <li><span class="term">Agriculture</span> — fertile land and climate support dairy, citrus, wool, forestry — feeding agro-processing industries.</li>
+            <li><span class="term">Tourism</span> — Addo Elephant Park, Wild Coast, cultural heritage sites bring jobs and income.</li>
+            <li><span class="term">Renewable energy</span> — strong wind/solar resources attract green energy investment.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>Factors hindering development</h2>
+        <div class="card">
+          <ul>
+            <li>High unemployment and poverty, reducing local purchasing power.</li>
+            <li>Skills shortages in specialised technical/engineering roles.</li>
+            <li>Inadequate infrastructure outside the main SEZ nodes (roads, rail, water, connectivity).</li>
+            <li>Load shedding/electricity supply problems raising production costs.</li>
+            <li>Distance from major markets (Gauteng, Cape Town) increases transport costs.</li>
+            <li>Water shortages from periodic drought affecting industry and agriculture.</li>
+            <li>Limited economic diversification — heavy reliance on the automotive sector, and difficulty competing with cheaper Asian/Eastern European labour costs.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= ECONOMIC: GOLD ================= -->
+    <section class="view" id="view-econ-gold">
+      <div class="pageheader">
+        <h1>Gold Mining in South Africa</h1>
+        <div class="meta">Paper 1 &middot; Section C: Economic Geography of South Africa</div>
+      </div>
+
+      <div class="section">
+        <h2>Factors favouring gold mining</h2>
+        <div class="card">
+          <ul>
+            <li><span class="term">Rich deposits</span> — the Witwatersrand Basin holds some of the largest gold reserves ever discovered.</li>
+            <li><span class="term">Advanced technology</span> — sophisticated techniques allow extraction from very deep deposits.</li>
+            <li><span class="term">Infrastructure</span> — strong road, rail, port, financial and communication networks.</li>
+            <li><span class="term">Labour</span> — large historical workforce; mining towns developed around goldfields.</li>
+            <li><span class="term">Capital access</span> — local and international investment funds deep-level operations.</li>
+            <li><span class="term">Market demand</span> — jewellery, investment/banking, electronics, industrial uses keep demand constant.</li>
+            <li><span class="term">Skills &amp; expertise</span> — long mining history built up engineers, geologists, and skilled miners.</li>
+            <li>Contributes significantly to export earnings, employment, and GDP.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>Challenges</h2>
+        <div class="card">
+          <ul>
+            <li>Very deep mines mean high underground temperatures.</li>
+            <li>High operating costs and safety risks for miners.</li>
+            <li>Environmental issues — water pollution, mine waste/tailings.</li>
+            <li>Declining gold reserves in some established mining areas.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>Location</h2>
+        <div class="card">
+          <p>South Africa's deepest gold mines are mainly located in the <b>Witwatersrand Basin</b>, spanning Gauteng and parts of the Free State. Process begins with <b>prospecting and exploration</b>, where geologists search for gold-bearing rock formations before mining begins.</p>
+        </div>
+      </div>
+    </section>
+    <section class="view" id="view-p2-overview">
+      <div class="pageheader">
+        <h1>Paper 2 — Mapwork</h1>
+        <div class="meta">1 hour &middot; 65 marks</div>
+      </div>
+      <div class="section">
+        <div class="card">
+          <p>Confirmed topic list from your WYNTK document:</p>
+          <ul>
+            <li>Map orientation</li>
+            <li>Map skills — coordinates, direction, map code, scale, gradient, distance, cross-section, magnetic bearing</li>
+            <li>Photograph analysis</li>
+            <li>Climate — climate graph interpretation, valley winds</li>
+            <li>Fluvial — types of rivers, fluvial features</li>
+            <li>Settlement — types of farming, site and situation, citrus farming, land use zones, settlement issues</li>
+          </ul>
+          <div class="callout">This section will be built out lighter than Paper 1, using your MapworkBook2023.pdf as the source, once Paper 1 is further along.</div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+const papertabs = document.querySelectorAll('.papertab');
+const navP1 = document.getElementById('nav-p1');
+const navP2 = document.getElementById('nav-p2');
+papertabs.forEach(tab=>{
+  tab.addEventListener('click',()=>{
+    papertabs.forEach(t=>t.classList.remove('active'));
+    tab.classList.add('active');
+    if(tab.dataset.paper==='p1'){navP1.style.display='block';navP2.style.display='none';showView('fluvial-basins');}
+    else{navP1.style.display='none';navP2.style.display='block';showView('p2-overview');}
+  });
+});
+
+function showView(id){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  const target = document.getElementById('view-'+id);
+  if(target) target.classList.add('active');
+  document.querySelectorAll('.navitem').forEach(n=>n.classList.remove('active'));
+  const navBtn = document.querySelector('.navitem[data-view="'+id+'"]');
+  if(navBtn) navBtn.classList.add('active');
+  document.querySelector('.main').scrollTo(0,0);
+  window.scrollTo(0,0);
+}
+
+document.querySelectorAll('.navitem').forEach(item=>{
+  item.addEventListener('click',()=>showView(item.dataset.view));
+});
+</script>
+</body>
+</html>
