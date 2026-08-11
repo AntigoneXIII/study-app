@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>IEB Grade 12 Accounting — Study Dashboard</title>
+<style>
+:root{
+  --paper:#FBFBF6;
+  --paper-deep:#E7ECEA;
+  --ink:#16232B;
+  --ink-soft:#52697A;
+  --circuit:#1C7C9C;
+  --circuit-deep:#0B3B4A;
+  --copper:#C1652E;
+  --amber:#D4A017;
+  --card-line:#D7E0E0;
+  --danger:#A63C3C;
+  --radius:6px;
+}
+html{font-size:18px;}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:var(--paper);
+  color:var(--ink);
+  font-family:"Iowan Old Style","Palatino Linotype",Georgia,serif;
+  background-image:
+    repeating-radial-gradient(circle at 12% 18%, rgba(28,124,156,0.05) 0px, rgba(28,124,156,0.05) 1px, transparent 1px, transparent 40px),
+    repeating-radial-gradient(circle at 88% 78%, rgba(193,101,46,0.04) 0px, rgba(193,101,46,0.04) 1px, transparent 1px, transparent 54px);
+}
+.app{display:flex;min-height:100vh;}
+.sidebar{
+  width:270px;flex-shrink:0;
+  background:linear-gradient(190deg, #123244 0%, #0B3B4A 45%, #082A36 100%);
+  color:#E9F3F6;
+  padding:22px 0;
+  position:sticky;top:0;height:100vh;overflow-y:auto;
+  border-right:3px solid var(--copper);
+}
+.brand{font-family:Georgia,serif;font-size:1.05rem;letter-spacing:.03em;padding:0 20px 18px 20px;border-bottom:1px solid rgba(255,255,255,0.15);margin-bottom:10px;}
+.brand .sub{display:block;font-size:.68rem;color:#9FC3D1;font-family:"Courier New",monospace;letter-spacing:.07em;margin-top:4px;text-transform:uppercase;}
+.papertabs{display:flex;margin:12px 20px 8px;border:1px solid rgba(255,255,255,0.25);border-radius:6px;overflow:hidden;}
+.papertab{flex:1;text-align:center;padding:7px 4px;font-family:"Courier New",monospace;font-size:.66rem;font-weight:700;letter-spacing:.05em;cursor:pointer;background:rgba(255,255,255,0.03);color:#9FC3D1;border:none;text-transform:uppercase;}
+.papertab.active{background:var(--copper);color:#fff;}
+.navlabel{font-size:.66rem;text-transform:uppercase;letter-spacing:.09em;color:#7FAFC2;padding:12px 20px 6px;font-family:"Courier New",monospace;font-weight:700;}
+.navitem{display:flex;align-items:center;gap:8px;padding:7px 20px 7px 28px;font-size:.82rem;cursor:pointer;color:#DCEAF0;border-left:3px solid transparent;}
+.navitem:hover{background:rgba(255,255,255,0.06);}
+.navitem.active{background:rgba(255,255,255,0.1);border-left-color:var(--amber);color:#fff;font-weight:600;}
+.navitem .dot{width:6px;height:6px;border-radius:50%;background:#3E7A8C;flex-shrink:0;}
+.navitem.active .dot{background:var(--amber);}
+.main{flex:1;padding:36px 48px 90px;max-width:900px;}
+.view{display:none;}
+.view.active{display:block;}
+.pageheader{margin-bottom:22px;border-bottom:3px solid transparent;border-image:linear-gradient(90deg,#0B3B4A,#1C7C9C 40%,#D4A017 75%,#C1652E) 1;padding-bottom:12px;}
+.pageheader h1{font-size:1.7rem;margin:0 0 4px;font-weight:600;}
+.pageheader .meta{font-family:"Courier New",monospace;font-size:.72rem;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.05em;}
+.section{margin-bottom:26px;}
+.section h2{font-size:1.15rem;color:var(--circuit-deep);border-bottom:1px solid var(--card-line);padding-bottom:6px;margin-bottom:12px;}
+.section h3{font-size:1rem;color:var(--copper);margin:14px 0 6px;}
+.card{background:#FFFFFF;border:1px solid var(--card-line);border-radius:var(--radius);padding:14px 18px;margin-bottom:12px;box-shadow:0 1px 2px rgba(0,0,0,0.03);}
+.card p{margin:5px 0;line-height:1.5;font-size:.9rem;}
+.card ul{margin:5px 0;padding-left:19px;}
+.card li{margin-bottom:5px;line-height:1.48;font-size:.9rem;}
+.term{font-weight:700;color:var(--ink);}
+.callout{border-left:4px solid var(--amber);background:#FBF3DC;padding:9px 15px;font-size:.84rem;margin:9px 0;border-radius:0 4px 4px 0;}
+.callout.exam{border-left-color:var(--circuit);background:#E4F1F5;}
+.callout.warn{border-left-color:var(--danger);background:#F7EAEA;}
+.callout .label{font-family:"Courier New",monospace;font-size:.6rem;text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:3px;font-weight:700;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;}
+@media(max-width:760px){.grid2,.grid3{grid-template-columns:1fr;} .main{padding:24px 16px 60px;} .sidebar{width:100%;height:auto;position:relative;}}
+table.notes{width:100%;border-collapse:collapse;font-size:.82rem;margin:8px 0;}
+table.notes th{background:var(--paper-deep);text-align:left;padding:6px 9px;border:1px solid var(--card-line);font-family:"Courier New",monospace;font-size:.65rem;text-transform:uppercase;letter-spacing:.03em;}
+table.notes td{padding:6px 9px;border:1px solid var(--card-line);vertical-align:top;}
+.formula{background:#EAF4F7;border-left:4px solid var(--circuit);border-radius:0 4px 4px 0;padding:9px 15px;margin:8px 0;font-family:"Courier New",monospace;font-size:.82rem;line-height:1.6;}
+.formula b{color:var(--circuit-deep);}
+code{font-family:"Courier New",monospace;font-size:.85em;background:var(--paper-deep);color:var(--circuit-deep);padding:1px 5px;border-radius:3px;}
+</style>
+</head>
+<body>
+<div class="app">
+
+<nav class="sidebar">
+  <div class="brand">Accounting <span style="color:var(--amber);">Study Deck</span><span class="sub">Grade 12 &middot; IEB &middot; Paper 1 &amp; Paper 2</span></div>
+  <div class="papertabs">
+    <button class="papertab active" data-paper="p1">Paper 1</button>
+    <button class="papertab" data-paper="p2">Paper 2</button>
+  </div>
+
+  <div id="nav-p1">
+    <div class="navlabel">Question 1 — Asset Management &amp; VAT</div>
+    <div class="navitem active" data-view="p1-q1a"><span class="dot"></span>1A Inventories</div>
+    <div class="navitem" data-view="p1-q1b"><span class="dot"></span>1B Fixed Assets</div>
+    <div class="navitem" data-view="p1-q1c"><span class="dot"></span>1C VAT</div>
+    <div class="navlabel">Question 2</div>
+    <div class="navitem" data-view="p1-q2"><span class="dot"></span>Company Financial Statements</div>
+    <div class="navlabel">Question 3</div>
+    <div class="navitem" data-view="p1-q3"><span class="dot"></span>Cash Flow Statements</div>
+    <div class="navlabel">Question 4</div>
+    <div class="navitem" data-view="p1-q4"><span class="dot"></span>Manufacturing</div>
+  </div>
+
+  <div id="nav-p2" style="display:none;">
+    <div class="navlabel">Question 1</div>
+    <div class="navitem active" data-view="p2-q1"><span class="dot"></span>Reconciliations</div>
+    <div class="navlabel">Question 2</div>
+    <div class="navitem" data-view="p2-q2"><span class="dot"></span>Company Analysis</div>
+    <div class="navlabel">Question 3</div>
+    <div class="navitem" data-view="p2-q3"><span class="dot"></span>Budgets</div>
+  </div>
+</nav>
+
+<main class="main">
+
+<!-- ================= P1 Q1A INVENTORIES ================= -->
+<section class="view active" id="view-p1-q1a">
+  <div class="pageheader"><h1>Question 1A — Inventories</h1><div class="meta">Paper 1 &middot; part of Question 1: Asset Management &amp; VAT</div></div>
+
+  <div class="section">
+    <h2>Inventory Systems: Perpetual vs Periodic</h2>
+    <div class="grid2">
+      <div class="card">
+        <h3>Perpetual (Continuous) System</h3>
+        <ul>
+          <li>Trading stock is classified as an asset, and Cost of Sales an expense</li>
+          <li>Stock movements are recorded on a continual basis in the Trading Stock account</li>
+          <li>Better control over stock — a stock count is done and compared to the Trading Stock account, so theft/stock losses are quickly and easily detected</li>
+          <li>Requires an expensive outlay of equipment (computerisation/barcodes/scanners)</li>
+          <li>Carriage inwards costs (railage, import duties, customs duties) are charged directly to the Trading Stock account</li>
+          <li>Stock returns to creditors, drawings, and donations are all credited to the Trading Stock account</li>
+          <li>Since Cost of Sales is recorded continuously (every sale), the Cost of Sales account shows the total cost price of goods sold</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Periodic System</h3>
+        <ul>
+          <li>There is no continuous recording of cost of sales, so there is no Cost of Sales account — cost of sales is calculated at period end</li>
+          <li>Stock purchases are recorded in a nominal account called Purchases, classified as an expense</li>
+          <li>Carriage, import duties, customs duties, railage are NOT recorded in Purchases — they get their own expense account (Carriage on purchases, Import duties, etc.)</li>
+          <li>Returns, allowances, donations, and drawings of stock are credited directly to the Purchases account</li>
+          <li>Cost effective — no outlay for expensive equipment</li>
+          <li>Theft/shrinkage is not easily detected — a stocktake is necessary, then the actual mark-up % achieved is compared to the target mark-up to determine if stock has gone missing</li>
+          <li>If stock has been stolen, closing stock will be lower than it should be and cost of sales higher — so mark-up % will differ from target</li>
+          <li>Suitable for businesses where it is difficult to determine the cost price of single or individual items</li>
+        </ul>
+      </div>
+    </div>
+    <div class="formula"><b>Cost of Sales (Periodic system)</b><br>Opening stock<br>+ Net purchases (Total purchases &minus; purchases returns)<br>+ Carriage on purchases<br>+ Import duties/Customs duties/Excise duties<br>= Cost of goods available to sell<br>&minus; Closing stock<br>= Cost of Sales</div>
+  </div>
+
+  <div class="section">
+    <h2>Valuation Methods: FIFO vs Weighted Average</h2>
+    <div class="grid2">
+      <div class="card">
+        <h3>First-In-First-Out (FIFO)</h3>
+        <p>Assumes the oldest stock (first purchased) is sold first. Closing stock is therefore valued using the <span class="term">most recent purchase price(s)</span> — work backwards from the last purchase batch until all closing units are accounted for.</p>
+      </div>
+      <div class="card">
+        <h3>Weighted Average</h3>
+        <p>A single average cost per unit is recalculated using all stock available. Better suited to a <span class="term">homogeneous product</span> — non-perishable, does not go out of style within a year, not batch-dependent, subject to purchase price fluctuations.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Formulas</h2>
+    <div class="formula"><b>Weighted average cost per unit</b> = Total cost of goods available for sale &divide; Total units available for sale</div>
+    <div class="formula"><b>FIFO closing stock value</b> = closing units valued starting from the most recent purchase batch backwards, at each batch's own unit cost, until all closing units are accounted for</div>
+    <div class="formula"><b>Imported stock cost (Rand)</b> = Foreign currency price &times; exchange rate<br>+ import duties &amp; carriage (usually a % of order value)</div>
+    <div class="formula"><b>Average stockholding period (days stock on hand)</b> = &frac12;(Opening stock + Closing stock) &divide; Cost of sales &times; 365</div>
+  </div>
+
+  <div class="section">
+    <h2>Notes &amp; Traps</h2>
+    <div class="card">
+      <ul>
+        <li>Carriage and import duties are added to the <span class="term">cost</span> of stock, not treated as a separate expense (perpetual system) — or recorded in their own dedicated expense account (periodic system)</li>
+        <li>Stock received <span class="term">free of charge</span> increases the number of units on hand but adds nothing to total cost — pulls the weighted average cost per unit down</li>
+        <li>Stock stolen or lost is removed at the cost per unit applicable under whichever method the business uses (weighted average cost, or the relevant FIFO batch cost), and is expensed (Stock loss / Loss due to theft)</li>
+        <li>Returns reduce both units and cost — remove at the cost they were originally added at</li>
+        <li>A business is sometimes asked to value stock under FIFO purely for <span class="term">insurance purposes</span> (to claim at the highest possible value) even though they use weighted average for their actual records — read the question carefully to see which method the specific sub-question wants</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ================= P1 Q1B FIXED ASSETS ================= -->
+<section class="view" id="view-p1-q1b">
+  <div class="pageheader"><h1>Question 1B — Fixed Assets</h1><div class="meta">Paper 1 &middot; part of Question 1: Asset Management &amp; VAT</div></div>
+
+  <div class="section">
+    <h2>Definitions</h2>
+    <div class="card">
+      <ul>
+        <li><span class="term">Carrying value (Book value)</span> — Cost minus Accumulated Depreciation.</li>
+        <li><span class="term">Accumulated depreciation</span> — the total depreciation charged against an asset since it was bought.</li>
+        <li><span class="term">Diminishing balance method</span> — depreciation calculated as a % of carrying value each year (so the depreciation amount decreases over time).</li>
+        <li><span class="term">Production unit method</span> — depreciation based on actual units produced by the asset, relative to its total estimated production capacity.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Formulas</h2>
+    <div class="formula"><b>Straight-line depreciation</b> = Cost &times; rate % &times; time</div>
+    <div class="formula"><b>Diminishing balance depreciation</b> = (Cost &minus; Accumulated Depreciation) &times; rate % &times; time</div>
+    <div class="formula"><b>Production unit depreciation</b> = (Cost &minus; Residual value) &divide; Total estimated production units &times; units produced this year</div>
+  </div>
+
+  <div class="section">
+    <h2>Notes &amp; Traps</h2>
+    <div class="card">
+      <ul>
+        <li>An asset disposed of during the year is depreciated only for the months owned up to the date of sale — not the full year</li>
+        <li>A new asset purchased during the year is depreciated only from its purchase date to year-end</li>
+        <li>Land &amp; Buildings is never depreciated</li>
+        <li>On disposal: transfer cost and accumulated depreciation to the Asset Disposal account; the balancing figure is profit or loss on sale (to the Income Statement)</li>
+        <li>Trade-in allowance is treated as the "selling price" of the old asset in the Asset Disposal account, and forms part of the cost of the new asset</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ================= P1 Q1C VAT ================= -->
+<section class="view" id="view-p1-q1c">
+  <div class="pageheader"><h1>Question 1C — VAT</h1><div class="meta">Paper 1 &middot; part of Question 1: Asset Management &amp; VAT</div></div>
+
+  <div class="section">
+    <h2>VAT Concepts</h2>
+    <div class="card">
+      <ul>
+        <li><span class="term">VAT</span> – Value added tax. A taxation charged on the supply of goods and services by a VAT vendor. This is collected by SARS by means of e-filing and allotted for government use.</li>
+        <li><span class="term">Standard VAT rate</span> – 15% (increased from 14% on 1 April 2018)</li>
+        <li><span class="term">VAT vendor</span> – a business who earns a turnover of more than R1m per annum is required by law to register as a VAT vendor. Voluntary registration for businesses that earn below the threshold.</li>
+        <li><span class="term">Bi-monthly submission</span> – VAT returns are filed at the end of every second month by the 25th day of the following month at the very latest. Penalties are charged for late submission.</li>
+        <li><span class="term">Receipt-basis submission</span> – to assist businesses that may experience cash flow problems, they can apply to operate on the receipt basis, so VAT is only raised when the money is received or paid. Must be applied for in writing.</li>
+        <li><span class="term">Invoice-basis submission</span> – VAT is raised at the point the invoice is issued or received. This can have cash flow implications, as VAT may need to be paid before receipt of cash from debtors.</li>
+        <li><span class="term">Zero-rated items</span> – items that carry 0% VAT, aimed at helping indigent communities. Includes brown bread, milk, maize, rice, fruit, vegetables, milk powders, cooking oil, eggs, lentils. Minister of Finance can adjust this list.</li>
+        <li><span class="term">VAT exempt items</span> – exempt by an act of parliament from carrying VAT. Examples: interest, rates, export service, childcare services, educational services.</li>
+        <li><span class="term">VAT inclusive</span> – the listed price has VAT added to it (115%). <span class="term">VAT exclusive</span> – the price listed does not have VAT added (100%).</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>VAT Calculations — Formula Table</h2>
+    <table class="notes">
+      <tr><th>Given</th><th>Calculation</th></tr>
+      <tr><td>VAT exclusive amount &rarr; VAT inclusive amount</td><td>VAT exclusive (Rand) &times; 115/100</td></tr>
+      <tr><td>VAT inclusive amount &rarr; VAT exclusive amount</td><td>VAT inclusive (Rand) &times; 100/115</td></tr>
+      <tr><td>VAT exclusive amount &rarr; VAT amount</td><td>VAT exclusive &times; 15/100</td></tr>
+      <tr><td>VAT inclusive amount &rarr; VAT amount</td><td>VAT inclusive &times; 15/115</td></tr>
+      <tr><td>VAT amount &rarr; VAT exclusive amount</td><td>VAT &times; 100/15</td></tr>
+      <tr><td>VAT amount &rarr; VAT inclusive amount</td><td>VAT &times; 115/15</td></tr>
+    </table>
+    <div class="formula"><b>Cost price &rarr; Selling price:</b> Cost price &times; mark-up %/100 = VAT exclusive price; &times; 15/100 = VAT; total = Selling Price (VAT inclusive)<br><b>Selling price &rarr; Cost price:</b> Selling price (incl.) &times; 100/115 = VAT exclusive price; &times; 100/mark-up% = cost price</div>
+    <div class="callout"><span class="label">Rule of thumb</span>VAT exclusive = 100%, VAT = 15%, VAT inclusive = 115%. Control Accounts (Debtors' Control, Creditors' Control, Bank CPJ/CRJ, Petty Cash, Discount Allowed, Discount Received, Drawings, Bad debts) are always VAT inclusive.</div>
+  </div>
+
+  <div class="section">
+    <h2>Effect of Each Transaction on the VAT Control Account</h2>
+    <table class="notes">
+      <tr><th>Transaction</th><th>If VAT owing to SARS by us (L)</th><th>If VAT owing to us by SARS (A)</th></tr>
+      <tr><td>Cash sales</td><td>Add (+)</td><td>Subtract (&minus;)</td></tr>
+      <tr><td>Credit sales</td><td>Add (+)</td><td>Subtract (&minus;)</td></tr>
+      <tr><td>Cash purchases of assets</td><td>Subtract (&minus;)</td><td>Add (+)</td></tr>
+      <tr><td>Credit purchase of assets</td><td>Subtract (&minus;)</td><td>Add (+)</td></tr>
+      <tr><td>Cash payment of expenses*</td><td>Subtract (&minus;)</td><td>Add (+)</td></tr>
+      <tr><td>Expenses* on credit</td><td>Subtract (&minus;)</td><td>Add (+)</td></tr>
+      <tr><td>Buying petrol/fuel (fuel levy)</td><td>NO VAT</td><td>NO VAT</td></tr>
+      <tr><td>Paying salaries and wages (PAYE)</td><td>NO VAT</td><td>NO VAT</td></tr>
+      <tr><td>Debtor returns stock bought on credit</td><td>Subtract (&minus;)</td><td>Add (+)</td></tr>
+      <tr><td>We return stock to a creditor</td><td>Add (+)</td><td>Subtract (&minus;)</td></tr>
+      <tr><td>A debtor pays their account</td><td>NO VAT</td><td>NO VAT</td></tr>
+      <tr><td>A debtor is granted a discount (Discount allowed)</td><td>Subtract (&minus;)</td><td>Add (+)</td></tr>
+      <tr><td>We pay our creditor</td><td>NO VAT</td><td>NO VAT</td></tr>
+      <tr><td>Our creditor grants us a discount (Discount received)</td><td>Add (+)</td><td>Subtract (&minus;)</td></tr>
+      <tr><td>Bad debts written off</td><td>Subtract (&minus;)</td><td>Add (+)</td></tr>
+      <tr><td>Bad debts recovered</td><td>Add (+)</td><td>Subtract (&minus;)</td></tr>
+      <tr><td>Drawings of cash by owner</td><td>NO VAT</td><td>NO VAT</td></tr>
+      <tr><td>Drawing of stock, equipment, stationery</td><td>Add (+)</td><td>Subtract (&minus;)</td></tr>
+      <tr><td>A trade discount given/received</td><td colspan="2">NO VAT ON A TRADE DISCOUNT — VAT is worked out on the new (reduced) selling price</td></tr>
+    </table>
+    <div class="callout warn"><span class="label">NB</span>Cost of sales is not affected by VAT. The VAT is accounted for when the stock is bought.</div>
+    <p style="font-size:.76rem;color:var(--ink-soft);">*Expenses exclude depreciation, provision for bad debts adjustments, profit or loss on sale of asset, interest income and interest expense, rental income, trading stock deficit or surplus, salaries and wages, and fuel. All other expenses have VAT applied.</p>
+  </div>
+</section>
+
+<!-- ================= P1 Q2 COMPANY FINANCIAL STATEMENTS ================= -->
+<section class="view" id="view-p1-q2">
+  <div class="pageheader"><h1>Question 2 — Company Financial Statements</h1><div class="meta">Paper 1</div></div>
+
+  <div class="section">
+    <h2>Statement of Comprehensive Income (Income Statement) — Line-Item Order</h2>
+    <div class="card">
+      <p>Sales &rarr; Cost of sales &rarr; Gross profit &rarr; Operating incomes &rarr; Operating expenses &rarr; Operating Profit &rarr; Interest income &rarr; Net profit before interest expense &rarr; Interest expense &rarr; Net profit before taxation &rarr; Taxation for the year &rarr; Net profit after taxation</p>
+      <div class="callout"><span class="label">Common Operating Income items</span>Commission income &middot; Rent income &middot; Provision for bad debts adjustment</div>
+      <div class="callout"><span class="label">Common Operating Expense items</span>Advertising &middot; Telephone &middot; Bank charges &middot; Directors' fees &middot; Stationery &middot; Bad debts &middot; Sundry expenses &middot; Auditors' fees &middot; Salaries &amp; wages &middot; Repairs &amp; maintenance &middot; Stock loss &middot; Trading stock deficit</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Trade &amp; Other Receivables Note</h2>
+    <div class="card"><p>Net trade debtors (Debtors control less Provision for bad debts) &middot; Prepaid expenses &middot; Accrued income</p></div>
+  </div>
+
+  <div class="section">
+    <h2>Trade &amp; Other Payables Note</h2>
+    <div class="card"><p>Trade creditors &middot; Accrued expenses &middot; Income received in advance &middot; Shareholders for dividends &middot; SARS (Income Tax) &middot; Short-term loan instalment &middot; Bank overdraft</p></div>
+  </div>
+
+  <div class="section">
+    <h2>Ordinary Share Capital Note — Movement</h2>
+    <div class="formula">Shares at beginning of the year<br>+ Shares issued during the year (at issue price)<br>&minus; Shares repurchased during the year (at repurchase price)<br>= Shares at end of the year</div>
+  </div>
+
+  <div class="section">
+    <h2>Retained Income / Accumulated Profits Note</h2>
+    <div class="formula">Balance at the beginning of the year<br>+ Net profit after tax<br>&minus; Repurchase of shares premium (Average Share Price &minus; repurchase price, &times; shares repurchased)<br>&minus; Ordinary share dividends (paid + recommended)<br>= Balance at the end of the year</div>
+  </div>
+
+  <div class="section">
+    <h2>Calculation Formulas</h2>
+    <div class="formula"><b>Loan interest</b> = Opening balance &times; rate % &times; time (split into periods if the balance changes mid-year)<br>Interest accrued = Total interest expense &minus; interest actually paid</div>
+    <div class="formula"><b>Rent with a mid-year increase</b> = (months at old rate &times; old rate) + (months at new rate &times; new rate)</div>
+    <div class="formula"><b>Average Share Price</b> = Total value of shares in issue &divide; Total number of shares in issue</div>
+    <div class="formula"><b>Debtors' allowance</b> = Sales returns amount &times; 100/(100+mark-up%) — apply to the specific mark-up % given</div>
+  </div>
+
+  <div class="section">
+    <h2>Traps</h2>
+    <div class="card">
+      <ul>
+        <li>Land &amp; Buildings is never depreciated — do not carry a depreciation figure for it out of habit</li>
+        <li>The share repurchase entry in Retained Income uses the difference between Average Share Price and repurchase price — not the full repurchase amount</li>
+        <li>Items marked "Do not calculate" or "Do not total" on a note must be left as given/derived, not recalculated</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ================= P1 Q3 CASH FLOW STATEMENTS ================= -->
+<section class="view" id="view-p1-q3">
+  <div class="pageheader"><h1>Question 3 — Cash Flow Statements</h1><div class="meta">Paper 1</div></div>
+
+  <div class="section">
+    <h2>Three-Part Structure</h2>
+    <div class="grid3">
+      <div class="card"><h3>Operating Activities</h3><p>Cash generated from operations, interest paid, dividends paid, tax paid.</p></div>
+      <div class="card"><h3>Investing Activities</h3><p>Purchase/sale of fixed assets, purchase/sale of investments.</p></div>
+      <div class="card"><h3>Financing Activities</h3><p>Shares issued/repurchased, loans raised/repaid, dividends declared and paid.</p></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Reconciliation Note — Line-Item Order</h2>
+    <div class="formula">Profit before taxation<br>+ Adjustment in respect of: (Depreciation, Interest expense)<br>= Operating profit before changes in working capital<br>&plusmn; Changes in working capital (Inventory, Trade and other receivables, Trade and other payables)<br>= Cash generated from operations</div>
+  </div>
+
+  <div class="section">
+    <h2>Working Capital Direction Rules</h2>
+    <table class="notes">
+      <tr><th>Movement</th><th>Effect on Cash</th></tr>
+      <tr><td>Increase in Inventory</td><td>Outflow (&minus;)</td></tr>
+      <tr><td>Increase in Trade and other receivables</td><td>Outflow (&minus;)</td></tr>
+      <tr><td>Increase in Trade and other payables</td><td>Inflow (+)</td></tr>
+      <tr><td>Decrease in any of the above</td><td>Opposite effect</td></tr>
+    </table>
+    <div class="callout warn"><span class="label">Trap</span>This is the opposite of how these movements affect profit — an increase in debtors increased profit (via sales) but is a cash outflow here.</div>
+  </div>
+
+  <div class="section">
+    <h2>Liquidity Reasoning</h2>
+    <div class="callout exam">When commenting on liquidity using this statement, use the actual <span class="term">cash</span> figures shown here — not profit-based figures. Cash and profit are not the same thing.</div>
+  </div>
+</section>
+
+<!-- ================= P1 Q4 MANUFACTURING ================= -->
+<section class="view" id="view-p1-q4">
+  <div class="pageheader"><h1>Question 4 — Manufacturing</h1><div class="meta">Paper 1</div></div>
+
+  <div class="section">
+    <h2>The Cost Flow</h2>
+    <div class="formula">Raw Materials Stock &rarr; Work-In-Progress Stock &rarr; Finished Goods Stock &rarr; Cost of Sales (Income Statement)<br>Direct Labour + Factory Overheads feed directly into Work-In-Progress</div>
+  </div>
+
+  <div class="section">
+    <h2>Production Cost Statement — Structure</h2>
+    <div class="formula">Direct Material Cost (Raw Materials)<br>+ Direct Labour Cost<br>= <b>Prime Costs</b><br>+ Factory Overhead Cost<br>= Total Manufacturing Cost<br>+ Work in process at beginning of year<br>&minus; Work in process at end of year<br>= <b>Total Cost of Production</b> <span style="color:var(--ink-soft);">(also seen as "Total production cost of Finished Goods")</span></div>
+  </div>
+
+  <div class="section">
+    <h2>Cost Classification</h2>
+    <div class="grid2">
+      <div class="card">
+        <h3>Direct / Prime Costs</h3>
+        <p><span class="term">Direct Material Cost / Raw Materials</span> — material physically forming part of the product.</p>
+        <p><span class="term">Direct Labour Cost / Direct Labour</span> — wages of workers physically producing the units, including employer contributions on those workers.</p>
+      </div>
+      <div class="card">
+        <h3>Factory Overhead Cost / Factory Overheads</h3>
+        <p>Indirect Labour &middot; Indirect Materials &middot; Rent &middot; Rates &amp; Taxes &middot; Water &amp; Electricity &middot; Insurance &middot; Depreciation (factory portion) &middot; Security &middot; Consumable Stores used</p>
+      </div>
+    </div>
+    <div class="callout warn"><span class="label">Shared-cost trap</span>Rent, water &amp; electricity, insurance, and security are routinely split by floor space, usage ratio, or a stated percentage between factory / administration / sales. Only the factory portion enters Factory Overhead Cost.</div>
+  </div>
+
+  <div class="section">
+    <h2>The Four Stock Accounts</h2>
+    <div class="formula"><b>Raw Materials Stock</b> = Opening + Purchases &minus; Issued to Factory = Closing</div>
+    <div class="formula"><b>Work-In-Progress Stock</b> = Opening + Direct Material + Direct Labour + Factory Overheads &minus; Closing = Cost of Production</div>
+    <div class="formula"><b>Finished Goods Stock</b> = Opening + Cost of Production &minus; Cost of Sales = Closing</div>
+    <div class="formula"><b>Consumable Stores on Hand</b> = Opening + Purchases &minus; Used = Closing</div>
+  </div>
+
+  <div class="section">
+    <h2>Break-Even Analysis</h2>
+    <div class="formula"><b>Variable cost per unit</b> = Direct Material + Direct Labour + Variable Selling &amp; Distribution per unit<br><b>Contribution per unit</b> = Selling price &minus; Variable cost per unit<br><b>Break-Even Point (units)</b> = Total Fixed Costs &divide; Contribution per unit</div>
+    <div class="callout exam"><span class="label">Pattern</span>Break-even questions often work backwards — given a target break-even point, calculate the required change in fixed costs or selling price. Practice both directions.</div>
+  </div>
+</section>
+
+<!-- ================= P2 Q1 RECONCILIATIONS ================= -->
+<section class="view" id="view-p2-q1">
+  <div class="pageheader"><h1>Question 1 — Reconciliations</h1><div class="meta">Paper 2 &middot; Part A: Debtors, Part B: Creditors</div></div>
+
+  <div class="section">
+    <h2>Definitions</h2>
+    <div class="card">
+      <ul>
+        <li><span class="term">Age analysis</span> — shows how long each debtor's outstanding balance has been owing, split into Current, 30+, 60+, 90+ day columns.</li>
+        <li><span class="term">Creditor's Reconciliation Statement</span> — reconciles the balance per the supplier's statement to the balance per our own creditors' ledger, isolating timing differences that will resolve themselves.</li>
+        <li><span class="term">Creditor's Ledger</span> entry — a genuine correction that must actually be posted to our books (an error or omission), as opposed to a timing difference.</li>
+        <li><span class="term">Post-dated cheque</span> — a cheque dated after the current period end. It cannot be recorded until its actual date arrives.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Bank Reconciliation — Structure</h2>
+    <div class="formula">Balance per Bank Statement<br>+ Outstanding deposits (not yet reflected by bank)<br>&minus; Outstanding cheques (not yet presented)<br>&plusmn; Bank errors<br>= Balance per Cash Book</div>
+    <div class="callout warn"><span class="label">Post-dated cheques</span>Must be reversed out of the Cash Book (added back to bank) and added to creditors — they cannot be treated as a valid payment for this financial year.</div>
+  </div>
+
+  <div class="section">
+    <h2>Notes &amp; Traps</h2>
+    <div class="card">
+      <ul>
+        <li>Debit orders, stop orders, bank charges, and interest on overdraft appearing on the bank statement but not yet in the Cash Book must be posted to the Cash Book first, before doing the reconciliation itself</li>
+        <li>Recent papers present the Creditor's Reconciliation as a two-column table — one column for entries needed in the Creditor's Ledger, one for the Creditor's Reconciliation Statement — rather than a single running total. Check which format the specific paper asks for</li>
+        <li>Debtors' Control / Creditors' Control account balance must agree with the total of the individual debtors'/creditors' list — differences come from posting errors, omitted transactions, or transactions posted to the wrong account</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ================= P2 Q2 COMPANY ANALYSIS ================= -->
+<section class="view" id="view-p2-q2">
+  <div class="pageheader"><h1>Question 2 — Company Analysis</h1><div class="meta">Paper 2</div></div>
+
+  <div class="section">
+    <h2>Profitability</h2>
+    <div class="formula"><b>Gross profit %</b> = Gross profit / Sales &times; 100<br><b>Operating profit %</b> = Operating profit / Sales &times; 100<br><b>Net profit %</b> = Net profit after tax / Sales &times; 100</div>
+  </div>
+
+  <div class="section">
+    <h2>Liquidity &amp; Operating Efficiency</h2>
+    <div class="formula"><b>Current ratio</b> = Current assets : Current liabilities<br><b>Acid-test ratio</b> = (Current assets &minus; Inventory) : Current liabilities<br><b>Period stock on hand</b> = Average stock / Cost of sales &times; 365<br><b>Average debtor's collection period</b> = Average debtors / Credit sales &times; 365<br><b>Average creditor's payment period</b> = Average creditors / Credit purchases &times; 365</div>
+    <div class="callout"><span class="label">Benchmarks</span>Acid-test ratio: 1:1 &middot; Current ratio: 2:1 (context-dependent — always compare to prior year and industry too)</div>
+  </div>
+
+  <div class="section">
+    <h2>Solvency / Risk / Gearing</h2>
+    <div class="formula"><b>Debt to equity ratio</b> = Non-current liabilities : Shareholders' equity (expressed as X:1)<br><b>Return on average capital employed (ROTCE)</b> = Net profit before interest &amp; tax / Average capital employed &times; 100</div>
+    <div class="grid2">
+      <div class="card"><h3>Positive gearing</h3><p>ROTCE &gt; average interest rate on loans. Borrowing benefits the company.</p></div>
+      <div class="card"><h3>Negative gearing</h3><p>ROTCE &lt; average interest rate on loans. Borrowing works against the company.</p></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Return to Individual Shareholders</h2>
+    <div class="formula"><b>Return on average shareholder's equity (ROSHE)</b> = Net profit after tax / Average shareholders' equity &times; 100<br><b>Earnings per share (EPS)</b> = Net profit after tax / Number of shares in issue<br><b>Dividends per share (DPS)</b> = Total dividends / Number of shares in issue<br><b>Retained income per share</b> = EPS &minus; DPS<br><b>Net asset value (NAV) per share</b> = Total shareholders' equity / Number of shares in issue</div>
+    <div class="callout"><span class="label">NAV vs Issue Price</span>NAV is a benchmark, not a pricing rule — directors set the issue price, which can sit above, at, or below NAV. Issuing below NAV dilutes existing shareholders' NAV per share; issuing above NAV enhances it.</div>
+  </div>
+
+  <div class="section">
+    <h2>Cents-to-Rand Trap</h2>
+    <div class="callout warn">Per-share figures (NAV, EPS, DPS, market price) are often quoted in cents but must be converted to rand (&divide;100) for comparison or reporting.</div>
+  </div>
+
+  <div class="section">
+    <h2>The Three-Part Evidence Sentence</h2>
+    <div class="card"><p><span class="term">1. Calculation</span> (quote the actual figures) &rarr; <span class="term">2. Meaning</span> (what this shows in plain terms) &rarr; <span class="term">3. Judgement</span> tied to this company's specific context, with the relevant benchmark stated.</p></div>
+  </div>
+</section>
+
+<!-- ================= P2 Q3 BUDGETS ================= -->
+<section class="view" id="view-p2-q3">
+  <div class="pageheader"><h1>Question 3 — Budgets</h1><div class="meta">Paper 2</div></div>
+
+  <div class="section">
+    <h2>Cash Budget — Structure</h2>
+    <div class="formula">Opening bank balance<br>+ Cash receipts (cash sales, collections from debtors, other income, loan proceeds, share issue proceeds)<br>&minus; Cash payments (cash purchases, payments to creditors, expenses paid, drawings, asset purchases, loan repayments)<br>= Closing bank balance (becomes next month's opening balance)</div>
+    <div class="callout warn"><span class="label">Only cash</span>Non-cash items (depreciation, donations of stock/assets, bad debts written off) never appear in a Cash Budget.</div>
+  </div>
+
+  <div class="section">
+    <h2>Debtors' Collection Schedule — Timing Logic</h2>
+    <div class="card">
+      <p>Figures must sit in the column for the month the cash is actually received, counted <span class="term">forward</span> from the month of sale — not the month of calculation.</p>
+      <div class="callout">Build a small grid (sale month down the side, collection month across the top) before transferring figures into the schedule — this prevents timing errors.</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Creditor's Payment Schedule</h2>
+    <div class="card"><p>Same timing logic as the Debtors' Collection Schedule, applied to purchases and payments to creditors, often combined with settlement discount calculations.</p></div>
+  </div>
+
+  <div class="section">
+    <h2>Projected Income Statement vs Cash Budget</h2>
+    <div class="card"><p>The Projected Income Statement includes all income and expenses on an accrual basis (including depreciation, bad debts) — it estimates <span class="term">profit</span>, not cash. Don't confuse the two formats under time pressure.</p></div>
+  </div>
+
+  <div class="section">
+    <h2>Working Backwards From a Schedule</h2>
+    <div class="callout exam"><span class="label">Pattern</span>Recent papers ask you to work backwards from a completed schedule to identify the debtor/creditor payment pattern or percentages used — divide the portion by the total credit sales/purchases for that month to find the %.</div>
+  </div>
+</section>
+
+</main>
+</div>
+
+<script>
+const papertabs = document.querySelectorAll('.papertab');
+const navP1 = document.getElementById('nav-p1');
+const navP2 = document.getElementById('nav-p2');
+papertabs.forEach(tab=>{
+  tab.addEventListener('click',()=>{
+    papertabs.forEach(t=>t.classList.remove('active'));
+    tab.classList.add('active');
+    if(tab.dataset.paper==='p1'){navP1.style.display='block';navP2.style.display='none';showView('p1-q1a');}
+    else{navP1.style.display='none';navP2.style.display='block';showView('p2-q1');}
+  });
+});
+function showView(id){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  const target = document.getElementById('view-'+id);
+  if(target) target.classList.add('active');
+  document.querySelectorAll('.navitem').forEach(n=>n.classList.remove('active'));
+  const navBtn = document.querySelector('.navitem[data-view="'+id+'"]');
+  if(navBtn) navBtn.classList.add('active');
+  document.querySelector('.main').scrollTo(0,0);
+  window.scrollTo(0,0);
+}
+document.querySelectorAll('.navitem').forEach(item=>{
+  item.addEventListener('click',()=>showView(item.dataset.view));
+});
+</script>
+</body>
+</html>
