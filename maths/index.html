@@ -8,6 +8,9 @@
 <link rel="apple-touch-icon" href="/icon-180.png">
 <link rel="manifest" href="/manifest.webmanifest">
 <meta name="theme-color" content="#1F2418">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
   --paper:#FBFBF6;--paper-deep:#E7ECEA;--ink:#16232B;--ink-soft:#52697A;
@@ -23,8 +26,8 @@ body{background:var(--paper);color:var(--ink);font-family:"Iowan Old Style","Pal
 .app{display:flex;min-height:100vh;}
 .sidebar{width:272px;flex-shrink:0;background:linear-gradient(190deg,#123244 0%,#0B3B4A 45%,#082A36 100%);color:#E9F3F6;padding:22px 0;position:sticky;top:0;height:100vh;overflow-y:auto;border-right:3px solid var(--copper);}
 .brand{font-family:Georgia,serif;font-size:1.05rem;letter-spacing:.03em;padding:0 20px 18px 20px;border-bottom:1px solid rgba(255,255,255,0.15);margin-bottom:14px;}
-.brand .sub{display:block;font-size:.68rem;color:#9FC3D1;font-family:"Courier New",monospace;letter-spacing:.08em;margin-top:4px;text-transform:uppercase;}
-.navlabel{font-size:.65rem;text-transform:uppercase;letter-spacing:.1em;color:#7FAFC2;padding:10px 20px 5px;font-family:"Courier New",monospace;}
+.brand .sub{display:block;font-size:.68rem;color:#9FC3D1;font-family:"JetBrains Mono",monospace;letter-spacing:.08em;margin-top:4px;text-transform:uppercase;}
+.navlabel{font-size:.65rem;text-transform:uppercase;letter-spacing:.1em;color:#7FAFC2;padding:10px 20px 5px;font-family:"JetBrains Mono",monospace;}
 .navitem{display:flex;align-items:center;gap:8px;padding:7px 20px;font-size:.8rem;cursor:pointer;color:#DCEAF0;border-left:3px solid transparent;}
 .navitem:hover{background:rgba(255,255,255,0.06);}
 .navitem.active{background:rgba(255,255,255,0.1);border-left-color:var(--amber);color:#fff;font-weight:600;}
@@ -34,10 +37,10 @@ body{background:var(--paper);color:var(--ink);font-family:"Iowan Old Style","Pal
 .view{display:none;}.view.active{display:block;}
 .pageheader{margin-bottom:26px;border-bottom:3px solid transparent;border-image:linear-gradient(90deg,#0B3B4A,#1C7C9C 40%,#D4A017 75%,#C1652E) 1;padding-bottom:12px;}
 .pageheader h1{font-size:1.65rem;margin:0 0 4px;font-weight:600;}
-.pageheader .meta{font-family:"Courier New",monospace;font-size:.72rem;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em;}
+.pageheader .meta{font-family:"JetBrains Mono",monospace;font-size:.72rem;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em;}
 .section{margin-bottom:30px;}
 .section h2{font-size:1.12rem;color:var(--circuit-deep);border-bottom:1px solid var(--card-line);padding-bottom:6px;margin-bottom:12px;display:flex;align-items:center;gap:10px;}
-.section h2 .tag{font-family:"Courier New",monospace;font-size:.58rem;background:var(--circuit);color:#fff;padding:2px 7px;border-radius:3px;letter-spacing:.05em;}
+.section h2 .tag{font-family:"JetBrains Mono",monospace;font-size:.58rem;background:var(--circuit);color:#fff;padding:2px 7px;border-radius:3px;letter-spacing:.05em;}
 .card{background:#FFFFFF;border:1px solid var(--card-line);border-radius:var(--radius);padding:14px 18px;margin-bottom:12px;box-shadow:0 1px 2px rgba(0,0,0,0.03);}
 .card p{margin:5px 0;line-height:1.55;font-size:.9rem;}
 .card ul,.card ol{margin:5px 0;padding-left:20px;}
@@ -48,7 +51,7 @@ body{background:var(--paper);color:var(--ink);font-family:"Iowan Old Style","Pal
 .callout.exam{border-left-color:var(--circuit);background:#E4F1F5;}
 .callout.warn{border-left-color:var(--danger);background:#F7EAEA;}
 .callout.tip{border-left-color:var(--circuit);background:#E4F1F5;}
-.callout .label{font-family:"Courier New",monospace;font-size:.62rem;text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:3px;font-weight:700;}
+.callout .label{font-family:"JetBrains Mono",monospace;font-size:.62rem;text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:3px;font-weight:700;}
 .callout.warn .label{color:var(--danger);}
 .callout.tip .label{color:var(--circuit-deep);}
 .callout.exam .label{color:var(--circuit);}
@@ -56,13 +59,13 @@ body{background:var(--paper);color:var(--ink);font-family:"Iowan Old Style","Pal
 .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
 @media(max-width:760px){.grid2,.grid3{grid-template-columns:1fr;}.main{padding:22px 16px 60px;}.sidebar{width:100%;height:auto;position:relative;}}
 table.notes{width:100%;border-collapse:collapse;font-size:.84rem;margin:10px 0;}
-table.notes th{background:var(--paper-deep);text-align:left;padding:6px 10px;border:1px solid var(--card-line);font-family:"Courier New",monospace;font-size:.68rem;text-transform:uppercase;letter-spacing:.04em;}
+table.notes th{background:var(--paper-deep);text-align:left;padding:6px 10px;border:1px solid var(--card-line);font-family:"JetBrains Mono",monospace;font-size:.68rem;text-transform:uppercase;letter-spacing:.04em;}
 table.notes td{padding:6px 10px;border:1px solid var(--card-line);vertical-align:top;}
 .formula{font-size:1rem;font-weight:700;text-align:center;padding:5px;color:var(--circuit-deep);}
 .proofcard{background:var(--paper-deep);border:1px solid var(--circuit-deep);border-radius:var(--radius);padding:16px 20px;margin-bottom:14px;}
-.proofcard .pf-label{font-family:"Courier New",monospace;font-size:.62rem;text-transform:uppercase;letter-spacing:.08em;color:var(--copper);margin:10px 0 3px;font-weight:700;}
+.proofcard .pf-label{font-family:"JetBrains Mono",monospace;font-size:.62rem;text-transform:uppercase;letter-spacing:.08em;color:var(--copper);margin:10px 0 3px;font-weight:700;}
 .proofcard .pf-label:first-child{margin-top:0;}
-.stepline{font-family:"Courier New",monospace;font-size:.84rem;padding:2px 0;color:var(--ink);}
+.stepline{font-family:"JetBrains Mono",monospace;font-size:.84rem;padding:2px 0;color:var(--ink);}
 .stepline .reason{color:var(--ink-soft);font-family:Georgia,serif;font-style:italic;font-size:.79rem;}
 .qed{text-align:right;color:var(--circuit-deep);font-weight:700;}
 svg.diagram{display:block;margin:10px auto;max-width:100%;}

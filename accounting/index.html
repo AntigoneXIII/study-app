@@ -7,6 +7,9 @@
 <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#1b2312">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <title>IEB Grade 12 Accounting — Study Dashboard</title>
 <style>
 :root{
@@ -43,11 +46,11 @@ body{
   border-right:3px solid var(--copper);
 }
 .brand{font-family:Georgia,serif;font-size:1.05rem;letter-spacing:.03em;padding:0 20px 18px 20px;border-bottom:1px solid rgba(255,255,255,0.15);margin-bottom:10px;}
-.brand .sub{display:block;font-size:.68rem;color:#9FC3D1;font-family:"Courier New",monospace;letter-spacing:.07em;margin-top:4px;text-transform:uppercase;}
+.brand .sub{display:block;font-size:.68rem;color:#9FC3D1;font-family:"JetBrains Mono",monospace;letter-spacing:.07em;margin-top:4px;text-transform:uppercase;}
 .papertabs{display:flex;margin:12px 20px 8px;border:1px solid rgba(255,255,255,0.25);border-radius:6px;overflow:hidden;}
-.papertab{flex:1;text-align:center;padding:7px 4px;font-family:"Courier New",monospace;font-size:.66rem;font-weight:700;letter-spacing:.05em;cursor:pointer;background:rgba(255,255,255,0.03);color:#9FC3D1;border:none;text-transform:uppercase;}
+.papertab{flex:1;text-align:center;padding:7px 4px;font-family:"JetBrains Mono",monospace;font-size:.66rem;font-weight:700;letter-spacing:.05em;cursor:pointer;background:rgba(255,255,255,0.03);color:#9FC3D1;border:none;text-transform:uppercase;}
 .papertab.active{background:var(--copper);color:#fff;}
-.navlabel{font-size:.66rem;text-transform:uppercase;letter-spacing:.09em;color:#7FAFC2;padding:12px 20px 6px;font-family:"Courier New",monospace;font-weight:700;}
+.navlabel{font-size:.66rem;text-transform:uppercase;letter-spacing:.09em;color:#7FAFC2;padding:12px 20px 6px;font-family:"JetBrains Mono",monospace;font-weight:700;}
 .navitem{display:flex;align-items:center;gap:8px;padding:7px 20px 7px 28px;font-size:.82rem;cursor:pointer;color:#DCEAF0;border-left:3px solid transparent;}
 .navitem:hover{background:rgba(255,255,255,0.06);}
 .navitem.active{background:rgba(255,255,255,0.1);border-left-color:var(--amber);color:#fff;font-weight:600;}
@@ -58,7 +61,7 @@ body{
 .view.active{display:block;}
 .pageheader{margin-bottom:22px;border-bottom:3px solid transparent;border-image:linear-gradient(90deg,#0B3B4A,#1C7C9C 40%,#D4A017 75%,#C1652E) 1;padding-bottom:12px;}
 .pageheader h1{font-size:1.7rem;margin:0 0 4px;font-weight:600;}
-.pageheader .meta{font-family:"Courier New",monospace;font-size:.72rem;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.05em;}
+.pageheader .meta{font-family:"JetBrains Mono",monospace;font-size:.72rem;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.05em;}
 .section{margin-bottom:26px;}
 .section h2{font-size:1.15rem;color:var(--circuit-deep);border-bottom:1px solid var(--card-line);padding-bottom:6px;margin-bottom:12px;}
 .section h3{font-size:1rem;color:var(--copper);margin:14px 0 6px;}
@@ -70,16 +73,16 @@ body{
 .callout{border-left:4px solid var(--amber);background:#FBF3DC;padding:9px 15px;font-size:.84rem;margin:9px 0;border-radius:0 4px 4px 0;}
 .callout.exam{border-left-color:var(--circuit);background:#E4F1F5;}
 .callout.warn{border-left-color:var(--danger);background:#F7EAEA;}
-.callout .label{font-family:"Courier New",monospace;font-size:.6rem;text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:3px;font-weight:700;}
+.callout .label{font-family:"JetBrains Mono",monospace;font-size:.6rem;text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:3px;font-weight:700;}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
 .grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;}
 @media(max-width:760px){.grid2,.grid3{grid-template-columns:1fr;} .main{padding:24px 16px 60px;} .sidebar{width:100%;height:auto;position:relative;}}
 table.notes{width:100%;border-collapse:collapse;font-size:.82rem;margin:8px 0;}
-table.notes th{background:var(--paper-deep);text-align:left;padding:6px 9px;border:1px solid var(--card-line);font-family:"Courier New",monospace;font-size:.65rem;text-transform:uppercase;letter-spacing:.03em;}
+table.notes th{background:var(--paper-deep);text-align:left;padding:6px 9px;border:1px solid var(--card-line);font-family:"JetBrains Mono",monospace;font-size:.65rem;text-transform:uppercase;letter-spacing:.03em;}
 table.notes td{padding:6px 9px;border:1px solid var(--card-line);vertical-align:top;}
-.formula{background:#EAF4F7;border-left:4px solid var(--circuit);border-radius:0 4px 4px 0;padding:9px 15px;margin:8px 0;font-family:"Courier New",monospace;font-size:.82rem;line-height:1.6;}
+.formula{background:#EAF4F7;border-left:4px solid var(--circuit);border-radius:0 4px 4px 0;padding:9px 15px;margin:8px 0;font-family:"JetBrains Mono",monospace;font-size:.82rem;line-height:1.6;}
 .formula b{color:var(--circuit-deep);}
-code{font-family:"Courier New",monospace;font-size:.85em;background:var(--paper-deep);color:var(--circuit-deep);padding:1px 5px;border-radius:3px;}
+code{font-family:"JetBrains Mono",monospace;font-size:.85em;background:var(--paper-deep);color:var(--circuit-deep);padding:1px 5px;border-radius:3px;}
 </style>
 </head>
 <body>
