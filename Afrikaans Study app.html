@@ -1,0 +1,1796 @@
+<!DOCTYPE html>
+<html lang="af">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Study Deck — IEB Afrikaans EAT</title>
+<style>
+:root{
+  --cream:#F6F1E4;
+  --paper:#FDFBF4;
+  --ink:#1C2624;
+  --ink-soft:#4A5654;
+  --teal-deep:#12403E;
+  --teal:#1E7268;
+  --teal-pale:#DCEAE6;
+  --copper:#B0631F;
+  --copper-pale:#F0DFC9;
+  --amber:#DE9A32;
+  --amber-pale:#FBEAC9;
+  --line:#D8CDB4;
+  --line-soft:#E7DFCC;
+  --shadow: 0 1px 2px rgba(28,38,36,.06), 0 8px 24px rgba(28,38,36,.06);
+  --radius: 10px;
+  --mono: 'IBM Plex Mono', 'Courier New', monospace;
+  --serif-display: 'Fraunces', 'Iowan Old Style', Georgia, serif;
+  --serif-body: 'Source Serif 4', Georgia, serif;
+}
+@font-face{font-family:'Fraunces';src:local('Fraunces');}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:var(--cream);
+  color:var(--ink);
+  font-family:var(--serif-body);
+  font-size:16px;
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+}
+::selection{background:var(--amber-pale); color:var(--ink);}
+a{color:var(--teal-deep);}
+
+/* ---------- Layout ---------- */
+.app{
+  display:grid;
+  grid-template-columns: 320px 1fr;
+  min-height:100vh;
+}
+@media (max-width: 900px){
+  .app{ grid-template-columns: 1fr; }
+  .sidebar{ position: fixed; z-index: 40; height:100vh; transform:translateX(-100%); transition:transform .25s ease; box-shadow: 12px 0 30px rgba(0,0,0,.25);}
+  .sidebar.open{ transform:translateX(0); }
+  .menu-btn{ display:inline-flex !important; }
+  .main{ padding-top:64px; }
+}
+
+/* ---------- Sidebar ---------- */
+.sidebar{
+  background: var(--teal-deep);
+  color: #EFEAD9;
+  height:100vh;
+  position:sticky;
+  top:0;
+  display:flex;
+  flex-direction:column;
+  border-right: 1px solid rgba(0,0,0,.15);
+}
+.brand{
+  padding:22px 20px 16px 22px;
+  border-bottom:1px solid rgba(239,234,217,.14);
+}
+.brand-mark{
+  display:flex; align-items:center; gap:10px;
+  font-family:var(--serif-display);
+  font-weight:600;
+  font-size:1.05rem;
+  color:#fff;
+  letter-spacing:.2px;
+}
+.brand-mark svg{ flex:none; }
+.brand-sub{
+  margin-top:4px;
+  font-family:var(--mono);
+  font-size:.66rem;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--amber);
+  opacity:.9;
+}
+.search-wrap{
+  padding:14px 16px;
+  border-bottom:1px solid rgba(239,234,217,.14);
+  position:relative;
+}
+.search-box{
+  width:100%;
+  background:rgba(255,255,255,.07);
+  border:1px solid rgba(239,234,217,.18);
+  border-radius:8px;
+  padding:9px 34px 9px 12px;
+  color:#fff;
+  font-family:var(--serif-body);
+  font-size:.86rem;
+  outline:none;
+}
+.search-box::placeholder{ color:rgba(239,234,217,.5); }
+.search-box:focus{ border-color:var(--amber); background:rgba(255,255,255,.1); }
+.search-icon{
+  position:absolute; right:26px; top:50%; transform:translateY(-50%);
+  opacity:.6; pointer-events:none;
+}
+.search-results{
+  position:absolute; left:16px; right:16px; top:56px;
+  background:var(--paper); color:var(--ink);
+  border-radius:8px; box-shadow:var(--shadow);
+  max-height:360px; overflow-y:auto; z-index:50;
+  display:none; border:1px solid var(--line);
+}
+.search-results.show{ display:block; }
+.search-result-item{
+  padding:10px 12px; border-bottom:1px solid var(--line-soft); cursor:pointer; font-size:.82rem;
+}
+.search-result-item:last-child{ border-bottom:none; }
+.search-result-item:hover{ background:var(--teal-pale); }
+.sr-section{ font-family:var(--mono); font-size:.66rem; text-transform:uppercase; letter-spacing:.08em; color:var(--teal); display:block; margin-bottom:2px;}
+.sr-snippet mark{ background:var(--amber-pale); color:var(--ink); padding:0 2px; border-radius:2px;}
+.search-empty{ padding:14px 12px; font-size:.8rem; color:var(--ink-soft); }
+
+.nav-scroll{
+  flex:1; overflow-y:auto; padding:8px 10px 24px;
+}
+.nav-group-title{
+  font-family:var(--mono);
+  font-size:.66rem;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--amber);
+  padding:16px 12px 6px;
+  opacity:.85;
+}
+.nav-group-title:first-child{ padding-top:8px; }
+.nav-item{
+  display:flex; align-items:center; gap:10px;
+  padding:8px 12px;
+  border-radius:7px;
+  cursor:pointer;
+  font-size:.87rem;
+  color:#DDD6C0;
+  transition:background .15s ease, color .15s ease;
+  user-select:none;
+}
+.nav-item .dot{
+  width:8px; height:8px; border-radius:50%;
+  background:#5B6664;
+  flex:none;
+  box-shadow: 0 0 0 3px rgba(255,255,255,.03);
+}
+.nav-item[data-status="done"] .dot{ background: var(--amber); }
+.nav-item[data-status="pending"]{ opacity:.42; cursor:default; }
+.nav-item[data-status="pending"] .label::after{
+  content:"binnekort"; font-family:var(--mono); font-size:.6rem; margin-left:8px;
+  color:rgba(239,234,217,.5); text-transform:uppercase; letter-spacing:.06em;
+}
+.nav-item:not([data-status="pending"]):hover{ background:rgba(255,255,255,.08); color:#fff; }
+.nav-item.active{ background:rgba(222,154,50,.16); color:#fff; }
+.nav-item.active .dot{ background:var(--amber); box-shadow:0 0 0 3px rgba(222,154,50,.25); }
+.nav-sub{ padding-left:22px; }
+.nav-item .label{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+
+.sidebar-foot{
+  padding:12px 20px 16px;
+  border-top:1px solid rgba(239,234,217,.14);
+  font-family:var(--mono);
+  font-size:.64rem;
+  color:rgba(239,234,217,.55);
+  letter-spacing:.04em;
+}
+.progress-track{
+  height:4px; background:rgba(255,255,255,.1); border-radius:3px; margin-bottom:8px; overflow:hidden;
+}
+.progress-fill{ height:100%; background:linear-gradient(90deg, var(--amber), var(--copper)); width:0%; transition:width .4s ease; }
+
+/* ---------- Main ---------- */
+.main{ padding: 0; min-width:0; }
+.topbar{
+  display:none;
+  align-items:center; gap:12px;
+  position:fixed; top:0; left:0; right:0; height:56px;
+  background:var(--teal-deep); color:#fff; z-index:30; padding:0 16px;
+}
+.menu-btn{
+  display:none; align-items:center; justify-content:center;
+  width:36px; height:36px; border-radius:8px; border:1px solid rgba(255,255,255,.2);
+  background:rgba(255,255,255,.06); color:#fff; cursor:pointer;
+}
+@media (max-width:900px){ .topbar{ display:flex; } }
+
+.view{ display:none; padding: 48px 56px 90px; max-width:980px; }
+.view.active{ display:block; animation: fadeIn .25s ease; }
+@media (max-width:640px){ .view{ padding:28px 18px 70px; } }
+@keyframes fadeIn{ from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);} }
+
+.eyebrow{
+  font-family:var(--mono); font-size:.72rem; letter-spacing:.14em; text-transform:uppercase;
+  color:var(--copper); margin-bottom:10px; display:flex; align-items:center; gap:8px;
+}
+h1.view-title{
+  font-family:var(--serif-display); font-weight:600; font-size:2.4rem; line-height:1.12;
+  margin:0 0 8px; color:var(--teal-deep);
+}
+.view-dek{
+  font-size:1.05rem; color:var(--ink-soft); max-width:64ch; margin:0 0 8px;
+}
+.underline-sketch{ width:120px; height:10px; margin:6px 0 28px; display:block; }
+
+h2{
+  font-family:var(--serif-display); font-weight:600; font-size:1.5rem;
+  color:var(--teal-deep); margin:40px 0 14px; padding-top:6px;
+  border-top:1px solid var(--line-soft);
+}
+h2:first-of-type{ border-top:none; margin-top:8px; }
+h3{ font-family:var(--serif-display); font-weight:600; font-size:1.15rem; color:var(--ink); margin:22px 0 10px; }
+p{ margin:0 0 14px; }
+.lead{ font-size:1.05rem; color:var(--ink-soft); }
+
+table{ width:100%; border-collapse:collapse; margin:14px 0 22px; background:var(--paper); border-radius:8px; overflow:hidden; box-shadow:var(--shadow); }
+th,td{ text-align:left; padding:10px 14px; font-size:.88rem; border-bottom:1px solid var(--line-soft); vertical-align:top; }
+th{ background:var(--teal-deep); color:#fff; font-family:var(--mono); font-size:.68rem; letter-spacing:.06em; text-transform:uppercase; font-weight:500; }
+tr:last-child td{ border-bottom:none; }
+tr:nth-child(even) td{ background:rgba(30,114,104,.035); }
+
+.callout{
+  border-radius:8px; padding:14px 16px 14px 46px; margin:18px 0; position:relative;
+  font-size:.9rem; box-shadow:var(--shadow); border:1px solid var(--line-soft);
+}
+.callout::before{
+  content:""; position:absolute; left:14px; top:14px; width:22px; height:22px;
+  background-size:contain; background-repeat:no-repeat;
+}
+.callout .callout-label{ font-family:var(--mono); font-size:.68rem; text-transform:uppercase; letter-spacing:.08em; display:block; margin-bottom:4px; font-weight:600; }
+.callout.mistake{ background:#FBEAE6; border-color:#E2B7A9; }
+.callout.mistake .callout-label{ color:#A6421F; }
+.callout.mistake::before{ background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="%23A6421F"/><line x1="8" y1="8" x2="16" y2="16" stroke="white" stroke-width="2.2" stroke-linecap="round"/><line x1="16" y1="8" x2="8" y2="16" stroke="white" stroke-width="2.2" stroke-linecap="round"/></svg>'); }
+.callout.tip{ background:var(--amber-pale); border-color:#E3C583; }
+.callout.tip .callout-label{ color:#8A5A0E; }
+.callout.tip::before{ background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="%238A5A0E"/><path d="M12 6 L12 13" stroke="white" stroke-width="2.2" stroke-linecap="round"/><circle cx="12" cy="17" r="1.4" fill="white"/></svg>'); }
+.callout.term{ background:var(--teal-pale); border-color:#AFD0C8; }
+.callout.term .callout-label{ color:var(--teal-deep); }
+.callout.term::before{ background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="%2312403E"/><text x="12" y="17" font-size="14" fill="white" text-anchor="middle" font-family="Georgia">A</text></svg>'); }
+
+.pill{
+  display:inline-block; font-family:var(--mono); font-size:.68rem; text-transform:uppercase; letter-spacing:.06em;
+  padding:3px 9px; border-radius:20px; background:var(--copper-pale); color:var(--copper); margin:0 6px 6px 0;
+}
+
+.card-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:14px; margin:18px 0; }
+.card{ background:var(--paper); border:1px solid var(--line-soft); border-radius:9px; padding:16px; box-shadow:var(--shadow); }
+.card h4{ margin:0 0 6px; font-family:var(--serif-display); font-size:1rem; color:var(--teal-deep); }
+.card p{ font-size:.85rem; color:var(--ink-soft); margin:0; }
+
+.placeholder-view{
+  border:1px dashed var(--line); border-radius:12px; padding:60px 30px; text-align:center; color:var(--ink-soft);
+  font-family:var(--mono); font-size:.85rem; background:var(--paper);
+}
+
+.home-hero{
+  background: linear-gradient(155deg, var(--teal-deep), #0C2E2C);
+  color:#F3EEDD; margin:-48px -56px 40px; padding:56px 56px 46px;
+  position:relative; overflow:hidden;
+}
+@media (max-width:640px){ .home-hero{ margin:-28px -18px 30px; padding:36px 20px 32px; } }
+.home-hero .eyebrow{ color:var(--amber); }
+.home-hero h1{ color:#fff; font-size:2.7rem; }
+.home-hero p{ color:#D9D2BB; max-width:56ch; font-size:1.05rem; }
+.hero-svg{ position:absolute; right:-40px; bottom:-30px; opacity:.5; }
+
+.stat-row{ display:flex; gap:28px; flex-wrap:wrap; margin-top:26px; }
+.stat{ font-family:var(--mono); }
+.stat .num{ font-family:var(--serif-display); font-size:1.9rem; color:var(--amber); display:block; }
+.stat .lab{ font-size:.68rem; text-transform:uppercase; letter-spacing:.08em; color:#C9C2A9; }
+
+.section-nav-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:16px; margin:20px 0 10px;}
+.section-nav-card{
+  background:var(--paper); border:1px solid var(--line-soft); border-radius:10px; padding:18px 20px;
+  cursor:pointer; transition:transform .15s ease, box-shadow .15s ease; box-shadow:var(--shadow);
+}
+.section-nav-card:hover{ transform:translateY(-2px); box-shadow:0 4px 8px rgba(28,38,36,.08), 0 14px 28px rgba(28,38,36,.08); }
+.section-nav-card .tag{ font-family:var(--mono); font-size:.64rem; text-transform:uppercase; letter-spacing:.1em; color:var(--copper); }
+.section-nav-card h3{ margin:6px 0 6px; }
+.section-nav-card p{ font-size:.85rem; color:var(--ink-soft); margin:0; }
+
+blockquote{
+  border-left:3px solid var(--amber); margin:16px 0; padding:6px 0 6px 16px; font-style:italic; color:var(--ink-soft);
+}
+.quote-block{ background:var(--paper); border-left:4px solid var(--teal); border-radius:0 8px 8px 0; padding:14px 18px; margin:14px 0; box-shadow:var(--shadow); }
+.quote-block .qtext{ font-style:italic; font-size:.95rem; }
+.quote-block .qcite{ font-family:var(--mono); font-size:.68rem; text-transform:uppercase; letter-spacing:.06em; color:var(--teal); margin-top:6px; display:block; }
+
+.poem-text{
+  background:var(--paper); border:1px solid var(--line-soft); border-left:4px solid var(--copper);
+  border-radius:0 8px 8px 0; padding:22px 26px; margin:18px 0 26px; box-shadow:var(--shadow);
+  font-style:italic; white-space:pre-line; line-height:1.9; font-size:.95rem;
+}
+.poet-byline{ font-family:var(--mono); font-size:.7rem; text-transform:uppercase; letter-spacing:.08em; color:var(--copper); margin-bottom:18px; }
+
+footer.appfoot{ margin-top:60px; padding-top:20px; border-top:1px solid var(--line-soft); font-family:var(--mono); font-size:.68rem; color:var(--ink-soft); }
+</style>
+</head>
+<body>
+<div class="topbar">
+  <button class="menu-btn" id="menuBtn" aria-label="Wissel kieslys">
+    <svg width="18" height="18" viewBox="0 0 18 18"><line x1="1" y1="4" x2="17" y2="4" stroke="white" stroke-width="1.6"/><line x1="1" y1="9" x2="17" y2="9" stroke="white" stroke-width="1.6"/><line x1="1" y1="14" x2="17" y2="14" stroke="white" stroke-width="1.6"/></svg>
+  </button>
+  <strong style="font-family:var(--serif-display); font-size:1rem;">Study Deck</strong>
+</div>
+
+<div class="app">
+  <!-- ============ SIDEBAR ============ -->
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <div class="brand-mark">
+        <svg width="26" height="26" viewBox="0 0 26 26" fill="none"><rect x="1" y="3" width="24" height="20" rx="2" stroke="#DE9A32" stroke-width="1.4"/><line x1="13" y1="3" x2="13" y2="23" stroke="#DE9A32" stroke-width="1.4"/><line x1="4" y1="8" x2="10" y2="8" stroke="#EFEAD9" stroke-width="1.2"/><line x1="4" y1="12" x2="10" y2="12" stroke="#EFEAD9" stroke-width="1.2"/><line x1="4" y1="16" x2="10" y2="16" stroke="#EFEAD9" stroke-width="1.2"/><line x1="16" y1="8" x2="22" y2="8" stroke="#EFEAD9" stroke-width="1.2"/><line x1="16" y1="12" x2="22" y2="12" stroke="#EFEAD9" stroke-width="1.2"/></svg>
+        Study Deck
+      </div>
+      <div class="brand-sub">IEB Graad 12 Afrikaans EAT</div>
+    </div>
+
+    <div class="search-wrap">
+      <input type="text" class="search-box" id="searchBox" placeholder="Deursoek elke afdeling…" autocomplete="off">
+      <svg class="search-icon" width="15" height="15" viewBox="0 0 15 15"><circle cx="6.2" cy="6.2" r="4.8" stroke="#EFEAD9" stroke-width="1.3" fill="none"/><line x1="9.8" y1="9.8" x2="13.5" y2="13.5" stroke="#EFEAD9" stroke-width="1.3" stroke-linecap="round"/></svg>
+      <div class="search-results" id="searchResults"></div>
+    </div>
+
+    <nav class="nav-scroll" id="navScroll">
+      <div class="nav-group-title">Begin</div>
+      <div class="nav-item" data-view="home" data-status="done"><span class="dot"></span><span class="label">Tuisblad &amp; hoe om te gebruik</span></div>
+
+      <div class="nav-group-title">Vraestel I — Taal</div>
+      <div class="nav-item" data-view="p1-overview" data-status="done"><span class="dot"></span><span class="label">Vraestel I-oorsig</span></div>
+      <div class="nav-item" data-view="p1-visuele-geletterdheid" data-status="done"><span class="dot"></span><span class="label">Visuele geletterdheid</span></div>
+      <div class="nav-item" data-view="p1-leesbegrip" data-status="done"><span class="dot"></span><span class="label">Leesbegrip-strategie</span></div>
+      <div class="nav-item" data-view="p1-opsomming" data-status="done"><span class="dot"></span><span class="label">Opsomming-tegniek</span></div>
+      <div class="nav-item" data-view="p1-woordsoorte" data-status="done"><span class="dot"></span><span class="label">Woordsoorte</span></div>
+      <div class="nav-item" data-view="p1-punktuasie" data-status="done"><span class="dot"></span><span class="label">Punktuasie</span></div>
+      <div class="nav-item" data-view="p1-sinstruktuur" data-status="done"><span class="dot"></span><span class="label">Sinstruktuur</span></div>
+      <div class="nav-item" data-view="p1-woordvorming" data-status="done"><span class="dot"></span><span class="label">Woordvorming</span></div>
+      <div class="nav-item" data-view="p1-kommunikasie" data-status="done"><span class="dot"></span><span class="label">Kommunikasie (Vraag 10)</span></div>
+      <div class="nav-item" data-view="p1-register-toon" data-status="done"><span class="dot"></span><span class="label">Register &amp; toon</span></div>
+      <div class="nav-item" data-view="p1-stylfigure" data-status="done"><span class="dot"></span><span class="label">Stylfigure</span></div>
+      <div class="nav-item" data-view="p1-klankfigure" data-status="done"><span class="dot"></span><span class="label">Klankfigure</span></div>
+      <div class="nav-item" data-view="p1-ironie" data-status="done"><span class="dot"></span><span class="label">Teenstelling &amp; ironie</span></div>
+      <div class="nav-item" data-view="p1-verdere-tegnieke" data-status="done"><span class="dot"></span><span class="label">Verdere taaltegnieke</span></div>
+      <div class="nav-item" data-view="p1-taalfoute" data-status="done"><span class="dot"></span><span class="label">Algemene taalfoute</span></div>
+
+      <div class="nav-group-title">Vraestel I — Poësie</div>
+      <div class="nav-item" data-view="poesie-oorsig" data-status="done"><span class="dot"></span><span class="label">Hoe om die gedigte te bestudeer</span></div>
+      <div class="nav-item nav-sub" data-view="poem-krisis" data-status="done"><span class="dot"></span><span class="label">Krisis</span></div>
+      <div class="nav-item nav-sub" data-view="poem-kleurblind" data-status="done"><span class="dot"></span><span class="label">Kleurblind</span></div>
+      <div class="nav-item nav-sub" data-view="poem-daarom" data-status="done"><span class="dot"></span><span class="label">Daarom</span></div>
+      <div class="nav-item nav-sub" data-view="poem-tweegeveg" data-status="done"><span class="dot"></span><span class="label">Die Tweegeveg</span></div>
+      <div class="nav-item nav-sub" data-view="poem-rondom-my" data-status="done"><span class="dot"></span><span class="label">Rondom my</span></div>
+      <div class="nav-item nav-sub" data-view="poem-klein-geloof" data-status="done"><span class="dot"></span><span class="label">klein geloof</span></div>
+      <div class="nav-item nav-sub" data-view="poem-aandeelhouer" data-status="done"><span class="dot"></span><span class="label">Aandeelhouer</span></div>
+      <div class="nav-item nav-sub" data-view="poem-wereld-klein" data-status="done"><span class="dot"></span><span class="label">Die wêreld het so klein geword</span></div>
+      <div class="nav-item nav-sub" data-view="poem-palimpses" data-status="done"><span class="dot"></span><span class="label">Palimpses</span></div>
+      <div class="nav-item nav-sub" data-view="poem-sondagaande" data-status="done"><span class="dot"></span><span class="label">Sondagaande</span></div>
+      <div class="nav-item" data-view="p1-ongesiene-poesie" data-status="done"><span class="dot"></span><span class="label">Ongesiene gedig-strategie</span></div>
+
+      <div class="nav-group-title">Vraestel II — Tuimeltrein</div>
+      <div class="nav-item" data-view="p2-overview" data-status="done"><span class="dot"></span><span class="label">Vraestel II-oorsig</span></div>
+      <div class="nav-item" data-view="tt-verhaal" data-status="done"><span class="dot"></span><span class="label">Verhaal &amp; struktuur</span></div>
+      <div class="nav-item" data-view="tt-karakters" data-status="done"><span class="dot"></span><span class="label">Karakters</span></div>
+      <div class="nav-item" data-view="tt-temas" data-status="done"><span class="dot"></span><span class="label">Temas &amp; simbole</span></div>
+      <div class="nav-item" data-view="tt-aanhalings" data-status="done"><span class="dot"></span><span class="label">Sleutelaanhalings</span></div>
+      <div class="nav-item" data-view="tt-eksamenvaardighede" data-status="done"><span class="dot"></span><span class="label">Opstel- &amp; eksamenvaardighede</span></div>
+
+      <div class="nav-group-title">Transaksionele Skryfwerk</div>
+      <div class="nav-item" data-view="tw-oorsig" data-status="done"><span class="dot"></span><span class="label">Oorsig &amp; benadering</span></div>
+      <div class="nav-item" data-view="tw-formate" data-status="done"><span class="dot"></span><span class="label">Formaatverwysing</span></div>
+      <div class="nav-item" data-view="tw-register-stem" data-status="done"><span class="dot"></span><span class="label">Register &amp; stem</span></div>
+      <div class="nav-item" data-view="tw-tegnieke" data-status="done"><span class="dot"></span><span class="label">Retoriese tegnieke</span></div>
+    </nav>
+
+    <div class="sidebar-foot">
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+      <span id="progressLabel">0 / 0 afdelings gebou</span>
+    </div>
+  </aside>
+
+  <!-- ============ MAIN ============ -->
+  <main class="main" id="main">
+
+    <!-- HOME -->
+    <section class="view active" id="view-home" data-title="Tuisblad">
+      <div class="home-hero">
+        <svg class="hero-svg" width="260" height="260" viewBox="0 0 260 260"><circle cx="130" cy="130" r="128" stroke="#DE9A32" stroke-width="1" fill="none" opacity=".5"/><circle cx="130" cy="130" r="96" stroke="#B0631F" stroke-width="1" fill="none" opacity=".4"/><circle cx="130" cy="130" r="64" stroke="#1E7268" stroke-width="1" fill="none" opacity=".5"/></svg>
+        <div class="eyebrow">IEB · Graad 12 · Afrikaans Eerste Addisionele Taal</div>
+        <h1 class="view-title">Study Deck</h1>
+        <p>Alles wat jy vir Vraestel I en Vraestel II nodig het, uiteengesit soos jy dit die aand voor die eksamen sou wou hê — definisies eerste, patrone tweede, foute uitgewys voordat jy dit maak.</p>
+        <div class="stat-row">
+          <div class="stat"><span class="num">10</span><span class="lab">Voorgeskrewe gedigte, volledig ontleed</span></div>
+          <div class="stat"><span class="num">1</span><span class="lab">Voorgeskrewe roman, van voor tot agter</span></div>
+          <div class="stat"><span class="num">37</span><span class="lab">Verwysingsafdelings</span></div>
+        </div>
+      </div>
+
+      <h2>Hoe hierdie metgesel werk</h2>
+      <p class="lead">Die kieslys links is georganiseer soos die eksamen self: Vraestel I se taal en poësie eerste, dan Vraestel II se roman, dan transaksionele skryfwerk. Klik op enige onderwerp om direk daarheen te spring — niks is gesluit nie, daar is geen vaste volgorde nie.</p>
+
+      <div class="card-grid">
+        <div class="card"><h4>Definisies &amp; raamwerke</h4><p>Elke tegniek, struktuur en reël word as 'n skoon definisie of stap-vir-stap-formule gegee, nie 'n muur van teks nie.</p></div>
+        <div class="card"><h4>Tabelle bo paragrawe</h4><p>Waar jy opsies of gevalle sou vergelyk, is dit 'n tabel — vinnig deurleesbaar in die laaste tien minute voor jy instap.</p></div>
+        <div class="card"><h4>Fout-waarskuwings</h4><p>Rooi kolomme merk die foute wat nasieners werklik sien, sodat jy jou eie gewoontes daarteen kan toets.</p></div>
+        <div class="card"><h4>Eksamenwenke</h4><p>Amberkleurige kolomme dra strategie — frasering, tydsbestuur, wat punte verdien teenoor wat nie.</p></div>
+      </div>
+
+      <h2>Spring na 'n afdeling</h2>
+      <div class="section-nav-grid" id="homeJumpGrid">
+        <!-- gevul deur JS vanaf nav-items -->
+      </div>
+
+      <div style="margin-top:40px; padding:16px 18px; background:rgba(0,0,0,.03); border:1px solid var(--line-soft); border-radius:8px; font-size:.82rem; color:var(--ink-soft); line-height:1.6;">
+        <strong style="font-family:var(--mono); font-size:.68rem; text-transform:uppercase; letter-spacing:.08em; display:block; margin-bottom:6px; color:#888;">Disclaimer</strong>
+        This dashboard is a supplementary study resource designed to consolidate and summarise key Grade 12 Afrikaans First Additional Language concepts. It is not intended to replace your school notes, textbook, or the guidance of your teacher. Always refer to your own class materials, prescribed texts, and past examination papers as your primary sources of preparation. The content in this guide reflects general IEB Afrikaans FAL syllabus content and may not cover school-specific methods or emphases. Use this dashboard as a revision companion alongside your regular study — not as a substitute for it.
+      </div>
+
+      <footer class="appfoot">Gebou vir selfstandige eksamenvoorbereiding · IEB Nasionale Senior Sertifikaat · Afrikaans Eerste Addisionele Taal</footer>
+    </section>
+
+    <!-- ======= PLASEHOUER-AANSIGTE (word in batches gevul) ======= -->
+    <section class="view" id="view-p1-overview" data-title="Vraestel I-oorsig">
+      <div class="eyebrow">Vraestel I · Taal · 100 punte</div>
+      <h1 class="view-title">Vraestel I op 'n oogopslag</h1>
+      <p class="view-dek">Vraestel I toets hoe goed jy taal onder druk kan lees en manipuleer — nie hoeveel letterkunde jy uit jou kop ken nie. Elke vraagtipe hieronder beloon dieselfde onderliggende vaardigheid: presiese, bewysgebaseerde lees.</p>
+
+      <h2>Die vier afdelings</h2>
+      <table>
+        <tr><th>Afdeling</th><th>Wat dit werklik toets</th><th>Jou taak</th></tr>
+        <tr><td>A — Lees- en Visuele Begrip</td><td>Lees van 'n spotprent, advertensie of nuusbeeld as 'n gekonstrueerde, oorredende teks</td><td>Noem die tegniek, koppel dit aan die bedoelde effek op die kyker</td></tr>
+        <tr><td>B — Opsomming</td><td>Saampersing van 'n teks tot 'n vaste woordtal</td><td>Onttrek slegs hoofidees, in jou eie woorde, binne die woordperk</td></tr>
+        <tr><td>C — Poësie</td><td>Noukeurige lees van 'n onbekende (of voorbereide) gedig</td><td>Antwoord slegs wat gevra word; koppel elke stylfiguur aan sy effek</td></tr>
+        <tr><td>D — Taalvaardigheid</td><td>Grammatika, punktuasie, register, stylfigure, klankfigure, algemene foute</td><td>Identifiseer die tegniek of fout en verduidelik die effek presies</td></tr>
+      </table>
+
+      <h2>Die ingesteldheid wat 'n goeie antwoord van 'n uitstekende antwoord onderskei</h2>
+      <p>Elke nasiener is opgelei om na een ding bo alles te soek: wys die antwoord <em>begrip</em>, of wys dit net dat jy die woorde gelees het? 'n Aanhaling sonder kommentaar is 'n opsomming. 'n Aanhaling met "dit wys die skrywer voel hartseer" is 'n begin. 'n Aanhaling wat presies aan tegniek, konteks én effek gekoppel word, is wat volpunte verdien.</p>
+
+      <div class="callout tip">
+        <span class="callout-label">Eksamenwenk</span>
+        Die universele antwoordformule vir Vraestel I: <strong>identifiseer → haal aan/verwys → verduidelik effek</strong>. Moet nooit ophou ná "identifiseer" nie. 'n Onverduidelikte identifikasie (bv. "dit is 'n metafoor") verdien min tot niks op sy eie.
+      </div>
+
+      <div class="callout mistake">
+        <span class="callout-label">Algemene fout</span>
+        Om te skryf "dit skep beeldspraak" of "dit wys figuurlike taal" asof dit 'n verduideliking is. Dit is nie — dit herbenoem net die aanhaling. Voltooi altyd die sin: beeldspraak <em>van wat</em>, wat <em>watter</em> effek skep, <em>op wie</em>?
+      </div>
+
+      <h2>Vereiste freseringsmerkers</h2>
+      <p>IEB-nasieners is opgelei om na bepaalde sinspatrone te soek. Om jou antwoorde rondom hierdie patrone te bou, maak dit baie moeiliker om maklike punte oor struktuur alleen te verloor.</p>
+      <table>
+        <tr><th>Vraag vra vir…</th><th>Gebruik hierdie sinsraamwerk</th></tr>
+        <tr><td>Effek-/rede-vrae</td><td>"Die woord/frase '___' impliseer/skep die effek van ___, omdat ___."</td></tr>
+        <tr><td>Woordkeuse-vrae</td><td>"Die konnotasie van die woord '___' is ___, wat ___ suggereer."</td></tr>
+        <tr><td>Toon-vrae</td><td>"Die skrywer se toon is ___, gevestig deur ___."</td></tr>
+        <tr><td>Vergelykingsvrae</td><td>"Waar Teks A ___, ___ Teks B ___, wat suggereer dat ___."</td></tr>
+      </table>
+
+      <div class="callout term">
+        <span class="callout-label">Onthou</span>
+        "Verduidelik" en "bespreek" vra altyd vir meer as een sin. "Identifiseer" en "noem" vra net vir die naam/term — moenie tyd mors deur dit ook te verduidelik as net 1 punt toegeken word nie.
+      </div>
+    </section>
+
+    <section class="view" id="view-p1-visuele-geletterdheid" data-title="Visuele geletterdheid">
+      <div class="eyebrow">Vraestel I · Afdeling A</div>
+      <h1 class="view-title">Visuele geletterdheid</h1>
+      <p class="view-dek">Elke visuele teks — advertensie, spotprent, infografika of nuusfoto — is doelbewus gekonstrueer om 'n spesifieke reaksie by die kyker te ontlok. Jou taak is om die konstruksie te ontbloot: watter keuse is gemaak, en hoekom?</p>
+
+      <h2>Algemene metode</h2>
+      <table>
+        <tr><th>Voordat jy antwoord</th><th>Terwyl jy antwoord</th></tr>
+        <tr><td>Lees die opskrif/titel en kyk na die bron (publikasie + datum) — dit gee konteks.</td><td>Antwoord in jou eie woorde tensy die vraag spesifiek 'n aanhaling vra.</td></tr>
+        <tr><td>Bekyk alle visuele elemente voordat jy die vrae lees: prente, kleure, lettertipes, plasing, groottes.</td><td>Let op die puntetoekenning langs elke vraag — dit wys presies hoeveel feite verwag word.</td></tr>
+        <tr><td>Lees dan al die vrae éérs, sodat jy weet waarna om te soek terwyl jy die teks lees.</td><td>As 'n vraag 2 punte werd is, gee jy waarskynlik TWEE aparte feite, nie een uitgebreide een nie.</td></tr>
+      </table>
+
+      <h2>Tekstipes</h2>
+      <h3>Advertensies</h3>
+      <p>Identifiseer die teikenmark (vir wie is dit bedoel?) en die oorredingstegniek (prys, status, vrees, humor). Ontleed die verhouding tussen beeld en teks — hoe werk hulle saam om die produk te verkoop? Let op die slagspreuk se woordkeuse en hoe die logo/handelsnaam geplaas is.</p>
+
+      <h3>Infografieke</h3>
+      <p>Gee dikwels syfers/statistieke in 'n visuele vorm — lees die getalle noukeurig en moenie aannames maak nie. Vergelyk verskillende dele/kolomme van die infografiek met mekaar wanneer 'n vraag 'n vergelyking vra. Kyk ook na die bron van die statistiek — dit kan 'n vraag oor betroubaarheid uitlok.</p>
+
+      <h3>Spotprente / strokiesprente</h3>
+      <p>Let op gesigsuitdrukkings en liggaamstaal — dit dra dikwels die humor/kommentaar. Vra jouself: wat is die boodskap of kommentaar agter die humor? Praatborrels se presiese woordkeuse is dikwels sleutel tot 'n antwoord. Karikatuur (oordrywing van 'n bekende figuur se fisiese kenmerke) word dikwels gebruik om satiries kommentaar te lewer.</p>
+
+      <table>
+        <tr><th>Visuele tegniek</th><th>Waarvoor dit gebruik word</th></tr>
+        <tr><td>Kleurgebruik</td><td>Warm kleure (rooi/oranje) trek aandag/dui gevaar of opwinding aan; koel kleure (blou/groen) dui kalmte/vertroue aan.</td></tr>
+        <tr><td>Plasing/grootte</td><td>Groter of sentraal-geplaaste elemente word as belangriker/dominant ervaar.</td></tr>
+        <tr><td>Lettertipe</td><td>Formele/skreef-lettertipes dui gesag/tradisie aan; casual/skrif-lettertipes dui toeganklikheid/persoonlikheid aan.</td></tr>
+        <tr><td>Simboliek</td><td>'n Bekende voorwerp/dier/kleur wat vir 'n groter idee staan (bv. 'n duif = vrede).</td></tr>
+      </table>
+
+      <div class="callout mistake">
+        <span class="callout-label">Algemene fout</span>
+        Net beskryf wat op die prent is ("daar is 'n man wat lag") sonder om te sê hoekom dit daar is of watter effek dit op die kyker het. Beskrywing alleen verdien geen punte in Vraestel I nie.
+      </div>
+
+      <div class="callout tip">
+        <span class="callout-label">Eksamenwenk</span>
+        As 'n vraag vra "wat is die doel van hierdie advertensie/spotprent?", moet jou antwoord altyd 'n werkwoord van oortuiging bevat: oortuig, waarsku, bespot, adverteer, kritiseer — nie net "om te wys" nie.
+      </div>
+    </section>
+
+    <section class="view" id="view-p1-leesbegrip" data-title="Leesbegrip-strategie">
+      <div class="eyebrow">Vraestel I · Afdeling A</div>
+      <h1 class="view-title">Leesbegrip-strategie</h1>
+      <p class="view-dek">Leesbegrip toets noukeurige lees van 'n onbekende prosa-teks. Dis 'n vaardigheidsafdeling — daar is geen vaste "inhoud" om te memoriseer nie, net 'n metode om konsekwent toe te pas.</p>
+
+      <h2>Voordat jy antwoord</h2>
+      <div class="card-grid">
+        <div class="card"><h4>Skandeer eers</h4><p>Lees die teks een keer vinnig deur vir algemene begrip voordat jy na die vrae kyk.</p></div>
+        <div class="card"><h4>Lees die vrae tweede</h4><p>Onderstreep die sleutelwerkwoord in elke vraag (verduidelik / identifiseer / bespreek / lewer kommentaar).</p></div>
+        <div class="card"><h4>Kyk na puntetoekenning</h4><p>Dit vertel jou presies hoeveel afsonderlike punte/feite verwag word.</p></div>
+      </div>
+
+      <h2>Terwyl jy antwoord</h2>
+      <ul style="margin:0 0 20px; padding-left:20px; font-size:.93rem; line-height:1.7;">
+        <li>Eie woorde, tensy die vraag spesifiek "haal aan uit die teks" vra of presiese bewoording vereis.</li>
+        <li>Kontekstuele vrae ("hoekom dink jy...") vereis 'n antwoord wat teruglink na die teks as geheel, nie net die plaaslike sin nie.</li>
+        <li>Vir "in jou eie woorde"-vrae verdien 'n opgetelde frase uit die teks nul punte, selfs al is die idee reg.</li>
+        <li>Antwoord in die volgorde waarin die vrae gevra word — hulle volg gewoonlik die teks se volgorde.</li>
+      </ul>
+
+      <div class="callout mistake">
+        <span class="callout-label">Algemene fout</span>
+        Die hele sin/paragraaf oorskryf in plaas daarvan om net die relevante deel te identifiseer en te verduidelik. Nasieners soek presiese, bondige antwoorde — nie volledigheid ter wille van volledigheid nie.
+      </div>
+
+      <div class="callout tip">
+        <span class="callout-label">Eksamenwenk</span>
+        As 'n vraag "volgens die teks" sê, moet jou antwoord direk uit die teks se inhoud kom — nie jou eie mening of algemene kennis nie, al is dit waar.
+      </div>
+
+      <h2>Tipiese vraagwerkwoorde en wat hulle vereis</h2>
+      <table>
+        <tr><th>Werkwoord</th><th>Wat dit vereis</th></tr>
+        <tr><td>Identifiseer / Noem</td><td>Net die naam/term/feit — geen verduideliking nodig tensy ekstra punte toegeken word nie.</td></tr>
+        <tr><td>Verduidelik</td><td>'n Volledige rede of proses — gewoonlik meer as een sin.</td></tr>
+        <tr><td>Bespreek</td><td>'n Uitgebreide antwoord met meer as een hoek/aspek.</td></tr>
+        <tr><td>Vergelyk</td><td>Ooreenkomste ÉN verskille tussen twee dinge — nie net een kant nie.</td></tr>
+        <tr><td>Haal aan</td><td>Presiese woorde uit die teks, met aanhalingstekens.</td></tr>
+      </table>
+    </section>
+
+    <section class="view" id="view-p1-opsomming" data-title="Opsomming-tegniek">
+      <div class="eyebrow">Vraestel I · Afdeling B · 10 punte</div>
+      <h1 class="view-title">Opsomming-tegniek</h1>
+      <p class="view-dek">Opsomming toets of jy 'n teks tot sy kernfeite kan verdig — binne 'n vaste woordperk, in jou eie woorde, sonder om die skrywer se mening of voorbeelde in te sluit.</p>
+
+      <h2>Wat om in te sluit</h2>
+      <div class="card-grid">
+        <div class="card"><h4>Feite alleen</h4><p>Laat die skrywer se mening, voorbeelde en herhaalde punte uit.</p></div>
+        <div class="card"><h4>Een punt per sin</h4><p>Waar die formaat dit toelaat, maak dit maklik vir die nasiener om te tel.</p></div>
+        <div class="card"><h4>Volledige omvang</h4><p>Dek die hele teks se reikwydte, nie net die openingsparagrawe nie.</p></div>
+      </div>
+
+      <h2>Meganika</h2>
+      <table>
+        <tr><th>Reël</th><th>Waarom dit saak maak</th></tr>
+        <tr><td>Bly binne die voorgeskrewe woordtelling (tipies 60–80 woorde — kyk elke jaar se presiese vereiste)</td><td>Te kort óf te lank word gepenaliseer, ongeag hoe goed die inhoud is.</td></tr>
+        <tr><td>Skryf 'n woordtelling aan die einde neer</td><td>Nasieners kyk hierna eerste om te bepaal of jy binne die perk gebly het.</td></tr>
+        <tr><td>Skryf in volledige, grammatikaal korrekte sinne (tensy puntsgewys gevra word)</td><td>Los frases of note-vorm word onder die reëls gepenaliseer.</td></tr>
+        <tr><td>Gebruik jou eie woorde so ver moontlik</td><td>Net sinne verkort/oorskryf sonder herwoording verdien min tot geen punte.</td></tr>
+      </table>
+
+      <div class="callout mistake">
+        <span class="callout-label">Algemene fout</span>
+        Direk aanhaal/oorskryf van die oorspronklike teks. Woordtelling nie aangedui nie, of duidelik buite die perke. Nie al die gevraagde elemente ingesluit nie (bv. 'n "eienskap" ÉN 'n "gevolg" as albei gevra word — slegs die een insluit kos jou die helfte van die punte).
+      </div>
+
+      <div class="callout tip">
+        <span class="callout-label">Eksamenwenk</span>
+        Beplan eers: onderstreep sleutelpunte in die oorspronklike teks voordat jy iets skryf, en trek 'n enkele streep deur jou beplanning wanneer jy klaar is — nasieners hou hiervan omdat dit wys jy het doelbewus gewerk, nie ewekansig geskryf nie.
+      </div>
+
+      <h2>Volg presies die instruksieformaat</h2>
+      <p>Party opsomming-vrae vra genommerde punte per persoon/item ("Noem TWEE redes hoekom X..."); ander vra 'n deurlopende paragraaf. Lees die instruksie noukeurig — die verkeerde formaat kos jou punte selfs al is die inhoud korrek.</p>
+
+      <div class="callout term">
+        <span class="callout-label">Terminologie</span>
+        "In jou eie woorde" beteken die assessor wil bewys hê dat jý die teks verstaan het, nie net kan oorskryf nie. Sinonieme of herstrukturering van die sin is voldoende — jy hoef nie die hele idee heeltemal anders te formuleer nie.
+      </div>
+    </section>
+    <section class="view" id="view-p1-woordsoorte" data-title="Woordsoorte">
+      <div class="eyebrow">Vraestel I · Afdeling D · Taalvaardigheid</div>
+      <h1 class="view-title">Woordsoorte</h1>
+      <p class="view-dek">Elke Afrikaanse woord behoort aan een (of meer, afhangend van konteks) van nege woordsoorte. Om vinnig te kan identifiseer watter woordsoort 'n woord is, is die grondslag van byna elke Vraag 8/9-tipe vraag.</p>
+
+      <h2>Selfstandige naamwoorde (s.nw.)</h2>
+      <p>Benoem 'n persoon, plek of ding.</p>
+      <table>
+        <tr><th>Tipe</th><th>Beskrywing</th><th>Voorbeeld</th></tr>
+        <tr><td>Soortnaam</td><td>Nie-spesifiek, geen hoofletter</td><td>onderwyser, huis, kat</td></tr>
+        <tr><td>Eiename</td><td>Spesifiek, altyd hoofletter</td><td>Suid-Afrika, Kruger-wildtuin</td></tr>
+        <tr><td>Abstrakte s.nw.</td><td>Ontasbare idees/gevoelens</td><td>liefde, demokrasie, vrees</td></tr>
+        <tr><td>Versamelname</td><td>Beskryf 'n groep</td><td>'n trop (beeste), 'n swerm (bye)</td></tr>
+      </table>
+      <p>S.nw. kan ook enkelvoud/meervoud, telbaar/ontelbaar, of samestellings (twee of meer woorde as EEN woord geskryf, bv. <em>motorhek</em>) wees.</p>
+
+      <h2>Voornaamwoorde (vnw.)</h2>
+      <p>Vervang 'n selfstandige naamwoord om herhaling te vermy.</p>
+      <table>
+        <tr><th>Tipe</th><th>Voorbeelde</th></tr>
+        <tr><td>Persoonlik</td><td>ek, jy/u, hy, sy, dit, ons, julle, hulle</td></tr>
+        <tr><td>Besitlik</td><td>my(ne), jou(ne), sy, haar(e), ons s'n, hulle s'n</td></tr>
+        <tr><td>Aanwysend</td><td>hierdie, hierdie s'n, daardie, daardie s'n</td></tr>
+        <tr><td>Betreklik</td><td>wat, wie, wie se — voeg bykomende inligting by</td></tr>
+        <tr><td>Onbepaald</td><td>iemand, niemand, almal, iets, niks</td></tr>
+        <tr><td>Wederkerend</td><td>myself, jouself, hom-/haarself</td></tr>
+        <tr><td>Vraend</td><td>wie? wat? watter?</td></tr>
+      </table>
+
+      <h2>Byvoeglike naamwoorde (b.nw.)</h2>
+      <p>Beskryf/kwalifiseer 'n selfstandige naamwoord of voornaamwoord.</p>
+      <table>
+        <tr><th>Trap</th><th>Vorm</th><th>Voorbeeld</th></tr>
+        <tr><td>Stellende trap</td><td>Basiese vorm</td><td>mooi</td></tr>
+        <tr><td>Vergrotende trap</td><td>+ -er</td><td>mooier</td></tr>
+        <tr><td>Oortreffende trap</td><td>die + -ste</td><td>die mooiste</td></tr>
+      </table>
+      <div class="callout term">
+        <span class="callout-label">-e-uitgangreël</span>
+        'n Attributiewe byvoeglike naamwoord (vóór die s.nw.) kry dikwels 'n <strong>-e</strong>-uitgang: "'n mooi<strong>e</strong> huis". 'n Predikatiewe byvoeglike naamwoord (ná die koppelwerkwoord) kry gewoonlik NIE die -e nie: "Die huis is mooi."
+      </div>
+
+      <h2>Werkwoorde (ww.)</h2>
+      <table>
+        <tr><th>Tipe</th><th>Funksie</th><th>Voorbeeld</th></tr>
+        <tr><td>Hoofwerkwoord</td><td>Dra die hoofbetekenis/handeling</td><td>Sy <strong>hardloop</strong>.</td></tr>
+        <tr><td>Hulpwerkwoord van tyd</td><td>Vorm die voltooide/toekomende tyd</td><td>Sy <strong>het</strong> gehardloop. Sy <strong>sal</strong> hardloop.</td></tr>
+        <tr><td>Hulpwerkwoord van modaliteit</td><td>Dui moontlikheid/verpligting aan</td><td>Sy <strong>kan/moet/wil</strong> hardloop.</td></tr>
+        <tr><td>Koppelwerkwoord</td><td>Koppel onderwerp aan predikaat, geen fisiese handeling nie</td><td>Sy <strong>is</strong> moeg. Dit <strong>lyk</strong> koud.</td></tr>
+      </table>
+
+      <h2>Bywoorde (bw.)</h2>
+      <table>
+        <tr><th>Tipe</th><th>Vraag</th><th>Voorbeeld</th></tr>
+        <tr><td>Tyd</td><td>Wanneer?</td><td>gister, nou, later</td></tr>
+        <tr><td>Plek</td><td>Waar?</td><td>hier, daar, buite</td></tr>
+        <tr><td>Wyse</td><td>Hoe?</td><td>vinnig, saggies, goed</td></tr>
+        <tr><td>Graad</td><td>Hoeveel/tot watter mate?</td><td>baie, amper, taamlik</td></tr>
+        <tr><td>Rede</td><td>Hoekom?</td><td>daarom, dus, gevolglik</td></tr>
+      </table>
+
+      <h2>Voegwoorde (vgw.)</h2>
+      <table>
+        <tr><th>Tipe</th><th>Funksie</th><th>Voorbeelde</th></tr>
+        <tr><td>Nevenskikkend</td><td>Verbind twee gelyke sinsdele — woordorde bly onveranderd</td><td>en, maar, of, want</td></tr>
+        <tr><td>Onderskikkend</td><td>Voer 'n bysin in — werkwoord skuif na die einde van die bysin</td><td>omdat, sodat, hoewel, terwyl, al</td></tr>
+      </table>
+
+      <h2>Voorsetsels &amp; lidwoorde</h2>
+      <p><strong>Voorsetsels</strong> (in, op, oor, deur, met, sonder, vir) verbind 'n s.nw./vnw. aan die res van die sin en dui rigting, tyd of plek aan. <strong>Lidwoorde</strong>: bepaald = "die"; onbepaald = "'n".</p>
+
+      <h2>Tussenwerpsels</h2>
+      <p>Dui 'n skielike, spontane gevoel aan en het geen grammatikale funksie in die sin nie — staan dikwels alleen: "O!", "Ai!", "Foei!", "Haai!"</p>
+    </section>
+
+    <section class="view" id="view-p1-punktuasie" data-title="Punktuasie">
+      <div class="eyebrow">Vraestel I · Afdeling D</div>
+      <h1 class="view-title">Punktuasie</h1>
+      <p class="view-dek">Punktuasiefoute is van die maklikste punte om te verloor omdat hulle onnodig is — die reëls is vas en leerbaar.</p>
+
+      <table>
+        <tr><th>Teken</th><th>Gebruik</th><th>Voorbeeld</th></tr>
+        <tr><td>Punt (.)</td><td>Sluit 'n stellende sin of baie afkortings af</td><td>Die trein het vertrek.</td></tr>
+        <tr><td>Vraagteken (?)</td><td>Sluit 'n direkte vraag af</td><td>Waar is die trein?</td></tr>
+        <tr><td>Uitroepteken (!)</td><td>Wys skielike uitroep/klem</td><td>Wag!</td></tr>
+        <tr><td>Komma (,)</td><td>Skei lysitems, bysinne, of aanspreekvorme; kan NOOIT twee volsinne alleen verbind nie (kommasplitsing)</td><td>Aarbeie, melk, botter en eiers.</td></tr>
+        <tr><td>Kommapunt (;)</td><td>Verbind twee nou-verwante volledige sinne</td><td>Kom ons gaan eet; hulle het die beste burgers.</td></tr>
+        <tr><td>Dubbelpunt (:)</td><td>Kondig 'n lys, verduideliking of aanhaling aan</td><td>Hy het dit die beste gestel: "..."</td></tr>
+        <tr><td>Koppelteken (-)</td><td>Verbind woorddele/saamgestelde woorde, of 'n voorvoegsel aan 'n eiename/syfer</td><td>ex-vriendin, 21-jarige</td></tr>
+        <tr><td>Aandagstreep (—)</td><td>Merk 'n pouse voor bykomende inligting; 'n dubbele aandagstreep raam 'n parentese</td><td>Sy het een doel gehad — om te wen.</td></tr>
+        <tr><td>Hakies ( )</td><td>Sluit bykomende, nie-essensiële inligting in</td><td>Die dame (van die Karoo) maak kerrie.</td></tr>
+        <tr><td>Apostroof (')</td><td>Wys samentrekking, weglating, of besitsvorm</td><td>rock 'n roll, Thandeka se boek → Thandeka s'n</td></tr>
+        <tr><td>Ellips (...)</td><td>Wys weglating, aarseling, of 'n gedagte wat wegsterf</td><td>Ek wonder net...</td></tr>
+      </table>
+
+      <div class="callout mistake">
+        <span class="callout-label">Algemene fout</span>
+        'n Komma alleen kan nooit twee volledige sinne verbind nie ("kommasplitsing"). Gebruik 'n punt, kommapunt, of voegwoord: <em>Verkeerd:</em> "Sy het gehuil, dit was hartseer." <em>Reg:</em> "Sy het gehuil; dit was hartseer."
+      </div>
+
+      <div class="callout tip">
+        <span class="callout-label">Eksamenwenk</span>
+        Wanneer 'n vraag vra om 'n punktuasiefout reg te maak, noem altyd EERS die naam van die fout/teken voordat jy die korreksie gee — party vrae ken 'n aparte punt toe net vir die identifikasie.
+      </div>
+    </section>
+
+    <section class="view" id="view-p1-sinstruktuur" data-title="Sinstruktuur">
+      <div class="eyebrow">Vraestel I · Afdeling D · Vraag 8</div>
+      <h1 class="view-title">Sinstruktuur</h1>
+      <p class="view-dek">Afrikaanse woordorde volg vaste reëls wat Engelse woordorde dikwels nié volg nie — dis presies waar Engels-eerste-taal-sprekers die meeste foute maak.</p>
+
+      <h2>Tipes sinne</h2>
+      <table>
+        <tr><th>Tipe</th><th>Beskrywing</th><th>Voorbeeld</th></tr>
+        <tr><td>Enkelvoudige sin</td><td>Een hoofsin, een gedagte</td><td>Sophie lees 'n boek.</td></tr>
+        <tr><td>Saamgestelde sin</td><td>Twee of meer hoofsinne, nevenskikkend verbind</td><td>Sophie lees 'n boek en sy geniet dit.</td></tr>
+        <tr><td>Komplekse sin</td><td>Hoofsin + een of meer bysinne, onderskikkend verbind</td><td>Sophie lees omdat sy 'n opstel skryf.</td></tr>
+      </table>
+
+      <h2>Woordorde — die kernreël</h2>
+      <div class="callout term">
+        <span class="callout-label">Werkwoord-tweede-reël (hoofsin)</span>
+        In 'n Afrikaanse hoofsin staan die persoonsvorm (vervoegde werkwoord) altyd op die TWEEDE plek — nie noodwendig ná die onderwerp nie, maar wel op posisie 2 van die sin. As iets anders as die onderwerp eerste kom, skuif die onderwerp na plek 3 en die werkwoord bly op plek 2 (inversie).
+      </div>
+      <table>
+        <tr><th>Voorbeeld</th><th>Struktuur</th></tr>
+        <tr><td>Sy loop môre stad toe.</td><td>Onderwerp – WW – ...</td></tr>
+        <tr><td>Môre loop sy stad toe.</td><td>Bywoord eerste – WW steeds 2de plek – onderwerp 3de</td></tr>
+      </table>
+      <div class="callout term">
+        <span class="callout-label">Werkwoord-aan-die-einde-reël (bysin)</span>
+        In 'n bysin (ná 'n onderskikkende voegwoord soos <em>omdat, sodat, terwyl, al, hoewel</em>) skuif die vervoegde werkwoord na die EINDE van die bysin.
+      </div>
+      <p><em>Voorbeeld:</em> Sy is moeg <strong>omdat sy die hele dag gewerk het</strong>. (nie "...omdat sy het gewerk die hele dag" nie)</p>
+
+      <h2>Direkte en indirekte rede</h2>
+      <table>
+        <tr><th></th><th>Voorbeeld</th></tr>
+        <tr><td>Direk</td><td>Sy sê: "Ek is moeg."</td></tr>
+        <tr><td>Indirek</td><td>Sy sê sy is moeg.</td></tr>
+      </table>
+      <p>By omskakeling verdwyn die aanhalingstekens en die dubbelpunt; voornaamwoorde en werkwoordtyd pas by die nuwe spreker/tydsraamwerk aan.</p>
+
+      <h2>Aktief en passief</h2>
+      <table>
+        <tr><th></th><th>Voorbeeld</th></tr>
+        <tr><td>Aktief</td><td>Die hond byt die kat.</td></tr>
+        <tr><td>Passief</td><td>Die kat word deur die hond gebyt.</td></tr>
+      </table>
+      <p>By omskakeling na passief word die voorwerp die nuwe onderwerp; "word/is ... deur" word ingevoeg, en die werkwoord verander na sy verlede deelwoordvorm.</p>
+
+      <div class="callout mistake">
+        <span class="callout-label">Algemene fout</span>
+        Om Engelse woordorde direk te vertaal: <em>Verkeerd:</em> "Sy het gesê dat sy sal kom môre." <em>Reg:</em> "Sy het gesê dat sy môre sal kom." (werkwoord na die einde van die bysin)
+      </div>
+    </section>
+
+    <section class="view" id="view-p1-woordvorming" data-title="Woordvorming">
+      <div class="eyebrow">Vraestel I · Afdeling D · Vraag 9</div>
+      <h1 class="view-title">Woordvorming</h1>
+      <p class="view-dek">Vraag 9 toets hoe woorde binne-in verander of saamgestel word — verkleinwoorde, meervoude, samestellings en woordsoortverandering kom die gereeldste voor.</p>
+
+      <h2>Verkleinwoorde</h2>
+      <p>Die verkleiningsuitgang hang af van die laaste klank van die woord.</p>
+      <table>
+        <tr><th>Laaste klank</th><th>Uitgang</th><th>Voorbeeld</th></tr>
+        <tr><td>Klinker of -m</td><td>-tjie</td><td>huis → huisie (uitsondering), boom → boompie</td></tr>
+        <tr><td>-p, -k, -f, -s, -t, -g (na kort klinker)</td><td>-ie</td><td>kop → koppie</td></tr>
+        <tr><td>-d, -b na lang klinker/diftong</td><td>-jie</td><td>brood → broodjie</td></tr>
+        <tr><td>-l, -n, -r na korte klinker</td><td>-etjie</td><td>man → mannetjie</td></tr>
+        <tr><td>-ng</td><td>-etjie</td><td>ding → dingetjie</td></tr>
+      </table>
+
+      <h2>Meervoude</h2>
+      <table>
+        <tr><th>Reël</th><th>Voorbeeld</th></tr>
+        <tr><td>Gewoonlik +e</td><td>hond → honde</td></tr>
+        <tr><td>Gewoonlik +s (veral by -el, -er, -aar, -a, -o, -u eindes)</td><td>tafel → tafels, ouma → oumas</td></tr>
+        <tr><td>Klinkerverandering/-verdubbeling</td><td>pad → paaie, dag → dae</td></tr>
+        <tr><td>Onreëlmatig</td><td>kind → kinders, stad → stede</td></tr>
+      </table>
+
+      <h2>Samestellings</h2>
+      <p>Afrikaans skryf saamgestelde woorde as ÉÉN woord (anders as Engels, wat dit los skryf of 'n koppelteken gebruik).</p>
+      <table>
+        <tr><th>Engels</th><th>Afrikaans</th></tr>
+        <tr><td>swimming pool</td><td>swembad</td></tr>
+        <tr><td>tooth brush</td><td>tandeborsel</td></tr>
+        <tr><td>fire extinguisher</td><td>brandblusser</td></tr>
+      </table>
+
+      <h2>Voor- en agtervoegsels</h2>
+      <table>
+        <tr><th>Tipe</th><th>Voorbeelde</th><th>Effek</th></tr>
+        <tr><td>Voorvoegsel</td><td>on- (ongelukkig), ver- (verkoop), be- (beskryf)</td><td>Verander/versterk die woord se betekenis</td></tr>
+        <tr><td>Agtervoegsel</td><td>-lik (vriendelik), -baar (breekbaar), -heid (vryheid), -ing (bespreking)</td><td>Verander dikwels die woordsoort (bv. werkwoord → s.nw.)</td></tr>
+      </table>
+
+      <h2>Verlede deelwoord</h2>
+      <p>Reëlmatige werkwoorde kry "ge-" voor die stam vir die voltooide tyd: speel → ge<strong>speel</strong>. Werkwoorde wat reeds met 'n onbeklemtoonde voorvoegsel begin (be-, ver-, ont-, her-) kry GEEN ekstra "ge-" nie: beskryf → het beskryf (nie "het gebeskryf" nie).</p>
+
+      <div class="callout mistake">
+        <span class="callout-label">Algemene fout</span>
+        "ge-" byvoeg by werkwoorde wat dit nie nodig het nie: <em>Verkeerd:</em> "het geverkoop". <em>Reg:</em> "het verkoop".
+      </div>
+    </section>
+
+    <section class="view" id="view-p1-kommunikasie" data-title="Kommunikasie (Vraag 10)">
+      <div class="eyebrow">Vraestel I · Afdeling D · Vraag 10</div>
+      <h1 class="view-title">Kommunikasie</h1>
+      <p class="view-dek">Vraag 10 toets of jy 'n gepaste, kort teks kan produseer wat presies by 'n gegewe prent, situasie of geleentheid pas — gewoonlik die kortste maar mees onderskat vraag in Afdeling D.</p>
+
+      <h2>Kern-reëls</h2>
+      <table>
+        <tr><th>Reël</th><th>Waarom dit saak maak</th></tr>
+        <tr><td>Skryf binne die voorgeskrewe woordperk (tipies 13–22 woorde, maar kyk elke jaar se presiese vereiste)</td><td>Te min óf te veel woorde word gepenaliseer, ongeag hoe gepas die inhoud is.</td></tr>
+        <tr><td>Pas jou register/toon aan by die situasie</td><td>Formeel teenoor 'n onderwyser/vreemdeling; informeel teenoor 'n vriend.</td></tr>
+        <tr><td>Antwoord moet spesifiek op die gegewe prent/situasie toepas</td><td>'n Generiese antwoord wat op enige situasie sou pas, verdien min punte.</td></tr>
+        <tr><td>Tipiese puntetoekenning: 1 punt taal + 1 punt toepaslike inhoud</td><td>Selfs 'n taalfoutlose antwoord verloor die inhoudspunt as dit nie presies by die situasie pas nie.</td></tr>
+      </table>
+
+      <h2>Tipiese formate vir Vraag 10</h2>
+      <table>
+        <tr><th>Formaat</th><th>Wat dit vereis</th></tr>
+        <tr><td>Onderskrif/byskrif by 'n prent</td><td>Kort, gepaste sin wat die prent se boodskap of situasie saamvat</td></tr>
+        <tr><td>SMS/WhatsApp-boodskap</td><td>Baie informeel, kort sinne, mag afkortings bevat as toepaslik</td></tr>
+        <tr><td>Kennisgewing/aankondiging</td><td>Formeel, saaklik, feitelik — geen oorbodige woorde nie</td></tr>
+        <tr><td>Direkte respons in 'n gegewe gesprek</td><td>Moet logies op die vorige spreker se woorde volg</td></tr>
+      </table>
+
+      <div class="callout mistake">
+        <span class="callout-label">Algemene fout</span>
+        Buite die woordperk skryf omdat die antwoord "belangrik voel om volledig te wees" — Vraag 10 beloon presisie en gepastheid, nie volledigheid nie. 'n Kort, presiese antwoord binne die perk verdien meer as 'n lang antwoord wat die perk oorskry.
+      </div>
+
+      <div class="callout tip">
+        <span class="callout-label">Eksamenwenk</span>
+        Lees die situasie twee keer voordat jy skryf — Vraag 10 se prente/situasies bevat dikwels 'n subtiele detail (wie praat met wie, watter tyd van dag, watter verhouding) wat die korrekte register/inhoud bepaal.
+      </div>
+    </section>
+
+    <section class="view" id="view-p1-register-toon" data-title="Register & toon">
+      <div class="eyebrow">Vraestel I · Afdeling D</div>
+      <h1 class="view-title">Register &amp; toon</h1>
+      <p class="view-dek">Register (hoe formeel die taal is) en toon (die skrywer se houding/gevoel) word dikwels apart getoets — moenie hulle verwar nie.</p>
+
+      <table>
+        <tr><th></th><th>Register</th><th>Toon</th></tr>
+        <tr><td>Definisie</td><td>Vlak van formaliteit van die taalgebruik</td><td>Die skrywer se houding/gevoel teenoor die onderwerp</td></tr>
+        <tr><td>Voorbeeld-woorde</td><td>formeel, informeel, omgangstaal, tegnies</td><td>ernstig, spottend, sarkasties, nostalgies, krities</td></tr>
+        <tr><td>Hoe getoets</td><td>"Watter register word hier gebruik?"</td><td>"Wat is die skrywer se toon in hierdie paragraaf?"</td></tr>
+      </table>
+
+      <h2>Register-tipes</h2>
+      <table>
+        <tr><th>Tipe</th><th>Kenmerke</th><th>Waar dit voorkom</th></tr>
+        <tr><td>Formeel</td><td>Volledige sinne, geen samentrekkings, beleefdheidsvorme ("u")</td><td>Amptelike briewe, toesprake, verslae</td></tr>
+        <tr><td>Informeel</td><td>Samentrekkings, alledaagse woordeskat, korter sinne</td><td>Gesprekke tussen vriende, sosiale media</td></tr>
+        <tr><td>Omgangstaal/kombuisafrikaans</td><td>Streektaal, spreektaalvorme, soms kodewisseling met Engels</td><td>Informele gesprek, karakterdialoog in fiksie</td></tr>
+      </table>
+
+      <div class="callout mistake">
+        <span class="callout-label">Algemene fout</span>
+        Register en toon in dieselfde antwoord verwar — "die register is hartseer" is fout; hartseer is 'n toon, nie 'n register nie. Register beskryf FORMALITEIT; toon beskryf GEVOEL.
+      </div>
+
+      <div class="callout tip">
+        <span class="callout-label">Eksamenwenk</span>
+        Wanneer 'n vraag "wat pas die register by die situasie aan?" vra, kyk na wie die spreker/leser is (bv. leerder na onderwyser = formeel/beleefd; leerder na vriend = informeel).
+      </div>
+    </section>
+
+    <section class="view" id="view-p1-stylfigure" data-title="Stylfigure">
+      <div class="eyebrow">Vraestel I · Afdeling D — geld ook vir Vraestel II</div>
+      <h1 class="view-title">Stylfigure</h1>
+      <p class="view-dek">Stylfigure (beeldspraak) gee 'n teks lewendigheid en dieper betekenis. Elke antwoord oor 'n stylfiguur moet die tegniek NOEM, met 'n voorbeeld staaf, en die EFFEK verduidelik.</p>
+
+      <table>
+        <tr><th>Stylfiguur</th><th>Definisie</th><th>Voorbeeld</th></tr>
+        <tr><td>Metafoor</td><td>Direkte, onuitgesproke vergelyking (X ís Y) sonder "soos"/"nes"</td><td>Sy is 'n ster.</td></tr>
+        <tr><td>Vergelyking</td><td>Vergelyking MET "soos" of "nes"</td><td>Sy skyn soos 'n ster.</td></tr>
+        <tr><td>Personifikasie</td><td>Menslike eienskappe aan 'n nie-menslike ding/dier/idee gegee</td><td>Die wind fluister.</td></tr>
+        <tr><td>Hiperbool</td><td>Doelbewuste oordrywing vir effek</td><td>Ek het al duisend keer gesê!</td></tr>
+        <tr><td>Eufemisme</td><td>Sagte/verbloemde manier om iets ongemakliks te sê</td><td>"oorlede" i.p.v. "dood"</td></tr>
+        <tr><td>Simboliek</td><td>'n Voorwerp/beeld wat vir iets groters/abstrak staan</td><td>'n duif = vrede</td></tr>
+        <tr><td>Metonimia</td><td>'n Verwante woord vervang die ding self</td><td>"die kroon" = die koning</td></tr>
+        <tr><td>Sinekdogee</td><td>'n Deel verteenwoordig die geheel (of andersom)</td><td>"al hande op dek" = al die bemanning</td></tr>
+        <tr><td>Understatement (verkleining)</td><td>Doelbewuste onderskatting vir effek</td><td>"Dis nie sleg nie" (vir iets uitstekend)</td></tr>
+      </table>
+
+      <div class="callout tip">
+        <span class="callout-label">Eksamenwenk</span>
+        Formule vir stylfiguur-vrae: NOEM die stylfiguur → HAAL AAN as bewys → VERDUIDELIK die effek op die leser/gehoor. Twee van die drie verdien selde volpunte.
+      </div>
+
+      <div class="callout mistake">
+        <span class="callout-label">Algemene fout</span>
+        Metafoor en vergelyking verwar. Onthou: as "soos" of "nes" in die sin is, is dit 'n vergelyking, nie 'n metafoor nie.
+      </div>
+    </section>
+
+    <section class="view" id="view-p1-klankfigure" data-title="Klankfigure">
+      <div class="eyebrow">Vraestel I · Afdeling D — geld ook vir Vraestel II</div>
+      <h1 class="view-title">Klankfigure</h1>
+      <p class="view-dek">Klankfigure werk deur die manier waarop woorde KLÍNK, nie net wat hulle beteken nie — belangrik in advertensies, spotprente se praatborrels, én poësie.</p>
+
+      <table>
+        <tr><th>Klankfiguur</th><th>Definisie</th><th>Voorbeeld</th></tr>
+        <tr><td>Alliterasie</td><td>Herhaling van dieselfde konsonantklank aan die begin van opeenvolgende woorde</td><td>"vier vrolike vriende"</td></tr>
+        <tr><td>Assonansie</td><td>Herhaling van dieselfde vokaalklank binne opeenvolgende woorde</td><td>"grys lug bo die stad"</td></tr>
+        <tr><td>Klanknabootsing (onomatopee)</td><td>'n Woord wat die klank naboots wat dit beskryf</td><td>kletterend, boems, siss</td></tr>
+        <tr><td>Rym</td><td>Herhaling van dieselfde klank aan die einde van woorde/reëls</td><td>kat/pad rym nie; kat/plat rym</td></tr>
+      </table>
+
+      <div class="callout tip">
+        <span class="callout-label">Eksamenwenk</span>
+        Klankfigure word amper altyd saam met hul FUNKSIE gevra — nie net "watter klankfiguur", maar "watter effek skep dit?" Alliterasie/assonansie skep dikwels 'n ritmiese, aandagtrekkende of stemmingsvolle effek — sê presies watter stemming.
+      </div>
+    </section>
+
+    <section class="view" id="view-p1-ironie" data-title="Teenstelling & ironie">
+      <div class="eyebrow">Vraestel I · Afdeling D — geld ook vir Vraestel II</div>
+      <h1 class="view-title">Teenstelling &amp; ironie</h1>
+      <p class="view-dek">Hierdie tegnieke werk almal met 'n soort "verrassing" of "spanning" tussen wat verwag word en wat werklik gebeur/gesê word.</p>
+
+      <table>
+        <tr><th>Tegniek</th><th>Definisie</th><th>Voorbeeld</th></tr>
+        <tr><td>Kontras/Teenstelling</td><td>Twee duidelik teenoorgestelde idees/beelde word langs mekaar geplaas</td><td>Ryk teenoor arm in dieselfde paragraaf</td></tr>
+        <tr><td>Ironie</td><td>Die werklike betekenis/uitkoms is die teenoorgestelde van wat verwag/gesê word</td><td>'n Brandweerman se huis brand af</td></tr>
+        <tr><td>Sarkasme</td><td>'n Skerp, spottende vorm van ironie, bedoel om te kwets/bespot</td><td>"Wat 'n *briljante* plan" (na 'n mislukking)</td></tr>
+        <tr><td>Paradoks</td><td>'n Stelling wat teenstrydig klink, maar tog 'n waarheid bevat</td><td>"Minder is meer."</td></tr>
+        <tr><td>Dramatiese ironie</td><td>Die leser/gehoor weet iets wat 'n karakter nie weet nie</td><td>Leser weet die "vriend" is eintlik die skurk</td></tr>
+      </table>
+
+      <div class="callout mistake">
+        <span class="callout-label">Algemene fout</span>
+        Sarkasme en ironie as dieselfde ding hanteer. Sarkasme is altyd doelbewus en veroordelend/spottend; ironie kan ook per ongeluk of situasioneel wees (sonder opsetlike spot).
+      </div>
+    </section>
+
+    <section class="view" id="view-p1-verdere-tegnieke" data-title="Verdere taaltegnieke">
+      <div class="eyebrow">Vraestel I · Afdeling D</div>
+      <h1 class="view-title">Verdere taaltegnieke</h1>
+      <p class="view-dek">Tegnieke wat nie sommer onder stylfigure of klankfigure val nie, maar wat gereeld in Vraag 8/9 se taalvrae en in visuele tekste se advertensietaal voorkom.</p>
+
+      <table>
+        <tr><th>Tegniek</th><th>Definisie</th><th>Voorbeeld</th></tr>
+        <tr><td>Retoriese vraag</td><td>'n Vraag wat nie 'n antwoord verwag nie — gevra vir effek/beklemtoning</td><td>"Wie sou nie hierdie kans wou gryp nie?"</td></tr>
+        <tr><td>Herhaling</td><td>'n Woord/frase word doelbewus herhaal vir klem</td><td>"Nooit weer nie. Nooit weer nie."</td></tr>
+        <tr><td>Direkte aanspreekvorm</td><td>Die skrywer praat direk met die leser ("jy")</td><td>"Dink jy al klaar aan more se toets?"</td></tr>
+        <tr><td>Bevelvorm (imperatief)</td><td>'n Opdrag/versoek sonder eksplisiete onderwerp</td><td>"Koop nou!"</td></tr>
+        <tr><td>Woordspeling</td><td>'n Woord met twee moontlike betekenisse word doelbewus benut</td><td>"'n Punt maak" (grammatika-punt óf argument-punt)</td></tr>
+        <tr><td>Interteks</td><td>Verwysing na 'n ander teks, gedig of liedjie</td><td>'n Advertensie wat 'n bekende spreekwoord aanpas</td></tr>
+        <tr><td>Neologisme</td><td>'n Nuutgeskepte woord</td><td>"kuberboelie"</td></tr>
+      </table>
+
+      <div class="callout tip">
+        <span class="callout-label">Eksamenwenk</span>
+        Advertensies gebruik amper altyd 'n bevelvorm of retoriese vraag in die slagspreuk om die leser tot aksie aan te spoor — hou hierna uit wanneer jy 'n advertensie ontleed.
+      </div>
+    </section>
+
+    <section class="view" id="view-p1-taalfoute" data-title="Algemene taalfoute">
+      <div class="eyebrow">Vraestel I · Afdeling D</div>
+      <h1 class="view-title">Algemene taalfoute</h1>
+      <p class="view-dek">Hierdie is die foute wat Engels-eerste-taal-sprekers (en tweedetaal-Afrikaanssprekers) die meeste maak — ken hulle sodat jy hulle in jou eie skryfwerk kan vermy én in eksamenvrae kan identifiseer.</p>
+
+      <table>
+        <tr><th>Fout</th><th>Verkeerd</th><th>Reg</th></tr>
+        <tr><td>Dubbele ontkenning ontbreek</td><td>Ek gaan nie huis toe.</td><td>Ek gaan nie huis toe <strong>nie</strong>. (Afrikaans VEREIS 'n dubbele "nie" in 'n ontkennende sin)</td></tr>
+        <tr><td>"se" vs. besitlike vorm</td><td>Die boek van Sarah</td><td>Sarah <strong>se</strong> boek (Afrikaans gebruik "se", nie "van" nie, vir besit)</td></tr>
+        <tr><td>Anglisisme (direkte vertaling)</td><td>Ek voel soos om te huil.</td><td>Ek voel om te huil. / Ek wil huil.</td></tr>
+        <tr><td>Werkwoord nie op tweede plek in hoofsin</td><td>Gister ek het gaan swem.</td><td>Gister <strong>het</strong> ek gaan swem.</td></tr>
+        <tr><td>Werkwoord nie aan einde van bysin</td><td>...omdat sy is moeg.</td><td>...omdat sy moeg <strong>is</strong>.</td></tr>
+        <tr><td>"al" vs "alreeds"</td><td>Ek het alreeds geëet.</td><td>Ek het <strong>al</strong> geëet. ("alreeds" is nie standaard Afrikaans nie)</td></tr>
+        <tr><td>Oormatige "gaan" vir toekomende tyd</td><td>Ek gaan gaan koop.</td><td>Ek <strong>sal</strong> koop. / Ek gaan koop.</td></tr>
+        <tr><td>"hulle" vs "hul" verwarring</td><td>Hul het dit gedoen. (as onderwerp)</td><td><strong>Hulle</strong> het dit gedoen. ("hul" word net besitlik of ná voorsetsel gebruik in formele skryfwerk)</td></tr>
+        <tr><td>Kodewisseling / onnodige Engels</td><td>Dit was actually baie lekker.</td><td>Dit was werklik baie lekker.</td></tr>
+        <tr><td>Verkeerde voorsetsel (direk uit Engels vertaal)</td><td>Ek is bang <em>van</em> spinnekoppe. (Eng: "afraid of")</td><td>Ek is bang <strong>vir</strong> spinnekoppe.</td></tr>
+      </table>
+
+      <div class="callout mistake">
+        <span class="callout-label">Algemene fout</span>
+        Die "nie...nie"-reël vergeet. Dit is nie opsioneel in Afrikaans nie — elke ontkennende sin met 'n werkwoord het 'n tweede "nie" aan die einde nodig (tensy die sin reeds op "nie" eindig, dan word net EEN "nie" gebruik).
+      </div>
+
+      <div class="callout tip">
+        <span class="callout-label">Eksamenwenk</span>
+        As 'n vraag vra om 'n fout te "identifiseer en te verbeter", noem eers WATTER TIPE fout dit is (bv. "ontbrekende dubbele ontkenning") voordat jy die regstelling gee — party vrae ken 'n aparte punt toe vir die identifikasie.
+      </div>
+    </section>
+
+    <section class="view" id="view-poesie-oorsig" data-title="Hoe om die gedigte te bestudeer">
+      <div class="eyebrow">Vraestel I &amp; II · Poësie</div>
+      <h1 class="view-title">Hoe om die gedigte te bestudeer</h1>
+      <p class="view-dek">Poësie kom in Vraestel I (ongesiene/voorbereide gedig) én Vraestel II (10 voorgeskrewe gedigte) voor. Die metode is dieselfde in albei gevalle — net die vraag of jy die gedig vooraf ken, verskil.</p>
+
+      <h2>Metode vir enige gedig</h2>
+      <ol style="margin:0 0 20px; padding-left:20px; font-size:.93rem; line-height:1.75;">
+        <li>Lees die gedig twee keer — een keer vir algemene begrip, een keer stadig vir detail.</li>
+        <li>Let op die titel eerste — dit gee dikwels 'n leidraad oor die tema.</li>
+        <li>Identifiseer die spreker (wie praat?) en die aangesprokene (met wie praat hulle, indien van toepassing?).</li>
+        <li>Soek na 'n wending — kyk veral vir die woord "maar" of 'n duidelike toonverandering.</li>
+        <li>Tel die versreëls om die vorm te bepaal.</li>
+        <li>Merk enige herhaalde klanke en enige beeldspraak (sien die Stylfigure- en Klankfigure-bladsye in die Taal-toolkit — dieselfde terme geld hier).</li>
+        <li>Bepaal die rymskema deur die laaste woord van elke reël 'n letter te gee (a, b, c...).</li>
+      </ol>
+
+      <h2>Versvorme</h2>
+      <table>
+        <tr><th>Term</th><th>Definisie</th></tr>
+        <tr><td>Koeplet</td><td>'n Strofe (of vers) van 2 versreëls.</td></tr>
+        <tr><td>Tersine</td><td>'n Strofe van 3 versreëls.</td></tr>
+        <tr><td>Kwatryn</td><td>'n Strofe van 4 versreëls.</td></tr>
+        <tr><td>Oktaaf</td><td>'n Strofe van 8 versreëls — eerste deel van 'n Italiaanse sonnet.</td></tr>
+        <tr><td>Sestet</td><td>'n Strofe van 6 versreëls — tweede deel van 'n Italiaanse sonnet.</td></tr>
+        <tr><td>Italiaanse sonnet</td><td>14 versreëls totaal: oktaaf (r.1–8) + sestet (r.9–14).</td></tr>
+        <tr><td>Vrye vers</td><td>Geen vaste rympatroon of reëllengte nie; min of geen leestekens.</td></tr>
+      </table>
+
+      <h2>Rympatrone</h2>
+      <table>
+        <tr><th>Patroon</th><th>Skema</th></tr>
+        <tr><td>Kruisrym</td><td>abab</td></tr>
+        <tr><td>Omarmde rym</td><td>abba</td></tr>
+        <tr><td>Paarrym</td><td>aabb</td></tr>
+        <tr><td>Gebroke rym</td><td>Onreëlmatige/onvoorspelbare patroon — dui dikwels onsekerheid of chaos aan.</td></tr>
+      </table>
+
+      <h2>Verdere poësieterme</h2>
+      <table>
+        <tr><th>Term</th><th>Definisie</th></tr>
+        <tr><td>Wending</td><td>'n Duidelike verandering in toon/inhoud — dikwels aangedui deur "maar".</td></tr>
+        <tr><td>Refrein</td><td>'n Herhaalde strofe of reël, tipies in 'n liriese/liedjie-agtige gedig.</td></tr>
+        <tr><td>Alleenplasing</td><td>'n Versreël staan alleen, gewoonlik om iets te beklemtoon.</td></tr>
+        <tr><td>Denotasie</td><td>Die letterlike, woordeboekbetekenis van 'n woord.</td></tr>
+        <tr><td>Konnotasie</td><td>Die figuurlike of geassosieerde betekenis van 'n woord.</td></tr>
+        <tr><td>Ellips</td><td>'n Onvoltooide sin — woorde word doelbewus weggelaat.</td></tr>
+        <tr><td>Parentese</td><td>'n Inskuiwing (tussen kommas/hakies) met bykomende inligting.</td></tr>
+        <tr><td>Inversie</td><td>Omgekeerde (nie-normale) woordorde in 'n sin, dikwels vir klem.</td></tr>
+        <tr><td>Polisindeton</td><td>Opeenvolgende herhaling van 'n voegwoord (meestal "en").</td></tr>
+        <tr><td>Subtitel</td><td>Die onderopskrif van 'n gedig.</td></tr>
+        <tr><td>Neologisme</td><td>'n Nuutskepping — 'n woord wat die digter self geskep het.</td></tr>
+      </table>
+
+      <div class="callout term">
+        <span class="callout-label">Sien ook</span>
+        Metafoor, vergelyking, personifikasie, ironie, kontras, alliterasie, assonansie en klanknabootsing word volledig op die <strong>Stylfigure</strong>- en <strong>Klankfigure</strong>-bladsye in die Taal-toolkit gedek — dieselfde terme en definisies geld hier vir die voorgeskrewe gedigte.
+      </div>
+
+      <div class="callout tip">
+        <span class="callout-label">Eksamenwenk</span>
+        Elke gedig word in die vraestel gedruk — jy hoef geen gedig woordeliks te memoriseer nie. Jy word getoets op jou vermoë om vorm, tema en tegniek te herken en te verduidelik, nie op jou geheue nie.
+      </div>
+
+      <div class="callout mistake">
+        <span class="callout-label">Algemene fout</span>
+        'n Stylfiguur noem sonder om die effek te verduidelik. "Dit is 'n metafoor" verdien amper niks — jy moet sê WAT dit vergelyk en WATTER effek/betekenis dit skep.
+      </div>
+    </section>
+
+    <section class="view" id="view-poem-krisis" data-title="Krisis">
+      <div class="eyebrow">Vraestel II · Voorgeskrewe Poësie</div>
+      <h1 class="view-title">Krisis</h1>
+      <div class="poet-byline">Digter onbevestig in bronmateriaal — bevestig by jou onderwyser</div>
+
+      <h2>Vorm &amp; rym</h2>
+      <p>Italiaanse sonnet — 14 versreëls (oktaaf r.1–8, sestet r.9–14). Oktaaf: omarmde rym (abba abba). Sestet: omarmde rym r.9–12, paarrym in die slotkoeplet r.13–14.</p>
+      <p><span class="pill">Aandagstreep in r.1</span><span class="pill">Spreker: Verstand/Hoof</span><span class="pill">Aangesprokene: Hart</span></p>
+
+      <h2>Tema</h2>
+      <p>Innerlike stryd tussen die verstand ("Hoof") en die emosies ("Hart") tydens 'n moeilike besluit — waarskynlik om 'n verhouding te beëindig.</p>
+
+      <h2>Opsomming</h2>
+      <p>Die spreker (Hoof/verstand) spreek haar eie "Hart" direk aan asof dit 'n aparte persoon is, en kondig aan dat hulle moet skei. Die pad wat hulle saam geloop het was eers mooi, maar het gevaarlik geword — "klowe, afgrond en moeras". Teen die einde erken sy dat die situasie hartseer maar onafwendbaar is: "die kermis is verby".</p>
+
+      <h2>Stylfigure</h2>
+      <div class="quote-block"><span class="qtext">"jy Hart en ek" / "jou dwase raad kan net die Hoof verwar"</span><span class="qcite">Personifikasie — Hart en Hoof kry hoofletters en word soos twee aparte persone aangespreek</span></div>
+      <div class="quote-block"><span class="qtext">pad was "lieflik" (r.3) → nou gevaarlik, "kermis is verby"</span><span class="qcite">Kontras — wys hoe die verhouding van goed na gevaarlik verander het</span></div>
+      <div class="quote-block"><span class="qtext">"albei tot afskeid so onvoorbereid" / "die weg was lieflik waarlangs"</span><span class="qcite">Assonansie &amp; alliterasie — versterk die emosionele klank van die gedig</span></div>
+      <p><span class="pill">Enjambement r.6/r.11 — vinnige tempo</span><span class="pill">Ironie in slotreëls — onmoontlik om Hart en Hoof te skei</span></p>
+
+      <h2>Tipiese eksamenvrae</h2>
+      <table>
+        <tr><th>Vraag</th></tr>
+        <tr><td>Verduidelik die personifikasie van "Hart" en "Hoof".</td></tr>
+        <tr><td>Wat is die funksie van die kontras tussen die pad vroeër en nou?</td></tr>
+        <tr><td>Bepaal en benoem die rymskema van die oktaaf.</td></tr>
+        <tr><td>Waarom word die gedig as 'n Italiaanse sonnet geklassifiseer?</td></tr>
+        <tr><td>Verduidelik die ironie in die slotreëls.</td></tr>
+      </table>
+    </section>
+
+    <section class="view" id="view-poem-kleurblind" data-title="Kleurblind">
+      <div class="eyebrow">Vraestel II · Voorgeskrewe Poësie</div>
+      <h1 class="view-title">Kleurblind</h1>
+      <div class="poet-byline">Carina Stander</div>
+
+      <h2>Vorm &amp; rym</h2>
+      <p>Vrye vers, met gebroke kruisrym en paarrym in die laaste 2 reëls (eg / gevleg).</p>
+
+      <h2>Tema</h2>
+      <p>Liefde ken geen kleur (ras) nie.</p>
+
+      <h2>Opsomming</h2>
+      <p>Twee mense van verskillende velkleure raak op mekaar verlief. Aanvanklik was hulle onseker oor wat ander mense sou sê, maar teen die einde voel die liefde net normaal en gewoon. Die titel werk op twee vlakke: letterlik (kan nie kleur onderskei nie) en figuurlik (nie rassisties nie / velkleur maak nie saak in die liefde nie).</p>
+
+      <h2>Stylfigure</h2>
+      <div class="quote-block"><span class="qtext">"Haar hande"</span><span class="qcite">Alliterasie</span></div>
+      <div class="quote-block"><span class="qtext">"eg" / "gevleg" (laaste 2 reëls)</span><span class="qcite">Paarrym — funksie: dui aan dat hulle 'n paartjie is</span></div>
+      <p><span class="pill">Enjambement r.1–9</span><span class="pill">Parentese r.8/9 — onsekerheid oor wat mense sou sê</span><span class="pill">Tydsprogressie: "eers" → "toe"</span><span class="pill">Wending r.10 — liefde voel nou normaal</span></p>
+
+      <h2>Tipiese eksamenvrae</h2>
+      <table>
+        <tr><th>Vraag</th></tr>
+        <tr><td>Verduidelik die dubbele betekenis van die titel.</td></tr>
+        <tr><td>Watter tydsprogressie kom in die gedig voor en wat is die funksie daarvan?</td></tr>
+        <tr><td>Waar is die wending in die gedig en wat verander?</td></tr>
+        <tr><td>Bepaal die rymskema van die laaste twee reëls.</td></tr>
+      </table>
+    </section>
+
+    <section class="view" id="view-poem-daarom" data-title="Daarom">
+      <div class="eyebrow">Vraestel II · Voorgeskrewe Poësie</div>
+      <h1 class="view-title">Daarom</h1>
+      <div class="poet-byline">Ilna Stander</div>
+
+      <h2>Vorm &amp; rym</h2>
+      <p>Italiaanse sonnet (14 versreëls), maar geen vaste rympatroon nie. Strofe 1: oorsaak (rede vir ongelukkigheid). Strofe 2/3: gevolg (sy optrede as gevolg van puberteit).</p>
+
+      <h2>Tema</h2>
+      <p>'n Tiener se worsteling met 'n swak selfbeeld tydens puberteit — hy voel skaam vir sy voorkoms en verlang dat hierdie fase moet verbygaan.</p>
+
+      <h2>Opsomming</h2>
+      <p>'n Tienerseun beskryf alles waarvoor hy skaam is en voel veral ongemaklik rondom meisies. Die titel ("Daarom") is 'n voegwoord wat 'n rede gee — die hele gedig verduidelik die rede vir sy skaam, teruggetrokke gedrag.</p>
+
+      <h2>Stylfigure</h2>
+      <div class="quote-block"><span class="qtext">"spieëlskrikker", "misliklank", "deurslaanstem", "afsakbroek-stap"</span><span class="qcite">Neologisme — nuutgeskepte woorde vir sy ongemaklike selfbeeld</span></div>
+      <div class="quote-block"><span class="qtext">"krater" (r.6)</span><span class="qcite">Dubbelsinnigheid — slegte vel óf 'n gek van jouself maak</span></div>
+      <div class="quote-block"><span class="qtext">"donder" (slotreël)</span><span class="qcite">Klanknabootsing — die harde klank onderstreep sy frustrasie</span></div>
+      <p><span class="pill">Min werkwoorde in strofe 1 — hy wil so min as moontlik sê</span></p>
+
+      <h2>Tipiese eksamenvrae</h2>
+      <table>
+        <tr><th>Vraag</th></tr>
+        <tr><td>Wat is die funksie van die titel as voegwoord?</td></tr>
+        <tr><td>Gee twee voorbeelde van neologismes en verduidelik die effek.</td></tr>
+        <tr><td>Waarom is daar min werkwoorde in strofe 1?</td></tr>
+        <tr><td>Verduidelik die dubbelsinnigheid van "krater".</td></tr>
+      </table>
+    </section>
+
+    <section class="view" id="view-poem-tweegeveg" data-title="Die Tweegeveg">
+      <div class="eyebrow">Vraestel II · Voorgeskrewe Poësie</div>
+      <h1 class="view-title">Die Tweegeveg</h1>
+      <div class="poet-byline">Digter onbevestig in bronmateriaal</div>
+
+      <h2>Vorm &amp; rym</h2>
+      <p>Vrye vers, meerdere strofes, geen vaste rympatroon nie — fokus is op klank en ritme eerder as rym.</p>
+
+      <h2>Tema</h2>
+      <p>Konflik — 'n swaardgeveg word met speelse, klanknabootsende taal uitgebeeld sodat die leser die fisiese én emosionele intensiteit daarvan beleef.</p>
+
+      <h2>Opsomming</h2>
+      <p>Die gedig beeld 'n swaardgeveg uit deur klanknabootsing en beeldspraak. Die geveg word amper komies/speels aangebied deur uitroepe, maar die beeldspraak skep terselfdertyd 'n intense, visuele prentjie van die stryd.</p>
+
+      <h2>Stylfigure</h2>
+      <div class="quote-block"><span class="qtext">"ai, oo, hû, aa, ha" (r.8–15) / "kletterend"</span><span class="qcite">Klanknabootsing — boots die fisiese geluide van die geveg self na</span></div>
+      <div class="quote-block"><span class="qtext">"Die vaandels roer soos flou donkies" / "ek trek my swaard blink soos 'n proefbuis of 'n draaktong"</span><span class="qcite">Vergelyking — skep 'n skerp visuele beeld van beweging</span></div>
+      <div class="quote-block"><span class="qtext">"die son trek sy wolke stywer om sy skouers"</span><span class="qcite">Personifikasie — die natuur reageer amper menslik op die spanning</span></div>
+      <div class="quote-block"><span class="qtext">"ek hef my swaard op, 'n versteende paling in die lig"</span><span class="qcite">Metafoor — vergelyk die swaard direk met 'n gladde, glinsterende paling</span></div>
+      <p><span class="pill">Sinestesie r.18</span><span class="pill">Paradoks — die son is warm, nie koud nie</span><span class="pill">"Touché" — letterlik/figuurlik</span></p>
+
+      <h2>Tipiese eksamenvrae</h2>
+      <table>
+        <tr><th>Vraag</th></tr>
+        <tr><td>Watter funksie het die klanknabootsing in strofe 3?</td></tr>
+        <tr><td>Bespreek EEN voorbeeld van vergelyking en die effek daarvan.</td></tr>
+        <tr><td>Verduidelik die letterlike én figuurlike betekenis van "Touché".</td></tr>
+      </table>
+    </section>
+
+    <section class="view" id="view-poem-rondom-my" data-title="Rondom my">
+      <div class="eyebrow">Vraestel II · Voorgeskrewe Poësie</div>
+      <h1 class="view-title">Rondom my</h1>
+      <div class="poet-byline">Digter onbevestig in bronmateriaal</div>
+
+      <h2>Vorm &amp; rym</h2>
+      <p>Liriese liefdeslied met refrein; paarrym in die refrein. Refrein herhaal in reëls 1/2, 7/8, en 17/18.</p>
+
+      <h2>Tema</h2>
+      <p>Universele liefdesverlange — die spreker wil sy geliefde altyd naby hom hê, oral rondom hom.</p>
+
+      <h2>Opsomming</h2>
+      <p>Die spreker (in 'n liriese, liedjie-agtige toon) smeek sy geliefde om by hom te kom wees. Die herhaling van die refrein skep 'n ritmiese eenheid en beklemtoon hoe sterk hy na haar verlang. Die gedig is universeel toepasbaar — enige iemand wat al verlief was kan hiermee identifiseer.</p>
+
+      <h2>Stylfigure</h2>
+      <div class="quote-block"><span class="qtext">"kom wees hier rondom my" (r.1/2, herhaal r.7/8, r.17/18)</span><span class="qcite">Refrein — herhaling beklemtoon sy begeerte, gee liedjie-agtige eenheid</span></div>
+      <div class="quote-block"><span class="qtext">"Ek sien die blou in jou soos die bietjie in jou oë"</span><span class="qcite">Metafoor — letterlik: haar oë is blou; figuurlik: sy het al seergekry</span></div>
+      <div class="quote-block"><span class="qtext">"Kom wys my wie jy is en wie jy graag wil wees"</span><span class="qcite">Alliterasie — skep 'n sagte, liriese toon</span></div>
+      <p><span class="pill">Ellips r.19 — sy moet nie oorhaastig wees nie</span><span class="pill">Assonansie: "my tyd" / "blou jou"</span></p>
+
+      <h2>Tipiese eksamenvrae</h2>
+      <table>
+        <tr><th>Vraag</th></tr>
+        <tr><td>Wat is die funksie van die refrein?</td></tr>
+        <tr><td>Verduidelik die metafoor in "die blou in jou oë".</td></tr>
+        <tr><td>Watter tipe gedig is dit (liriek/liedjie) en hoe weet jy dit?</td></tr>
+      </table>
+    </section>
+
+    <section class="view" id="view-poem-klein-geloof" data-title="klein geloof">
+      <div class="eyebrow">Vraestel II · Voorgeskrewe Poësie</div>
+      <h1 class="view-title">klein geloof</h1>
+      <div class="poet-byline">Tanya Joubert</div>
+
+      <h2>Vorm &amp; rym</h2>
+      <p>Kwatryne en 'n tersine; gebroke rym sowel as eindrym.</p>
+
+      <h2>Tema</h2>
+      <p>Spanning tussen volwasse logika/wetenskap en kinderlike geloof/hoop — al vervang feite die kinderfantasieë, hou die spreker steeds 'n bietjie geloof (in God) vas.</p>
+
+      <h2>Opsomming</h2>
+      <p>Die volwasse spreker lys al die kinderlike dinge waaraan sy nie meer glo nie: die kabouter, kersvader, tandemuis (dit was net haar ma), paddaprinse (amfibieë). Na die wending by "maar" (r.12) erken sy dat sy steeds met die lig aan slaap en bid dat "die Prins op die donkie" (Jesus) haar moet red — haar geloof in God bly, al is die res van haar kinder-geloof weg.</p>
+
+      <h2>Stylfigure</h2>
+      <div class="quote-block"><span class="qtext">"Realisme, Feite, Wetenskap: EK KAN BEWYS!" (r.10–11)</span><span class="qcite">Hoofletters vir klem — visuele beklemtoning van haar oordrewe selfvertroue in logika</span></div>
+      <p><span class="pill">Titel — dubbele betekenis: kind se geloof óf "kleingelowige"</span><span class="pill">Wending by "maar" r.12</span><span class="pill">Retoriese vraag — slotstrofe</span><span class="pill">Kontras: kind teenoor volwassene</span></p>
+
+      <h2>Tipiese eksamenvrae</h2>
+      <table>
+        <tr><th>Vraag</th></tr>
+        <tr><td>Verduidelik die twee moontlike interpretasies van die titel.</td></tr>
+        <tr><td>Waar is die wending, en hoe verander die toon daarna?</td></tr>
+        <tr><td>Noem twee "klein gelofies" wat deur feite vervang is.</td></tr>
+        <tr><td>Waarmee sukkel die spreker steeds, ondanks haar wetenskaplike uitkyk?</td></tr>
+      </table>
+    </section>
+
+    <section class="view" id="view-poem-aandeelhouer" data-title="Aandeelhouer">
+      <div class="eyebrow">Vraestel II · Voorgeskrewe Poësie</div>
+      <h1 class="view-title">Aandeelhouer</h1>
+      <div class="poet-byline">Alta Marincowitz</div>
+
+      <h2>Vorm &amp; rym</h2>
+      <p>Vrye vers, geen vaste rympatroon nie.</p>
+
+      <h2>Tema</h2>
+      <p>Generasiekonflik — 'n tiener se prioriteite (sport, die oomblik) verskil radikaal van 'n volwassene se prioriteite (finansies, die toekoms).</p>
+
+      <h2>Opsomming</h2>
+      <p>'n Onderwyser vra formeel vir 'n skoolseun of hy in sy pa se voetspore (finansies/besigheid) gaan volg. Die seun antwoord in 'n informele mengsel van Afrikaans en Engels dat hy glad nie in finansies belangstel nie — sy "aandele" is sport, sy tyd en energie word in sy spiere belê. Die titel is dus ironies: hy is nie 'n regte aandeelhouer op die beurs nie, maar 'n "aandeelhouer" in sy eie liggaam/sport.</p>
+
+      <h2>Stylfigure</h2>
+      <div class="quote-block"><span class="qtext">"jongeheer" (r.1)</span><span class="qcite">Argaïsme — verouderde, formele aanspreekvorm van die onderwyser</span></div>
+      <div class="quote-block"><span class="qtext">"my interest is nie in finance ek rate nie baie hoog"</span><span class="qcite">Woordspeling &amp; kodewisseling — "interest" kan rentekoers óf belangstelling beteken</span></div>
+      <div class="quote-block"><span class="qtext">"my muscles is my bates"</span><span class="qcite">Woordspeling — "bates" (finansieel) versus liggaamlike bates</span></div>
+      <p><span class="pill">Kontrastering: leerder/onderwyser, pa/seun, formeel/informeel</span><span class="pill">Enjambement — vinnige, informele spreektempo</span></p>
+
+      <h2>Tipiese eksamenvrae</h2>
+      <table>
+        <tr><th>Vraag</th></tr>
+        <tr><td>Wie praat in strofe 1, en met wie?</td></tr>
+        <tr><td>Wat is die funksie van al die Engelse woorde?</td></tr>
+        <tr><td>Verduidelik die woordspeling in "interest" en "bates".</td></tr>
+        <tr><td>Hoe is die titel ironies?</td></tr>
+      </table>
+    </section>
+
+    <section class="view" id="view-poem-wereld-klein" data-title="Die wêreld het so klein geword">
+      <div class="eyebrow">Vraestel II · Voorgeskrewe Poësie</div>
+      <h1 class="view-title">Die wêreld het so klein geword</h1>
+      <div class="poet-byline">Alta Marincowitz</div>
+
+      <h2>Vorm &amp; rym</h2>
+      <p>Strofes met wisselende, aflopende tipografie in die slotstrofe; geen vaste rympatroon nie.</p>
+
+      <h2>Tema</h2>
+      <p>Tegnologie het die wêreld toeganklik gemaak (jy kan enigiemand oral bereik), maar terselfdertyd die spreker se fisiese leefruimte tot net haar kamer verklein — 'n ironiese verkleining ondanks 'n groter "wêreld".</p>
+
+      <h2>Opsomming</h2>
+      <p>Die gedig volg drie generasies: die ouma (wye vlaktes, plaaslyn-telefone), die ma (televisie, eerste selfone) en die spreker self (internet, sosiale media). Elke generasie se "wêreld" verander van fisiese ruimte na digitale ruimte. Teen die einde besef die spreker: ondanks al die digitale moontlikhede, pas haar hele wêreld nou in haar klein kamer.</p>
+
+      <h2>Stylfigure</h2>
+      <div class="quote-block"><span class="qtext">"Die web is my werf en Gumtree my boom" (r.13)</span><span class="qcite">Metafoor — vervang die ouma se fisiese erf/boom met die spreker se digitale ekwivalent</span></div>
+      <div class="quote-block"><span class="qtext">"gedeeltelik ontsluier en klankloos klets en kuier" (r.15)</span><span class="qcite">Alliterasie — beklemtoon die oppervlakkigheid van aanlyn kommunikasie</span></div>
+      <p><span class="pill">Kontrastering: 3 generasies se kommunikasiewyses</span><span class="pill">Tipografie in slotstrofe weerspieël die tema letterlik</span><span class="pill">Konnotasie in die titel — nie letterlik "klein" nie</span></p>
+
+      <h2>Tipiese eksamenvrae</h2>
+      <table>
+        <tr><th>Vraag</th></tr>
+        <tr><td>Waarna verwys die drie generasies elk se "boom" (vrugte/koelte/internetwinkel)?</td></tr>
+        <tr><td>Verduidelik die metafoor "die web is my werf en Gumtree my boom".</td></tr>
+        <tr><td>Watter funksie het die veranderende tipografie in die slotstrofe?</td></tr>
+      </table>
+    </section>
+
+    <section class="view" id="view-poem-palimpses" data-title="Palimpses">
+      <div class="eyebrow">Vraestel II · Voorgeskrewe Poësie</div>
+      <h1 class="view-title">Palimpses</h1>
+      <div class="poet-byline">Johann de Lange</div>
+
+      <h2>Vorm &amp; rym</h2>
+      <p>Italiaanse sonnet — oktaaf (r.1–8) = beeld, sestet (r.9–14) = toepassing. Eindrym in reëls 11 en 14.</p>
+
+      <h2>Tema</h2>
+      <p>Die natuur word vernietig vir menslike (kreatiewe) behoeftes, maar die digter/skrywer gee die bome — en dus die natuur — 'n nuwe stem deur die geskrewe woord.</p>
+
+      <h2>Opsomming</h2>
+      <p>'n Palimpses is 'n antieke perkamentrol wat uitgekrap en herskryf kon word — selfs vandag kan die eerste boodskap soms nog gelees word. Strofe 1 (oktaaf) skep die beeld: houtkappers kap bome af om papier te maak. Strofe 2 (sestet) is die toepassing: die digter tree op as "tolk" vir die dooie, stil bome deur op die papier te skryf — die tikmasjien se geluid breek die stilte.</p>
+
+      <h2>Stylfigure</h2>
+      <div class="quote-block"><span class="qtext">"Bome skryf" / "stil is die bome"</span><span class="qcite">Personifikasie — die bome kry menslike eienskappe</span></div>
+      <div class="quote-block"><span class="qtext">"stil is die bome"</span><span class="qcite">Eufemisme — sagte manier om te sê die bome is afgekap/dood</span></div>
+      <div class="quote-block"><span class="qtext">"stil" (r.8) teenoor "kletterend" (r.9)</span><span class="qcite">Kontras — skerp oorgang tussen stilte (dood) en geluid (nuwe lewe deur die geskrewe woord)</span></div>
+      <p><span class="pill">Polisindeton — herhaling van "en"</span><span class="pill">Inversie: "Stil is die bome"</span><span class="pill">Klanknabootsing: "kletterend"</span></p>
+
+      <h2>Tipiese eksamenvrae</h2>
+      <table>
+        <tr><th>Vraag</th></tr>
+        <tr><td>Verduidelik die titel se letterlike én figuurlike betekenis.</td></tr>
+        <tr><td>Watter rol vervul die digter volgens die gedig?</td></tr>
+        <tr><td>Bespreek die kontras tussen stilte en geluid in die gedig.</td></tr>
+        <tr><td>Waarom is "Palimpses" 'n toepaslike titel vir hierdie gedig?</td></tr>
+      </table>
+    </section>
+
+    <section class="view" id="view-poem-sondagaande" data-title="Sondagaande">
+      <div class="eyebrow">Vraestel II · Voorgeskrewe Poësie</div>
+      <h1 class="view-title">Sondagaande</h1>
+      <div class="poet-byline">Fanie Viljoen</div>
+
+      <h2>Vorm &amp; rym</h2>
+      <p>Enkelstrofe (geen strofe-indeling nie), geen vaste rympatroon nie.</p>
+
+      <h2>Tema</h2>
+      <p>Universele Sondagaand-angs en eensaamheid — mense voel bedreig en swaarmoedig namate die naweek verby is en 'n nuwe week nader kom, veral in 'n stedelike (woonstel-)omgewing waar daar min ware kontak met ander mense is.</p>
+
+      <h2>Opsomming</h2>
+      <p>Roofvoëls (aasvoëls) sirkel bo die woonsteldakke van 'n stad. Namate die aand vorder, sirkel hulle al hoe laer en nader — 'n simbool van die toenemende, kruipende angs wat mense op 'n Sondagaand voel wanneer hulle besef dit is amper Maandag. Die spreker is universeel — enige eensame stedeling kan homself hierin sien.</p>
+
+      <h2>Stylfigure</h2>
+      <div class="quote-block"><span class="qtext">"die aand stuur sy roofvoëls uit in die taai donker" (r.1)</span><span class="qcite">Personifikasie — die aand self kry 'n opsetlike, byna bose handeling</span></div>
+      <div class="quote-block"><span class="qtext">"na die prooi wat elke week sielalleen voor Sondagaande staan" (r.7)</span><span class="qcite">Alliterasie — beklemtoon die herhalende, uitsiglose aard van hierdie eensaamheid</span></div>
+      <p><span class="pill">Simboliek: roofvoëls = swaarmoedigheid</span><span class="pill">Progressie: voëls sirkel al hoe laer en nader</span><span class="pill">Universele spreker — nooit spesifiek geïdentifiseer nie</span></p>
+
+      <h2>Tipiese eksamenvrae</h2>
+      <table>
+        <tr><th>Vraag</th></tr>
+        <tr><td>Wat simboliseer die roofvoëls?</td></tr>
+        <tr><td>Watter progressie kom in die gedig voor en wat is die effek daarvan?</td></tr>
+        <tr><td>Beskryf die toon van die gedig in een woord en motiveer.</td></tr>
+        <tr><td>Waarom is 'n woonstelomgewing 'n gepaste agtergrond vir hierdie tema?</td></tr>
+      </table>
+    </section>
+
+    <section class="view" id="view-p1-ongesiene-poesie" data-title="Ongesiene gedig-strategie">
+      <div class="eyebrow">Vraestel I · Afdeling C</div>
+      <h1 class="view-title">Ongesiene / voorbereide gedig-strategie</h1>
+      <p class="view-dek">Anders as die 10 voorgeskrewe gedigte, ken jy hierdie gedig nie noodwendig vooraf nie. Die gedig word egter altyd in die vraestel gedruk, so die klem val op vaardigheid, nie geheue nie.</p>
+
+      <h2>Algemene vraagpatrone</h2>
+      <table>
+        <tr><th>Vraagtipe</th><th>Wat om te doen</th></tr>
+        <tr><td>Meerkeuse oor toon/gevoel</td><td>Kies die opsie wat die hele gedig se stemming pas, nie net een reël nie.</td></tr>
+        <tr><td>"Haal 'n voorbeeld van [stylfiguur] aan"</td><td>Haal presies uit die gedig aan, met aanhalingstekens.</td></tr>
+        <tr><td>"Wat is die funksie van...?"</td><td>Verduidelik altyd wat die tegniek se doel/effek is, nie net wat dit ís nie.</td></tr>
+        <tr><td>Rymskema bepaal en benoem</td><td>Gee elke reël se laaste woord 'n letter (abab = kruisrym, ens.).</td></tr>
+        <tr><td>Wending-vraag</td><td>Soek die woord "maar" of 'n duidelike toonverandering; noem die presiese reëlnommer.</td></tr>
+      </table>
+
+      <div class="callout tip">
+        <span class="callout-label">Eksamenwenk</span>
+        Bestee jou eerste 2 minute net aan lees — moenie na die vrae spring voordat jy die hele gedig verstaan nie. 'n Gedig wat verkeerd geïnterpreteer word, kos jou punte regdeur die hele afdeling, nie net een vraag nie.
+      </div>
+
+      <div class="callout mistake">
+        <span class="callout-label">Algemene fout</span>
+        Aannames maak oor die gedig se betekenis gebaseer op net die titel, sonder om die res van die gedig te lees. Titels is 'n leidraad, nie die volledige antwoord nie.
+      </div>
+    </section>
+
+    <section class="view" id="view-p2-overview" data-title="Vraestel II-oorsig">
+      <div class="eyebrow">Vraestel II · Letterkunde · 100 punte</div>
+      <h1 class="view-title">Vraestel II op 'n oogopslag</h1>
+      <p class="view-dek">Vraestel II toets jou begrip van die voorgeskrewe roman (Tuimeltrein) en die 10 voorgeskrewe gedigte, plus jou vermoë om 'n literêre opstel te struktureer en te skryf.</p>
+
+      <h2>Struktuur van Vraestel II</h2>
+      <table>
+        <tr><th>Afdeling</th><th>Fokus</th><th>Punte</th></tr>
+        <tr><td>A</td><td>Roman — Literêre opstel (Tuimeltrein)</td><td>30</td></tr>
+        <tr><td>—</td><td>Voorgeskrewe poësie (10 gedigte)</td><td>30</td></tr>
+        <tr><td>B</td><td>Transaksionele skryfwerk</td><td>40</td></tr>
+      </table>
+
+      <div class="callout term">
+        <span class="callout-label">Belangrike konteks</span>
+        Jou Engelse eweknie-gids dek TWEE voorgeskrewe letterkundewerke (roman + drama). Vir Afrikaans is daar volgens al jou opgelaaide bronmateriaal net ÉÉN voorgeskrewe letterkundewerk — Tuimeltrein — plus die 10 gedigte. As jou skool wel 'n tweede voorgeskrewe werk (bv. 'n drama) het, is daar geen bewys daarvan in die materiaal wat vir hierdie gids gebruik is nie — laat weet gerus die titel en dit kan bygevoeg word.
+      </div>
+
+      <div class="callout mistake">
+        <span class="callout-label">Belangrike diepte-nota</span>
+        Volle kaart-vir-kaart drilling oor al 434 vraag-en-antwoord-flitskaarte vir Tuimeltrein is in jou aparte Tuimeltrein Intensiewe Studiegids. Hierdie afdeling gee 'n deeglike, betroubare oorsig — verhaal, karakters, temas, aanhalings, eksamenvaardighede — maar is nie 'n plaasvervanger vir daardie diepte-oefening nie.
+      </div>
+    </section>
+
+    <section class="view" id="view-tt-verhaal" data-title="Verhaal & struktuur">
+      <div class="eyebrow">Vraestel II · Tuimeltrein</div>
+      <h1 class="view-title">Verhaal &amp; struktuur</h1>
+      <p class="view-dek">Drie tieners word ooggetuies van 'n moord deur hul eie skoolhoof — en word dan self as verdagtes agtervolg. Die roman se titel verwys na die "BEAST", 'n tuimeltrein wat simbolies is van die tieners se emosionele op-en-af-reis.</p>
+
+      <h2>Kortsamevatting</h2>
+      <p>Abby (AARDE), Henri (VENUS) en Jasper (MARS) is teenwoordig wanneer skoolhoof Vos ("Jakkals") vir Izzie doodskiet. In plaas daarvan om geglo te word, word hulle self as verdagtes agtervolg deur die buurtwag, die polisie, en Vos self, wat sy eie betrokkenheid probeer wegsteek. Hulle beweeg deur 'n reeks skuilplekke — 'n grot, 'n atletiekklub, 'n vriend se huis — voor 'n lewensgevaarlike agtervolging in 'n motorongeluk eindig. Forensiese bewyse bevestig later hul onskuld.</p>
+
+      <h2>Hoofstuk-vir-hoofstuk</h2>
+      <table>
+        <tr><th>Hoofstuk</th><th>Wat gebeur</th></tr>
+        <tr><td>1 — Bekendstelling</td><td>Abby, Henri en Jasper word deur juffrou Makou saam gesit vir 'n LO-taak. Hulle is teenwoordig wanneer skoolhoof Vos vir Izzie doodskiet. Buurtwaglid Johannes jaag hulle.</td></tr>
+        <tr><td>2 — Vlug en angsaanval</td><td>Die tieners vlug te voet. Henri kry 'n angsaanval; Abby help hom kalmeer. Hulle bespreek hoekom niemand hul kant sal glo nie.</td></tr>
+        <tr><td>3 — Koos in die grot</td><td>Die tieners skuil by Koos, 'n boemelaar. Koos deel wysheid. Henri vermom homself. Koos vertel van Jonah.</td></tr>
+        <tr><td>4 — Die BEAST</td><td>Die tieners bespreek die BEAST (tuimeltrein) by die klub. Abby onthou haar pa; Jasper steel 'n motorfiets.</td></tr>
+        <tr><td>5 — By Jonah</td><td>Dit word duidelik dat Jonah ná die R15 000-beloning is wat Vos vir inligting bied. Jonah probeer Jasper slaan; Jasper verweer hom.</td></tr>
+        <tr><td>6 — Verraad en spanning loop op</td><td><span class="pill">dunner detail</span> Die gevolge van Jonah se verraad-poging duur voort; vertroue tussen die tieners word getoets. Bevestig teen jou eie klasnotas.</td></tr>
+        <tr><td>7 — Henri se vermomming en die nuusuitsending</td><td>Johannes doen TV-verslag; Jonah lieg dat die tieners hom as gyselaar wou gebruik. Henri verskyn in volle drag.</td></tr>
+        <tr><td>8 — Op die vlug</td><td><span class="pill">dunner detail</span> Die drie beweeg verder terwyl polisie, buurtwag en Vos nader kom; spanning binne die groep loop hoog op.</td></tr>
+        <tr><td>9 — Die agtervolging</td><td>Vos agtervolg die tieners se Fiat na Silkaatsnek. Henri neem 'n video op as "laaste woorde"; 'n skoot word afgevuur.</td></tr>
+        <tr><td>10 — Die ongeluk</td><td>Die Fiat verongeluk; Jasper beland in Mediclinic. Abby word geskiet, verbind haarself en veg fisiek terug teen Vos.</td></tr>
+        <tr><td>11 — Ontknoping</td><td>By 'n atletiekbyeenkoms word die (vrygespreekte) tieners se storie vertel deur Henri se video. Jasper en Abby se verhouding word bevestig; Henri en Scooby is 'n paar.</td></tr>
+      </table>
+
+      <div class="callout tip">
+        <span class="callout-label">Kernsimbool</span>
+        Die tuimeltrein ("BEAST") is nie net 'n plek in die verhaal nie — dit is 'n deurlopende metafoor vir onbeheerbare, vinnige verandering en emosionele omwenteling. Verwys hierna in enige opstel wat oor struktuur of simboliek vra.
+      </div>
+    </section>
+
+    <section class="view" id="view-tt-karakters" data-title="Karakters">
+      <div class="eyebrow">Vraestel II · Tuimeltrein</div>
+      <h1 class="view-title">Karakters</h1>
+      <p class="view-dek">Ken elke karakter se motivering, agtergrond en ontwikkeling — dis presies wat 'n opstelvraag oor karakterisering vereis.</p>
+
+      <h2>Hoofkarakters</h2>
+      <table>
+        <tr><th>Karakter</th><th>Profiel</th></tr>
+        <tr><td>Abby Mynhardt (AARDE)</td><td>Realisties, prakties en 'n toegewyde atletiekster. Vervreem van haar pa (wat die gesin verlaat het) en onder groot druk om die "goeie dogter" te wees. Ontwikkel oor die roman van vermydend na dapper en selfstandig.</td></tr>
+        <tr><td>Henri van Leempitte (VENUS)</td><td>Uitbundig, kreatief ('n "graad-11-kunswonder") en homoseksueel — word deur sy broers en skoolmaats geboelie. Soek aanvaarding en bevestiging; kry uiteindelik erkenning by sy pa en 'n verhouding met Scooby.</td></tr>
+        <tr><td>Jasper Barkhuizen (MARS)</td><td>Rekenaarspeletjie-fanatikus wat gereeld in die moeilikheid is en voel sy ouers verstaan hom nie regtig nie. Sy vaardighede met speletjies word letterlik lewensreddend tydens die agtervolging.</td></tr>
+      </table>
+
+      <h2>Antagonis &amp; ondersteunende karakters</h2>
+      <table>
+        <tr><th>Karakter</th><th>Profiel</th></tr>
+        <tr><td>Skoolhoof Vos ("Jakkals")</td><td>Antagonis — lank reeds skoolhoof en goed ingebed in die gemeenskap (buurtwag, polisieforum, kerk). Skiet vir Izzie en jaag dan die tieners om homself te beskerm; sy verlede as "koevoet" in die 1980's verklaar sy paranoia en gewelddadigheid.</td></tr>
+        <tr><td>Koos</td><td>Boemelaar wat in 'n grot naby die dorp woon. Vroeër 'n onderwyser wie se loopbaan deur Vos vernietig is. Bring wysheid en perspektief; simboliseer hoe maklik 'n lewe kan ontspoor.</td></tr>
+        <tr><td>Jonah</td><td>Jasper se vroeëre vriend wat dwelms gebruik. Verraai (probeer verraai) die tieners vir 'n geldelike beloning — 'n toets van vertroue binne die verhaal.</td></tr>
+        <tr><td>Johannes</td><td>Buurtwaglid wat die soektog na die tieners lei en op TV verslag doen; verteenwoordig hoe die gemeenskap/media die situasie (verkeerd) interpreteer.</td></tr>
+      </table>
+
+      <div class="callout tip">
+        <span class="callout-label">Eksamenwenk</span>
+        Vir 'n opstel oor karakterontwikkeling, gebruik altyd 'n VOOR-en-NA-struktuur: hoe die karakter aan die begin van die roman was, watter gebeurtenis(se) hulle verander het, en hoe hulle aan die einde is. Nasieners beloon aantoonbare verandering, nie net 'n beskrywing nie.
+      </div>
+    </section>
+
+    <section class="view" id="view-tt-temas" data-title="Temas & simbole">
+      <div class="eyebrow">Vraestel II · Tuimeltrein</div>
+      <h1 class="view-title">Temas &amp; simbole</h1>
+      <p class="view-dek">Elke opstelvraag oor die roman koppel aan een (of meer) van hierdie kernkwessies.</p>
+
+      <table>
+        <tr><th>Tema</th><th>Hoe dit in die roman werk</th></tr>
+        <tr><td>Vertroue &amp; verraad</td><td>Jonah se poging om die tieners vir geld te verraai toets hoe broos vriendskap onder druk is.</td></tr>
+        <tr><td>Ouer-kind-verhoudings</td><td>Abby se vervreemding van haar pa, Henri se worsteling om deur sy pa aanvaar te word, en Jasper se gevoel dat sy ouers hom nie ken nie, dryf al drie se innerlike konflikte.</td></tr>
+        <tr><td>Identiteit &amp; aanvaarding</td><td>Henri se reis na selfaanvaarding (as homoseksuele tiener) is sentraal tot sy karakterontwikkeling — veral sy onthulling in drag in hoofstuk 7.</td></tr>
+        <tr><td>Mag &amp; misbruik daarvan</td><td>Vos misbruik sy posisie as skoolhoof en sy aansien in die gemeenskap om die waarheid te verdraai en die tieners te jag.</td></tr>
+        <tr><td>Skuld &amp; onskuld / persepsie teenoor werklikheid</td><td>Die gemeenskap en media glo dadelik die tieners is skuldig — 'n kommentaar op hoe vinnig persepsie werklikheid kan vervang.</td></tr>
+        <tr><td>Groei deur beproewing</td><td>Al drie tieners kom sterker en meer selfbewus uit hul beproewing as wat hulle ingegaan het.</td></tr>
+      </table>
+
+      <h2>Simbole</h2>
+      <table>
+        <tr><th>Simbool</th><th>Betekenis</th></tr>
+        <tr><td>Die BEAST (tuimeltrein)</td><td>Onbeheerbare, vinnige verandering; die tieners se emosionele op-en-af tydens die roman se gebeure.</td></tr>
+        <tr><td>Die grot</td><td>'n Skuilplek weg van die "beskaafde" wêreld, waar Koos — self 'n slagoffer van onregverdigheid — wysheid bied.</td></tr>
+        <tr><td>Henri se vermomming/drag</td><td>Verteenwoordig sy ware self, teenoor die vermomming/onderdrukking wat hy in die alledaagse lewe moet handhaaf.</td></tr>
+      </table>
+
+      <div class="callout mistake">
+        <span class="callout-label">Algemene fout</span>
+        'n Tema net noem sonder om dit aan spesifieke gebeure/karakters uit die roman te koppel. "Vertroue is 'n tema" verdien niks — sê presies HOE en WAAR dit in die verhaal uitgebeeld word.
+      </div>
+    </section>
+
+    <section class="view" id="view-tt-aanhalings" data-title="Sleutelaanhalings">
+      <div class="eyebrow">Vraestel II · Tuimeltrein</div>
+      <h1 class="view-title">Sleutelaanhalings</h1>
+      <p class="view-dek">Anders as vir gedigte (waar elke woord bevestig is), is jou bronmateriaal vir Tuimeltrein studienotas/opsommings, nie 'n bladsy-vir-bladsy geverifieerde teks nie. Die "aanhalings" hieronder is dus storie-oomblikke met 'n hoofstukverwysing, nie woordelikse, bladsy-gesiteerde aanhalings soos in 'n Shakespeare-teks nie.</p>
+
+      <div class="callout term">
+        <span class="callout-label">Belangrike nota oor hierdie bladsy</span>
+        Kontroleer enige presiese bewoording wat jy in 'n eksamen wil gebruik teen jou eie afskrif van die roman. Hierdie bladsy is bedoel om jou te help ONTHOU watter oomblik waar gebeur, nie om woordeliks aangehaal te word asof dit 'n direkte teksaanhaling is nie.
+      </div>
+
+      <table>
+        <tr><th>Hoofstuk</th><th>Sleuteloomblik</th><th>Waarom dit saak maak</th></tr>
+        <tr><td>1</td><td>Vos skiet vir Izzie voor die drie tieners se oë.</td><td>Die inperkende gebeurtenis wat die hele plot aan die gang sit.</td></tr>
+        <tr><td>3</td><td>Koos se wysheid: almal "speel dieselfde speletjies, net verskillende vlakke".</td><td>Bied 'n tematiese lens vir die hele roman — almal se stryd is relatief.</td></tr>
+        <tr><td>4</td><td>Abby onthou hoe sy en haar pa vroeër saam op tuimeltreinkarretjies gery het.</td><td>Vestig die BEAST se emosionele/simboliese gewig vroeg in die verhaal.</td></tr>
+        <tr><td>5</td><td>Jonah maak duidelik dat hy eintlik ná die R15 000-beloning is.</td><td>Die kernoomblik van verraad wat vertroue as tema aktiveer.</td></tr>
+        <tr><td>7</td><td>Henri kom in volle drag te voorskyn en verras die ander.</td><td>Kernoomblik vir Henri se identiteit-tema.</td></tr>
+        <tr><td>9</td><td>Henri neem 'n video op as "laaste woorde" tydens die agtervolging.</td><td>Bring al drie karakters se diepste bekentenisse na vore onder lewensdruk.</td></tr>
+        <tr><td>10</td><td>Abby veg fisiek terug teen Vos nadat sy geskiet is.</td><td>Haar karakterontwikkeling se hoogtepunt — van vermydend na dapper.</td></tr>
+        <tr><td>11</td><td>Die tieners word vrygespreek; Jasper en Abby se verhouding word bevestig.</td><td>Sluit die versoening- en groei-temas af.</td></tr>
+      </table>
+
+      <div class="callout tip">
+        <span class="callout-label">Eksamenwenk</span>
+        As jy in 'n eksamen 'n aanhaling nie woordeliks kan onthou nie, verwys eerder na die gebeurtenis spesifiek ("in hoofstuk 9, toe Henri...") as om 'n onakkurate "aanhaling" uit te dink — 'n verkeerde aanhaling kos meer punte as 'n korrekte, nie-aangehaalde verwysing.
+      </div>
+    </section>
+
+    <section class="view" id="view-tt-eksamenvaardighede" data-title="Opstel- & eksamenvaardighede">
+      <div class="eyebrow">Vraestel II · Afdeling A · Literêre Opstel</div>
+      <h1 class="view-title">Opstel- &amp; eksamenvaardighede</h1>
+      <p class="view-dek">Die literêre opstel oor Tuimeltrein word volgens 'n amptelike IEB-rubriek nagesien — ken die struktuur wat punte verdien.</p>
+
+      <h2>Struktuur van jou opstel</h2>
+      <div class="card-grid">
+        <div class="card"><h4>Inleiding</h4><p>Kort, toepaslik, stel die onderwerp bekend — moenie net die vraag herhaal nie.</p></div>
+        <div class="card"><h4>Liggaam</h4><p>Volg die kolpunte/struktuur wat in die vraag gegee word; elke paragraaf = een fase/gebeurtenis.</p></div>
+        <div class="card"><h4>Slot</h4><p>Kort, rond die argument af — nie net 'n herhaling van die inleiding nie.</p></div>
+        <div class="card"><h4>Woordperk</h4><p>Gewoonlik 250–400 woorde — skryf jou totale woordtelling aan die einde neer.</p></div>
+      </div>
+
+      <h2>Amptelike nasienrubriek — Taal en Struktuur</h2>
+      <table>
+        <tr><th>Punte</th><th>Struktuur</th><th>Taal</th></tr>
+        <tr><td>5</td><td>Uitstekend — oorspronklike/kreatiewe inleiding en slot; feite uitsonderlik uiteengesit.</td><td>Puik taalgebruik.</td></tr>
+        <tr><td>4</td><td>Toepaslike inleiding en slot; feite sinvol uiteengesit.</td><td>Wel taalfoute, maar teks vloei nog goed.</td></tr>
+        <tr><td>3</td><td>Geen inleiding en/of slot nie; feite verstaanbaar uiteengesit.</td><td>Taalfoute begin steurend raak en beïnvloed betekenis.</td></tr>
+        <tr><td>2</td><td>Geen inleiding en/of slot nie; opstel hortend, vloei swak.</td><td>Oormatige taalfoute.</td></tr>
+        <tr><td>1–0</td><td>Geen inleiding of slot nie; swak paragrafering; feite verwarrend.</td><td>Swak taalgebruik; oormatige Engels; dele onverstaanbaar.</td></tr>
+      </table>
+
+      <h2>Waarskynlike opsteltemas</h2>
+      <table>
+        <tr><th>Onderwerp</th></tr>
+        <tr><td>Bespreek Abby se verhouding met haar pa, en hoe dit haar optrede regdeur die roman beïnvloed.</td></tr>
+        <tr><td>Bespreek hoe Henri se identiteit (as homoseksuele tiener) deur die roman ontwikkel.</td></tr>
+        <tr><td>Bespreek die rol van Koos as 'n karakter wat wysheid en perspektief aan die tieners bied.</td></tr>
+        <tr><td>Bespreek die simboliese betekenis van die tuimeltrein/BEAST in die roman.</td></tr>
+        <tr><td>Bespreek hoe Vos (Jakkals) se verlede sy optrede as antagonis verklaar.</td></tr>
+        <tr><td>Bespreek die tema van vertroue en verraad soos dit deur Jonah se karakter uitgebeeld word.</td></tr>
+      </table>
+
+      <div class="callout mistake">
+        <span class="callout-label">Belangrike waarskuwing</span>
+        Hierdie is nie amptelike eksamenvrae nie — dis onderwerpe wat op grond van die roman se temas logies waarskynlik is. Vervang dit met jou skool se amptelike opstelvraag sodra dit beskikbaar is.
+      </div>
+
+      <div class="callout tip">
+        <span class="callout-label">Eksamenwenk</span>
+        Gebruik feite direk uit die roman (name, plekke, gebeure) — vaag skryf kos punte. Skryf in vloeiende, samehangende Afrikaans en vermy direkte Engelse vertalings.
+      </div>
+    </section>
+
+    <section class="view" id="view-tw-oorsig" data-title="Oorsig & benadering">
+      <div class="eyebrow">Vraestel II · Afdeling B · 40 punte</div>
+      <h1 class="view-title">Transaksionele skryfwerk — oorsig &amp; benadering</h1>
+      <p class="view-dek">Transaksionele skryfwerk toets of jy 'n spesifieke teksformaat vir 'n spesifieke gehoor en doel korrek kan produseer — nie net "goed skryf" in die algemeen nie.</p>
+
+      <h2>Metode</h2>
+      <ol style="margin:0 0 20px; padding-left:20px; font-size:.93rem; line-height:1.75;">
+        <li>Lees die situasie/opdrag noukeurig — identifiseer die FORMAAT, GEHOOR en DOEL voordat jy begin skryf.</li>
+        <li>Onderstreep elke vereiste kolpunt in die opdrag — elkeen moet in jou teks verskyn.</li>
+        <li>Beplan kortliks watter paragraaf watter kolpunt(e) gaan dek.</li>
+        <li>Skryf binne die voorgeskrewe woordperk — te min of te veel woorde word gepenaliseer.</li>
+        <li>Skryf jou woordtelling aan die einde neer.</li>
+        <li>Gaan aan die einde terug en kontroleer: is die FORMAAT (opskrif, aanhef, afsluiting) korrek? Is die REGISTER gepas?</li>
+      </ol>
+
+      <div class="callout tip">
+        <span class="callout-label">Eksamenwenk</span>
+        Verdeel jou paragrawe presies volgens die kolpunte wat in die opdrag gegee word — dis letterlik hoe nasieners die teks nasien. 'n Goed geskrewe teks wat 'n kolpunt uitlaat, verloor steeds daardie punt.
+      </div>
+
+      <div class="callout mistake">
+        <span class="callout-label">Algemene fout</span>
+        Die verkeerde formaat-konvensies gebruik (bv. 'n informele groet in 'n formele brief, of geen opskrif waar een vereis word nie). Formaat-foute word apart gepenaliseer, ongeag hoe goed die inhoud is.
+      </div>
+    </section>
+
+    <section class="view" id="view-tw-formate" data-title="Formaatverwysing">
+      <div class="eyebrow">Vraestel II · Afdeling B</div>
+      <h1 class="view-title">Formaatverwysing</h1>
+      <p class="view-dek">Elke formaat het sy eie konvensies vir opening, struktuur en afsluiting. Hierdie tabel is 'n vinnige verwysing — jou skool se spesifieke voorbeelde in klas is steeds die finale gesag.</p>
+
+      <table>
+        <tr><th>Formaat</th><th>Opening</th><th>Struktuur</th><th>Afsluiting</th></tr>
+        <tr><td>Bloginskrywing</td><td>Opskrif/titel wat die onderwerp aandui</td><td>Inleidingsparagraaf, dan 'n paragraaf per vereiste kolpunt, informeel-persoonlike toon</td><td>Slotparagraaf wat die onderwerp afrond</td></tr>
+        <tr><td>Formele brief</td><td>Afsenderadres, datum, ontvanger se besonderhede, "Geagte Heer/Dame" of "Geagte mnr./mev. [Van]"</td><td>Duidelike doel in eerste paragraaf; formele, saaklike toon; een idee per paragraaf</td><td>"Die uwe" / "Hoogagtend" + volledige naam</td></tr>
+        <tr><td>Informele brief / e-pos</td><td>"Liewe [Naam]," of net "Hallo [Naam],"</td><td>Persoonlike, gesellige toon; kan van onderwerp na onderwerp spring soos 'n gesprek</td><td>"Groete" / "Lekker bly" + voornaam</td></tr>
+        <tr><td>Dagboekinskrywing</td><td>Datum bo-aan; "Liewe dagboek," (opsioneel)</td><td>Eerstepersoon, refleksief, emosioneel eerlik; chronologies of gedagtestroom</td><td>Geen formele afsluiting nodig — kan net eindig op 'n gedagte/gevoel</td></tr>
+        <tr><td>Dialoog</td><td>Kontekstuele toneelbeskrywing (opsioneel)</td><td>Elke spreker se naam gevolg deur 'n koppelteken of dubbelpunt; natuurlike, gesproke register</td><td>Gesprek rond natuurlik af — nie 'n formele slot nie</td></tr>
+        <tr><td>Onderhoud</td><td>Kort inleiding: wie word onderhou en waaroor</td><td>Vraag-en-antwoord-formaat; vrae moet logies op mekaar volg</td><td>Bedankings-/afsluitingsopmerking</td></tr>
+        <tr><td>Toespraak</td><td>Direkte aanspreekvorm van gehoor ("Goeie môre, dames en here...")</td><td>Retories sterk — gebruik herhaling, retoriese vrae, voorbeelde; hou die gehoor in gedagte deurgaans</td><td>'n Memorabele, dikwels oproep-tot-aksie slotsin</td></tr>
+        <tr><td>Resensie</td><td>Naam van produk/boek/fliek + kort konteks</td><td>Balans tussen beskrywing en eie mening/evaluering; spesifieke voorbeelde ter stawing</td><td>Algehele aanbeveling/gradering</td></tr>
+      </table>
+
+      <div class="callout term">
+        <span class="callout-label">Bevestigde voorbeeld uit 'n vorige IEB-vraestel</span>
+        'n Bloginskrywing-opdrag het spesifiek gevra: verdeel paragrawe volgens die gegewe kolpunte, sluit 'n inleiding- én slotparagraaf in, beplan voor jy skryf, en skryf die woordtelling onderaan neer — binne 'n 150–250-woordperk. Hierdie struktuur is 'n betroubare model vir enige soortgelyke opdrag.
+      </div>
+
+      <div class="callout mistake">
+        <span class="callout-label">Algemene fout</span>
+        Formele en informele register in dieselfde teks meng — bv. "Geagte mnr. Botha, hoe gaan dit met jou?" Kies EEN register en hou dit konsekwent deur die hele teks.
+      </div>
+    </section>
+
+    <section class="view" id="view-tw-register-stem" data-title="Register & stem">
+      <div class="eyebrow">Vraestel II · Afdeling B</div>
+      <h1 class="view-title">Register &amp; stem</h1>
+      <p class="view-dek">Die formaat bepaal WAT jy skryf; register en stem bepaal HOE dit klink. Albei word apart nagesien.</p>
+
+      <table>
+        <tr><th>Situasie</th><th>Verwagte register</th><th>Kenmerke</th></tr>
+        <tr><td>Leerder na skoolhoof/onderwyser</td><td>Formeel</td><td>"u" i.p.v. "jy", volledige sinne, geen samentrekkings, beleefdheidsfrases</td></tr>
+        <tr><td>Leerder na vriend/portuurgroep</td><td>Informeel</td><td>"jy", samentrekkings, alledaagse woordeskat, moontlik humor/slang</td></tr>
+        <tr><td>Blog/dagboek (persoonlik)</td><td>Informeel-persoonlik</td><td>Eerstepersoon, emosioneel eerlik, gesels-agtige toon</td></tr>
+        <tr><td>Toespraak aan groot gehoor</td><td>Formeel-retories</td><td>Direkte aanspreekvorm, retoriese tegnieke, hoë-impak sinne</td></tr>
+        <tr><td>Onderhoud met kundige</td><td>Formeel-beleefd</td><td>Respekvolle vrae, "u", duidelike vraagstruktuur</td></tr>
+      </table>
+
+      <h2>Stem</h2>
+      <p>"Stem" verwys na hóé konsekwent en oortuigend jy 'n spesifieke persoonlikheid/perspektief regdeur die teks handhaaf. 'n Sterk stem bly konsekwent — as jy as 'n opgewonde tiener in 'n blog skryf, moenie skielik formeel/afstandelik raak in die slotparagraaf nie.</p>
+
+      <div class="callout mistake">
+        <span class="callout-label">Algemene fout</span>
+        Register en toon verwar (sien ook die Register &amp; toon-bladsy in die Taal-toolkit). Register is hoe FORMEEL jy skryf; toon is watter GEVOEL jy oordra. Jy kan formeel én ernstig wees, of informeel én snaaks — hulle is onafhanklike keuses.
+      </div>
+
+      <div class="callout tip">
+        <span class="callout-label">Eksamenwenk</span>
+        As die opdrag nie eksplisiet die register noem nie, kyk na die VERHOUDING tussen die skrywer en die ontvanger in die situasie — dit bepaal amper altyd die korrekte register.
+      </div>
+    </section>
+
+    <section class="view" id="view-tw-tegnieke" data-title="Retoriese tegnieke">
+      <div class="eyebrow">Vraestel II · Afdeling B</div>
+      <h1 class="view-title">Retoriese tegnieke</h1>
+      <p class="view-dek">Retoriese tegnieke oortuig, beklemtoon of skep impak — nuttig veral in toesprake, blogs en resensies waar jy 'n standpunt moet stel.</p>
+
+      <table>
+        <tr><th>Tegniek</th><th>Definisie</th><th>Voorbeeld</th></tr>
+        <tr><td>Retoriese vraag</td><td>'n Vraag wat nie 'n antwoord verwag nie — gevra vir effek</td><td>"Wie sou nie hierdie kans wou gryp nie?"</td></tr>
+        <tr><td>Direkte aanspreekvorm</td><td>Praat direk met die leser/gehoor ("jy"/"u")</td><td>"Dink jý al aan wat jy vandag kan verander?"</td></tr>
+        <tr><td>Drieledige herhaling (trikolon)</td><td>Drie parallelle woorde/frases/sinne agtermekaar vir ritmiese klem</td><td>"Ons sal veg, ons sal volhard, ons sal wen."</td></tr>
+        <tr><td>Herhaling</td><td>'n Woord/frase doelbewus herhaal vir klem</td><td>"Nooit weer nie. Nooit weer nie."</td></tr>
+        <tr><td>Bevelvorm (imperatief)</td><td>'n Direkte opdrag/versoek</td><td>"Doen iets vandag."</td></tr>
+        <tr><td>Anekdote</td><td>'n Kort, persoonlike storie om 'n punt te illustreer</td><td>'n Persoonlike voorbeeld wat 'n groter argument staaf</td></tr>
+        <tr><td>Hiperbool</td><td>Doelbewuste oordrywing vir effek</td><td>"Dit was die beste dag van my hele lewe."</td></tr>
+        <tr><td>Emotiewe taal</td><td>Woordkeuse wat doelbewus 'n emosionele reaksie ontlok</td><td>"verskriklike lyding" i.p.v. "probleem"</td></tr>
+        <tr><td>Statistiek/feite as bewys</td><td>Gebruik van syfers/feite om 'n argument geloofwaardig te maak</td><td>"Een uit elke drie leerders..."</td></tr>
+      </table>
+
+      <div class="callout tip">
+        <span class="callout-label">Eksamenwenk</span>
+        In 'n toespraak of oorredende blog, kombineer minstens TWEE retoriese tegnieke (bv. 'n retoriese vraag gevolg deur 'n direkte oproep tot aksie) — dit wys beheerste, doelbewuste taalgebruik eerder as toevallige styl.
+      </div>
+
+      <div class="callout mistake">
+        <span class="callout-label">Algemene fout</span>
+        Te veel retoriese tegnieke opeenhoop sonder duidelike inhoud — 'n teks vol retoriese vrae en oordrywing sonder werklike feite/argumente klink hol. Balans tegniek met substansie.
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+// ---------------- View switching ----------------
+const navItems = document.querySelectorAll('.nav-item');
+const views = document.querySelectorAll('.view');
+const homeJumpGrid = document.getElementById('homeJumpGrid');
+const sidebar = document.getElementById('sidebar');
+const menuBtn = document.getElementById('menuBtn');
+
+function activateView(id){
+  views.forEach(v => v.classList.toggle('active', v.id === 'view-' + id));
+  navItems.forEach(n => n.classList.toggle('active', n.dataset.view === id));
+  window.scrollTo({top:0, behavior:'instant' in window ? 'instant' : 'auto'});
+  sidebar.classList.remove('open');
+  try { history.replaceState(null, '', '#' + id); } catch(e) {}
+}
+
+navItems.forEach(item => {
+  item.addEventListener('click', () => {
+    if(item.dataset.status === 'pending') return;
+    activateView(item.dataset.view);
+  });
+});
+
+menuBtn && menuBtn.addEventListener('click', () => sidebar.classList.toggle('open'));
+
+// Build home "jump to section" cards from done nav items (excluding home)
+function buildHomeGrid(){
+  homeJumpGrid.innerHTML = '';
+  navItems.forEach(item => {
+    if(item.dataset.view === 'home' || item.dataset.status === 'pending') return;
+    const card = document.createElement('div');
+    card.className = 'section-nav-card';
+    card.innerHTML = `<div class="tag">Maak oop</div><h3>${item.querySelector('.label').textContent}</h3><p>Spring direk na hierdie afdeling.</p>`;
+    card.addEventListener('click', () => activateView(item.dataset.view));
+    homeJumpGrid.appendChild(card);
+  });
+}
+buildHomeGrid();
+
+// Progress bar
+function updateProgress(){
+  const total = navItems.length;
+  const done = document.querySelectorAll('.nav-item[data-status="done"]').length;
+  document.getElementById('progressFill').style.width = (done/total*100) + '%';
+  document.getElementById('progressLabel').textContent = done + ' / ' + total + ' afdelings gebou';
+}
+updateProgress();
+
+// Deep link on load
+window.addEventListener('DOMContentLoaded', () => {
+  let hash = ''; try { hash = location.hash.replace('#',''); } catch(e) {}
+  if(hash){
+    const target = document.querySelector('.nav-item[data-view="'+hash+'"]');
+    if(target && target.dataset.status !== 'pending') activateView(hash);
+  }
+});
+
+// ---------------- Search ----------------
+const searchBox = document.getElementById('searchBox');
+const searchResults = document.getElementById('searchResults');
+
+function buildSearchIndex(){
+  const index = [];
+  views.forEach(view => {
+    const viewId = view.id.replace('view-','');
+    const title = view.dataset.title || viewId;
+    const blocks = view.querySelectorAll('h2, h3, p, li, td, .qtext, .callout');
+    blocks.forEach(block => {
+      const text = block.textContent.trim();
+      if(text.length > 20){
+        index.push({ viewId, title, text, el: block });
+      }
+    });
+  });
+  return index;
+}
+let searchIndex = null;
+
+searchBox.addEventListener('focus', () => { if(!searchIndex) searchIndex = buildSearchIndex(); });
+
+searchBox.addEventListener('input', () => {
+  const q = searchBox.value.trim().toLowerCase();
+  if(!searchIndex) searchIndex = buildSearchIndex();
+  if(q.length < 2){ searchResults.classList.remove('show'); return; }
+  const matches = searchIndex.filter(entry => entry.text.toLowerCase().includes(q)).slice(0, 12);
+  searchResults.innerHTML = '';
+  if(matches.length === 0){
+    searchResults.innerHTML = '<div class="search-empty">Geen resultate nie — hierdie afdeling is dalk nog nie gebou nie.</div>';
+  } else {
+    matches.forEach(m => {
+      const idx = m.text.toLowerCase().indexOf(q);
+      const start = Math.max(0, idx-40);
+      const snippet = (start>0?'…':'') + m.text.slice(start, idx) + '<mark>' + m.text.slice(idx, idx+q.length) + '</mark>' + m.text.slice(idx+q.length, idx+q.length+60) + '…';
+      const div = document.createElement('div');
+      div.className = 'search-result-item';
+      div.innerHTML = `<span class="sr-section">${m.title}</span><span class="sr-snippet">${snippet}</span>`;
+      div.addEventListener('click', () => {
+        activateView(m.viewId);
+        searchResults.classList.remove('show');
+        searchBox.value = '';
+        setTimeout(() => { m.el.scrollIntoView({behavior:'smooth', block:'center'}); m.el.style.transition='background 0.3s'; m.el.style.background = 'var(--amber-pale)'; setTimeout(()=>{ m.el.style.background=''; m.el.style.transition=''; }, 2000); }, 120);
+      });
+      searchResults.appendChild(div);
+    });
+  }
+  searchResults.classList.add('show');
+});
+
+searchBox.addEventListener('keydown', (e) => {
+  if(e.key === 'Enter'){
+    const first = searchResults.querySelector('.search-result-item');
+    if(first) first.click();
+  }
+  if(e.key === 'Escape'){ searchResults.classList.remove('show'); searchBox.blur(); }
+});
+
+document.addEventListener('click', (e) => {
+  if(!e.target.closest('.search-wrap')) searchResults.classList.remove('show');
+});
+</script>
+</body>
+</html>

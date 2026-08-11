@@ -1,0 +1,1646 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>CAT Grade 12 — Full Study Dashboard (Paper 1 &amp; Paper 2)</title>
+<style>
+:root{
+  --paper:#FBFBF6;
+  --paper-deep:#E7ECEA;
+  --ink:#16232B;
+  --ink-soft:#52697A;
+  --circuit:#1C7C9C;
+  --circuit-deep:#0B3B4A;
+  --copper:#C1652E;
+  --copper-soft:#E0894F;
+  --grid-line:#6FA8BF;
+  --amber:#D4A017;
+  --card-line:#D7E0E0;
+  --danger:#A63C3C;
+  --radius:6px;
+}
+html{font-size:18px;}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:var(--paper);
+  color:var(--ink);
+  font-family:"Iowan Old Style","Palatino Linotype",Georgia,serif;
+  background-image:
+    repeating-radial-gradient(circle at 12% 18%, rgba(28,124,156,0.05) 0px, rgba(28,124,156,0.05) 1px, transparent 1px, transparent 40px),
+    repeating-radial-gradient(circle at 88% 78%, rgba(193,101,46,0.04) 0px, rgba(193,101,46,0.04) 1px, transparent 1px, transparent 54px);
+}
+.app{display:flex;min-height:100vh;}
+
+/* Sidebar */
+.sidebar{
+  width:262px;flex-shrink:0;
+  background:linear-gradient(190deg, #123244 0%, #0B3B4A 45%, #082A36 100%);
+  color:#E9F3F6;
+  padding:22px 0;
+  position:sticky;top:0;height:100vh;overflow-y:auto;
+  border-right:3px solid var(--copper);
+}
+.brand{
+  font-family:Georgia,serif;
+  font-size:1.05rem;letter-spacing:.03em;
+  padding:0 20px 18px 20px;border-bottom:1px solid rgba(255,255,255,0.15);
+  margin-bottom:14px;
+}
+.brand .sub{display:block;font-size:.7rem;color:#9FC3D1;font-family:"Courier New",monospace;letter-spacing:.08em;margin-top:4px;text-transform:uppercase;}
+
+/* Search */
+.search-wrap{position:relative;padding:0 20px 16px;border-bottom:1px solid rgba(255,255,255,0.15);margin-bottom:10px;}
+.search-box{
+  display:flex;align-items:center;gap:7px;
+  background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.18);
+  border-radius:5px;padding:7px 10px;
+}
+.search-box:focus-within{border-color:var(--amber);background:rgba(255,255,255,0.12);}
+.search-box svg{flex-shrink:0;opacity:.7;}
+#searchInput{
+  background:transparent;border:none;outline:none;color:#fff;
+  font-size:.82rem;width:100%;font-family:inherit;
+}
+#searchInput::placeholder{color:#8FB4C4;}
+.search-hint{font-family:"Courier New",monospace;font-size:.62rem;color:#7FAFC2;opacity:.8;flex-shrink:0;}
+.search-results{
+  position:absolute;left:20px;right:20px;top:calc(100% - 4px);
+  background:#0F3644;border:1px solid var(--amber);border-radius:5px;
+  max-height:340px;overflow-y:auto;z-index:50;
+  box-shadow:0 8px 22px rgba(0,0,0,0.35);display:none;
+}
+.search-results.open{display:block;}
+.search-result{
+  padding:9px 12px;border-bottom:1px solid rgba(255,255,255,0.08);cursor:pointer;
+}
+.search-result:last-child{border-bottom:none;}
+.search-result:hover,.search-result.hi{background:rgba(255,255,255,0.09);}
+.search-result .sr-section{
+  font-family:"Courier New",monospace;font-size:.6rem;text-transform:uppercase;
+  letter-spacing:.06em;color:var(--amber);display:block;margin-bottom:3px;
+}
+.search-result .sr-snippet{font-size:.78rem;color:#DCEAF0;line-height:1.4;}
+.search-result mark{background:var(--amber);color:#1a1400;padding:0 2px;border-radius:2px;}
+.search-empty{padding:14px 12px;font-size:.78rem;color:#8FB4C4;font-style:italic;}
+.search-jump-flash{animation:searchFlash 1.8s ease;}
+@keyframes searchFlash{
+  0%{background:#FBEBB8;box-shadow:0 0 0 3px var(--amber);}
+  100%{background:transparent;box-shadow:0 0 0 0 transparent;}
+}
+.navsection{margin-bottom:6px;}
+.navlabel{font-size:.68rem;text-transform:uppercase;letter-spacing:.1em;color:#7FAFC2;padding:10px 20px 6px;font-family:"Courier New",monospace;}
+.navitem{
+  display:flex;align-items:center;gap:8px;
+  padding:8px 20px;font-size:.85rem;cursor:pointer;color:#DCEAF0;
+  border-left:3px solid transparent;
+}
+.navitem:hover{background:rgba(255,255,255,0.06);}
+.navitem.active{background:rgba(255,255,255,0.1);border-left-color:var(--amber);color:#fff;font-weight:600;}
+.navitem .dot{width:6px;height:6px;border-radius:50%;background:#3E7A8C;flex-shrink:0;}
+.navitem.done .dot{background:var(--amber);}
+
+/* Main */
+.main{flex:1;padding:36px 48px 80px;max-width:920px;}
+.view{display:none;}
+.view.active{display:block;}
+.pageheader{margin-bottom:28px;border-bottom:3px solid transparent;border-image:linear-gradient(90deg,#0B3B4A,#1C7C9C 40%,#D4A017 75%,#C1652E) 1;padding-bottom:14px;}
+.pageheader h1{font-size:1.85rem;margin:0 0 4px;font-weight:600;}
+.pageheader .meta{font-family:"Courier New",monospace;font-size:.76rem;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em;}
+
+.section{margin-bottom:36px;}
+.section h2{
+  font-size:1.25rem;color:var(--circuit-deep);border-bottom:1px solid var(--card-line);
+  padding-bottom:6px;margin-bottom:14px;display:flex;align-items:center;gap:10px;
+}
+.section h2 .tag{
+  font-family:"Courier New",monospace;font-size:.6rem;background:var(--circuit);color:#fff;
+  padding:2px 7px;border-radius:3px;letter-spacing:.05em;
+}
+.card{
+  background:#FFFFFF;border:1px solid var(--card-line);border-radius:var(--radius);
+  padding:16px 20px;margin-bottom:14px;box-shadow:0 1px 2px rgba(0,0,0,0.03);
+}
+.card p{margin:6px 0;line-height:1.55;font-size:.93rem;}
+.card ul{margin:6px 0;padding-left:20px;}
+.card li{margin-bottom:6px;line-height:1.5;font-size:.93rem;}
+.term{font-weight:700;color:var(--ink);}
+.callout{
+  border-left:4px solid var(--amber);background:#FBF3DC;padding:10px 16px;
+  font-size:.86rem;margin:10px 0;border-radius:0 4px 4px 0;
+}
+.callout.exam{border-left-color:var(--circuit);background:#E4F1F5;}
+.callout.warn{border-left-color:var(--danger);background:#F7EAEA;}
+.callout .label{font-family:"Courier New",monospace;font-size:.64rem;text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:3px;font-weight:700;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+
+/* Mobile top bar (hidden on desktop) */
+.mobile-topbar{display:none;}
+
+/* Backdrop for mobile drawer */
+.sidebar-backdrop{display:none;}
+
+@media(max-width:760px){
+  .grid2{grid-template-columns:1fr;}
+  .app{flex-direction:column;}
+  .mobile-topbar{
+    display:flex;align-items:center;gap:12px;
+    position:sticky;top:0;z-index:120;
+    background:linear-gradient(190deg, #123244 0%, #0B3B4A 100%);
+    color:#fff;padding:12px 16px;border-bottom:3px solid var(--copper);
+  }
+  .mobile-topbar .mt-title{font-family:Georgia,serif;font-size:1rem;flex:1;}
+  .menu-btn{
+    background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.25);
+    border-radius:5px;padding:8px 10px;color:#fff;cursor:pointer;line-height:0;
+  }
+  .sidebar{
+    position:fixed;top:0;left:0;height:100vh;width:84%;max-width:320px;
+    transform:translateX(-105%);transition:transform .28s ease;
+    z-index:150;box-shadow:6px 0 24px rgba(0,0,0,0.4);
+  }
+  .sidebar.open{transform:translateX(0);}
+  .sidebar-backdrop{
+    display:none;position:fixed;inset:0;background:rgba(8,20,26,0.55);z-index:140;
+  }
+  .sidebar-backdrop.open{display:block;}
+  .main{padding:26px 18px 60px;width:100%;}
+}
+table.notes{width:100%;border-collapse:collapse;font-size:.86rem;margin:10px 0;}
+table.notes th{background:var(--paper-deep);text-align:left;padding:6px 10px;border:1px solid var(--card-line);font-family:"Courier New",monospace;font-size:.7rem;text-transform:uppercase;letter-spacing:.04em;}
+table.notes td{padding:6px 10px;border:1px solid var(--card-line);vertical-align:top;}
+code{font-family:"Courier New",monospace;font-size:.85em;background:var(--paper-deep);color:var(--circuit-deep);padding:1px 5px;border-radius:3px;}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="mobile-topbar">
+    <button class="menu-btn" id="menuBtn" aria-label="Open menu">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+    <span class="mt-title">CAT Study Deck</span>
+  </div>
+  <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+  <nav class="sidebar" id="sidebarNav">
+    <div class="brand">CAT <span style="color:var(--amber);">Study Deck</span><span class="sub">Grade 12 &middot; IEB/NSC &middot; Paper 1 &amp; Paper 2</span></div>
+
+    <div class="search-wrap">
+      <div class="search-box">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9FC3D1" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.2" y2="16.2"/></svg>
+        <input type="text" id="searchInput" placeholder="Search all sections..." autocomplete="off">
+        <span class="search-hint">&crarr;</span>
+      </div>
+      <div class="search-results" id="searchResults"></div>
+    </div>
+
+    <div class="navlabel">Start here</div>
+    <div class="navitem done active" data-view="overview"><span class="dot"></span>Overview &amp; how to use this</div>
+
+    <div class="navlabel">A &mdash; Systems Technologies</div>
+    <div class="navitem done" data-view="sys-types"><span class="dot"></span>Types of Computing Devices</div>
+    <div class="navitem done" data-view="sys-input"><span class="dot"></span>Input Devices</div>
+    <div class="navitem done" data-view="sys-output"><span class="dot"></span>Output Devices</div>
+    <div class="navitem done" data-view="sys-storage"><span class="dot"></span>Storage Devices &amp; Memory</div>
+    <div class="navitem done" data-view="sys-processing"><span class="dot"></span>Processing, Motherboard &amp; Ports</div>
+    <div class="navitem done" data-view="sys-system-sw"><span class="dot"></span>System Software</div>
+    <div class="navitem done" data-view="sys-app-sw"><span class="dot"></span>Application Software</div>
+    <div class="navitem done" data-view="sys-buying"><span class="dot"></span>Buying, Upgrading &amp; Troubleshooting</div>
+    <div class="navitem done" data-view="sys-emerging"><span class="dot"></span>Emerging Technologies</div>
+
+    <div class="navlabel">B &mdash; Internet &amp; Network Tech</div>
+    <div class="navitem done" data-view="net-internet-www"><span class="dot"></span>Internet, WWW &amp; Browsers</div>
+    <div class="navitem done" data-view="net-connecting"><span class="dot"></span>Connecting to the Internet</div>
+    <div class="navitem done" data-view="net-types"><span class="dot"></span>Network Types &amp; Hardware</div>
+    <div class="navitem done" data-view="net-security"><span class="dot"></span>Network &amp; Data Security</div>
+    <div class="navitem done" data-view="net-deepweb"><span class="dot"></span>Surface, Deep &amp; Dark Web</div>
+
+    <div class="navlabel">C &mdash; Information Management</div>
+    <div class="navitem done" data-view="info-cycle"><span class="dot"></span>Data, Information &amp; Metadata</div>
+    <div class="navitem done" data-view="info-forms"><span class="dot"></span>Online Forms &amp; Validation</div>
+    <div class="navitem done" data-view="info-db"><span class="dot"></span>Databases &amp; Reports</div>
+    <div class="navitem done" data-view="info-bigdata"><span class="dot"></span>Evaluating Sources &amp; Big Data</div>
+
+    <div class="navlabel">D &mdash; Social Implications</div>
+    <div class="navitem done" data-view="soc-crime"><span class="dot"></span>Security &amp; Cybercrime</div>
+    <div class="navitem done" data-view="soc-privacy"><span class="dot"></span>Privacy &amp; Digital Footprint</div>
+    <div class="navitem done" data-view="soc-health"><span class="dot"></span>Health, Ergonomics &amp; Green Computing</div>
+    <div class="navitem done" data-view="soc-society"><span class="dot"></span>Digital Divide, Addiction &amp; Society</div>
+
+    <div class="navlabel">E &mdash; Communication Tech</div>
+    <div class="navitem done" data-view="comm-social"><span class="dot"></span>Blogs, Wikis &amp; Social Media</div>
+    <div class="navitem done" data-view="comm-conf"><span class="dot"></span>Web Conferencing &amp; VoIP</div>
+    <div class="navitem done" data-view="comm-rss"><span class="dot"></span>RSS, Podcasts &amp; QR Codes</div>
+    <div class="navitem done" data-view="comm-netiquette"><span class="dot"></span>Netiquette</div>
+
+    <div class="navlabel">F &mdash; Paper 1: Practical</div>
+    <div class="navitem done" data-view="f-overview"><span class="dot"></span>Paper 1 Overview &amp; Exam Setup</div>
+    <div class="navitem done" data-view="f-word"><span class="dot"></span>Word Processing Toolkit</div>
+    <div class="navitem done" data-view="f-excel-core"><span class="dot"></span>Excel &mdash; Core Formulas</div>
+    <div class="navitem done" data-view="f-excel-lookup"><span class="dot"></span>Excel &mdash; Lookup, Text &amp; Date Functions</div>
+    <div class="navitem done" data-view="f-excel-tools"><span class="dot"></span>Excel &mdash; Data Tools &amp; Charts</div>
+    <div class="navitem done" data-view="f-db-tables"><span class="dot"></span>Database &mdash; Tables &amp; Field Properties</div>
+    <div class="navitem done" data-view="f-db-queries"><span class="dot"></span>Database &mdash; Queries, Forms &amp; Reports</div>
+    <div class="navitem done" data-view="f-html-tags"><span class="dot"></span>HTML &mdash; Tag Reference</div>
+    <div class="navitem done" data-view="f-html-patterns"><span class="dot"></span>HTML &mdash; Worked Exam Patterns</div>
+  </nav>
+
+  <main class="main">
+
+    <!-- ================= OVERVIEW ================= -->
+    <section class="view active" id="view-overview">
+      <div class="pageheader">
+        <h1>How to use this deck</h1>
+        <div class="meta">CAT Grade 12 &middot; Paper 1 &amp; Paper 2</div>
+      </div>
+      <div class="section">
+        <div class="card">
+          <p>This covers all five Paper 2 theory sections: <span class="term">Systems Technologies</span> (Hardware &amp; Software), <span class="term">Internet &amp; Network Technologies</span>, <span class="term">Information Management</span>, <span class="term">Social Implications</span>, and <span class="term">Communication Technologies</span> &mdash; plus a full Paper 1 practical section covering Word Processing, Excel, Database, and HTML.</p>
+          <p>Content is drawn from the exam and memo patterns in your project's IEB past papers (2020&ndash;2025) plus general CAT syllabus knowledge, written in my own words &mdash; not copied from the textbook, since that still isn't sourced. Once you upload it, treat this deck as a second pass to refine against.</p>
+        </div>
+        <div class="callout warn">
+          <span class="label">Disclaimer</span>
+          This dashboard is a supplementary study resource designed to consolidate and summarise key Grade 12 Computer Applications Technology concepts across both Paper 1 (Practical) and Paper 2 (Theory). It is not intended to replace your school notes, textbook, or the guidance of your teacher. Always refer to your own class materials, the prescribed textbook, and past examination papers as your primary sources of preparation. The content in this guide reflects patterns drawn from IEB past papers and memos and may not cover school-specific methods, terminology, or emphases. Use this dashboard as a revision companion alongside your regular study &mdash; not as a substitute for it.
+        </div>
+        <div class="callout warn">
+          <span class="label">Paper numbering quirk</span>
+          In 2020, the theory exam was <b>Paper 1</b> and the practical exam was Paper 2. From 2021 onward, IEB swapped this: <b>Paper 2</b> is theory and Paper 1 is practical. This deck follows the 2021+ convention and pulls examples from both eras &mdash; worth knowing if you're cross-referencing your 2020 papers by number.
+        </div>
+        <div class="callout exam">
+          <span class="label">How marks work here</span>
+          Paper 2 gives roughly a mark per fact, and expects full sentences &mdash; one-word answers often don't score. "Give TWO advantages" means the marker wants two distinct, separately-stated facts, not one idea phrased twice.
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= SYS: TYPES ================= -->
+    <section class="view" id="view-sys-types">
+      <div class="pageheader">
+        <h1>Types of Computing Devices</h1>
+        <div class="meta">Section A &middot; Systems Technologies</div>
+      </div>
+      <div class="section">
+        <h2>Device categories</h2>
+        <div class="card">
+          <table class="notes">
+            <tr><th>Device</th><th>Typical use</th><th>Note</th></tr>
+            <tr><td><b>Desktop</b></td><td>Fixed workstation use, upgradable</td><td>Easiest to upgrade/repair; not portable</td></tr>
+            <tr><td><b>Laptop/Notebook</b></td><td>Portable general computing</td><td>Trades upgradability for portability</td></tr>
+            <tr><td><b>Tablet</b></td><td>Touch-based, light content consumption</td><td>Limited multitasking/ports vs a laptop</td></tr>
+            <tr><td><b>Smartphone</b></td><td>Mobile communication and computing</td><td>Always-connected, smallest form factor</td></tr>
+            <tr><td><b>Server</b></td><td>Hosts data/services for other devices on a network</td><td>Built for uptime and reliability, not personal use</td></tr>
+            <tr><td><b>Embedded system</b></td><td>A dedicated computer built into another device</td><td>e.g. the computer inside a smart TV, car, or appliance</td></tr>
+          </table>
+          <div class="callout exam"><span class="label">Exam pattern</span>Section A questions often show an image and ask you to name the device/hardware and give its main function &mdash; answer in general terms, not brand names, unless the question specifically asks for one.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= SYS: INPUT ================= -->
+    <section class="view" id="view-sys-input">
+      <div class="pageheader">
+        <h1>Input Devices</h1>
+        <div class="meta">Section A &middot; Systems Technologies</div>
+      </div>
+      <div class="section">
+        <h2>Standard &amp; specialised input</h2>
+        <div class="card">
+          <ul>
+            <li><span class="term">Keyboard / mouse</span> &mdash; standard text and pointer input.</li>
+            <li><span class="term">Scanner</span> &mdash; converts a physical document/image into a digital file.</li>
+            <li><span class="term">Webcam / microphone</span> &mdash; capture video/audio for calls, recording, or streaming.</li>
+            <li><span class="term">Touchscreen</span> &mdash; combines input and output; the display itself detects touch.</li>
+            <li><span class="term">Barcode / QR scanner</span> &mdash; reads coded data for quick lookup (retail, logistics).</li>
+            <li><span class="term">Biometric scanner</span> &mdash; fingerprint or facial recognition for identity verification.</li>
+            <li><span class="term">Graphics tablet</span> &mdash; a pressure-sensitive surface for drawing/design input.</li>
+          </ul>
+        </div>
+        <h2>Assistive input devices <span class="tag">accessibility</span></h2>
+        <div class="card">
+          <ul>
+            <li><span class="term">Braille keyboard</span> &mdash; a keyboard with raised dots, letting visually impaired users type in Braille.</li>
+            <li><span class="term">Switch access device</span> &mdash; a simplified button/switch input for users with limited mobility.</li>
+            <li><span class="term">Eye-tracking device</span> &mdash; lets a user control a cursor using eye movement.</li>
+            <li><span class="term">Voice recognition software</span> paired with a microphone &mdash; converts speech into text or commands (also counts as assistive software).</li>
+          </ul>
+          <div class="callout exam"><span class="label">Exam pattern</span>A 2023 Question 3 asked candidates to name a Braille keyboard and explain that it lets visually impaired users enter data in Braille &mdash; any accessibility-hardware question expects you to link the device directly to the disability it assists.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= SYS: OUTPUT ================= -->
+    <section class="view" id="view-sys-output">
+      <div class="pageheader">
+        <h1>Output Devices</h1>
+        <div class="meta">Section A &middot; Systems Technologies</div>
+      </div>
+      <div class="section">
+        <h2>Visual &amp; audio output</h2>
+        <div class="card">
+          <ul>
+            <li><span class="term">Monitor</span> &mdash; displays visual output; refresh rate is measured in Hz.</li>
+            <li><span class="term">Projector</span> &mdash; casts a large-scale image onto a screen or wall.</li>
+            <li><span class="term">Speakers / headphones</span> &mdash; produce audio output.</li>
+            <li><span class="term">Braille embosser/printer</span> &mdash; assistive output device that prints raised-dot Braille text.</li>
+          </ul>
+        </div>
+        <h2>Printers</h2>
+        <div class="card">
+          <table class="notes">
+            <tr><th>Type</th><th>Best for</th><th>Trade-off</th></tr>
+            <tr><td><b>Inkjet</b></td><td>Photo-quality colour printing, home use</td><td>Cheaper upfront, pricier ink per page</td></tr>
+            <tr><td><b>Laser</b></td><td>High-volume text printing, office use</td><td>Faster and cheaper per page at volume, higher upfront cost</td></tr>
+            <tr><td><b>3D printer</b></td><td>Producing physical objects/prototypes from a digital model</td><td>Slow, materials-dependent; an emerging technology exam topic</td></tr>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= SYS: STORAGE ================= -->
+    <section class="view" id="view-sys-storage">
+      <div class="pageheader">
+        <h1>Storage Devices &amp; Memory</h1>
+        <div class="meta">Section A &middot; Systems Technologies</div>
+      </div>
+      <div class="section">
+        <h2>RAM vs ROM</h2>
+        <div class="card">
+          <table class="notes">
+            <tr><th></th><th>RAM</th><th>ROM</th></tr>
+            <tr><td>Volatility</td><td>Volatile &mdash; cleared when power is off</td><td>Non-volatile &mdash; retains data without power</td></tr>
+            <tr><td>Purpose</td><td>Temporary working memory while programs run</td><td>Permanently stores startup instructions (e.g. BIOS)</td></tr>
+            <tr><td>Can it be edited?</td><td>Yes, constantly, during normal use</td><td>Not normally &mdash; fixed at manufacture</td></tr>
+          </table>
+        </div>
+        <h2>HDD vs SSD</h2>
+        <div class="card">
+          <table class="notes">
+            <tr><th></th><th>HDD</th><th>SSD</th></tr>
+            <tr><td>How it stores data</td><td>Spinning magnetic disk, moving read/write head</td><td>Flash memory chips, no moving parts</td></tr>
+            <tr><td>Speed</td><td>Slower</td><td>Much faster read/write</td></tr>
+            <tr><td>Durability</td><td>More prone to physical/mechanical failure</td><td>More durable, silent, less heat</td></tr>
+            <tr><td>Cost per GB</td><td>Cheaper</td><td>More expensive, though the gap is narrowing</td></tr>
+          </table>
+        </div>
+        <h2>Other storage</h2>
+        <div class="card">
+          <ul>
+            <li><span class="term">Optical media</span> (CD/DVD/Blu-ray) &mdash; laser-read discs, largely superseded by flash/cloud storage.</li>
+            <li><span class="term">Flash/USB drive</span> &mdash; small, portable solid-state storage.</li>
+            <li><span class="term">Cloud storage</span> &mdash; data stored on remote servers and accessed over the Internet.</li>
+            <li><span class="term">Cache memory</span> &mdash; very fast, small-capacity memory sitting between the CPU and RAM, storing frequently used data.</li>
+          </ul>
+          <div class="callout"><span class="label">Memory hierarchy</span>Speed and cost per GB both increase as you move from secondary storage &rarr; RAM &rarr; cache &rarr; CPU registers. Capacity moves the opposite way.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= SYS: PROCESSING ================= -->
+    <section class="view" id="view-sys-processing">
+      <div class="pageheader">
+        <h1>Processing, Motherboard &amp; Ports</h1>
+        <div class="meta">Section A &middot; Systems Technologies</div>
+      </div>
+      <div class="section">
+        <h2>Core components</h2>
+        <div class="card">
+          <ul>
+            <li><span class="term">CPU</span> &mdash; executes instructions and performs calculations; often called the "brain" of the computer. Speed measured in GHz; more cores allow more tasks to run in parallel.</li>
+            <li><span class="term">Motherboard</span> &mdash; the main circuit board connecting the CPU, RAM, storage, and other components.</li>
+            <li><span class="term">Power supply unit (PSU)</span> &mdash; converts AC power from the wall outlet into the DC power the components need.</li>
+            <li><span class="term">Graphics card (GPU)</span> &mdash; processes and renders images/video, taking that load off the CPU.</li>
+            <li><span class="term">Sound card</span> &mdash; generates and processes audio; converts analogue signals (e.g. microphone input) to digital and back.</li>
+            <li><span class="term">Cooling</span> (heat sink/fan) &mdash; removes heat generated by the CPU/GPU to prevent overheating.</li>
+          </ul>
+        </div>
+        <h2>Hardware ID roundup <span class="tag">real past-paper items</span></h2>
+        <div class="card">
+          <table class="notes">
+            <tr><th>Item asked to identify</th><th>Function, in exam-safe terms</th></tr>
+            <tr><td>Power supply / PSU</td><td>Converts wall-outlet AC into usable DC power for internal components.</td></tr>
+            <tr><td>Sound card</td><td>Generates/processes sound; converts between analogue and digital audio signals.</td></tr>
+            <tr><td>UTP / network cable</td><td>Transfers data over short-to-medium distances; used for Ethernet/network connections.</td></tr>
+            <tr><td>External CD/DVD/Blu-ray drive (burner)</td><td>Reads from and writes data to optical discs.</td></tr>
+            <tr><td>Braille keyboard</td><td>Assistive input device for visually impaired users, using raised dots.</td></tr>
+          </table>
+          <div class="callout exam"><span class="label">Exam pattern</span>Section B Question 3 (System Technologies) has consistently shown a photo of a component and asked for its name plus main function, one mark each &mdash; across 2020&ndash;2024. Practice naming components from a photo, not just from a definition.</div>
+        </div>
+        <h2>Ports &amp; connectivity</h2>
+        <div class="card">
+          <ul>
+            <li><span class="term">USB</span> &mdash; general-purpose port for peripherals and storage.</li>
+            <li><span class="term">HDMI</span> &mdash; carries digital video and audio to a display.</li>
+            <li><span class="term">Ethernet port</span> &mdash; connects a device to a wired network via a network/UTP cable.</li>
+            <li><span class="term">Bluetooth / Wi-Fi adapter</span> &mdash; enables wireless connection to nearby devices or a network.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= SYS: SYSTEM SOFTWARE ================= -->
+    <section class="view" id="view-sys-system-sw">
+      <div class="pageheader">
+        <h1>System Software</h1>
+        <div class="meta">Section A &middot; Systems Technologies</div>
+      </div>
+      <div class="section">
+        <h2>Operating system functions</h2>
+        <div class="card">
+          <ul>
+            <li>Manages hardware resources (memory, processing, devices).</li>
+            <li>Provides the user interface (desktop, windows, icons).</li>
+            <li>Manages files and folders.</li>
+            <li>Runs and manages application software.</li>
+            <li>Handles security (user accounts, permissions).</li>
+          </ul>
+        </div>
+        <h2>Utility software</h2>
+        <div class="card">
+          <table class="notes">
+            <tr><th>Utility type</th><th>What it does</th></tr>
+            <tr><td>Antivirus</td><td>Detects and removes malware.</td></tr>
+            <tr><td>Disk cleanup / defragmenter</td><td>Frees up or reorganises storage space to improve performance.</td></tr>
+            <tr><td>Backup software</td><td>Copies data to a separate location to protect against loss.</td></tr>
+            <tr><td>Compression (zip) software</td><td>Reduces file size for storage or sharing.</td></tr>
+            <tr><td>Firewall</td><td>Monitors and filters network traffic for security (also covered under Networks).</td></tr>
+          </table>
+          <div class="callout warn"><span class="label">Common mistake</span>Don't confuse system software with application software in an answer &mdash; system software manages the computer itself; application software lets the user do a specific task.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= SYS: APPLICATION SOFTWARE ================= -->
+    <section class="view" id="view-sys-app-sw">
+      <div class="pageheader">
+        <h1>Application Software</h1>
+        <div class="meta">Section A &middot; Systems Technologies</div>
+      </div>
+      <div class="section">
+        <h2>Common categories</h2>
+        <div class="card">
+          <ul>
+            <li><span class="term">Word processor</span> &mdash; creating and editing text documents.</li>
+            <li><span class="term">Spreadsheet</span> &mdash; calculations, data analysis, and charts.</li>
+            <li><span class="term">Database</span> &mdash; storing and querying structured data.</li>
+            <li><span class="term">Presentation software</span> &mdash; building slideshows.</li>
+            <li><span class="term">Web browser</span> &mdash; accessing and displaying webpages.</li>
+            <li><span class="term">Email client</span> &mdash; sending/managing email.</li>
+            <li><span class="term">Graphics/multimedia editor</span> &mdash; creating or editing images, audio, or video.</li>
+          </ul>
+        </div>
+        <h2>Licensing models</h2>
+        <div class="card">
+          <table class="notes">
+            <tr><th>Model</th><th>What it means</th></tr>
+            <tr><td>Proprietary</td><td>Owned/controlled by a company; usually paid, source code closed.</td></tr>
+            <tr><td>Open source</td><td>Source code is publicly available and can be modified/redistributed, often free.</td></tr>
+            <tr><td>Freeware</td><td>Free to use, but source code isn't necessarily open.</td></tr>
+            <tr><td>Shareware</td><td>Free to try, usually with limited features/time before requiring payment.</td></tr>
+            <tr><td>Subscription (SaaS)</td><td>Paid on a recurring basis, typically cloud-based and always updated.</td></tr>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= SYS: BUYING/TROUBLESHOOTING ================= -->
+    <section class="view" id="view-sys-buying">
+      <div class="pageheader">
+        <h1>Buying, Upgrading &amp; Troubleshooting</h1>
+        <div class="meta">Section A &middot; Systems Technologies</div>
+      </div>
+      <div class="section">
+        <h2>Buying considerations</h2>
+        <div class="card">
+          <ul>
+            <li><span class="term">Purpose</span> &mdash; what the device will mainly be used for.</li>
+            <li><span class="term">Budget</span> &mdash; what you can afford, balanced against needs.</li>
+            <li><span class="term">Specifications</span> &mdash; RAM, storage, processor speed suited to the intended use.</li>
+            <li><span class="term">Portability</span> &mdash; whether you need to move it around.</li>
+            <li><span class="term">After-sales support/warranty</span> &mdash; protection if something goes wrong.</li>
+          </ul>
+        </div>
+        <h2>Common causes of hardware failure</h2>
+        <div class="card">
+          <ul>
+            <li>Power failure / load shedding</li>
+            <li>Power surges</li>
+            <li>Hardware failure / disk crash</li>
+            <li>Malware</li>
+            <li>Poor maintenance / overheating</li>
+          </ul>
+          <div class="callout exam"><span class="label">Exam pattern</span>"Give TWO reasons a computer might fail" draws directly from this list across multiple years &mdash; state the cause, not a vague symptom.</div>
+        </div>
+        <h2>Basic troubleshooting steps</h2>
+        <div class="card">
+          <ul>
+            <li>Check cables and connections are secure.</li>
+            <li>Restart the device.</li>
+            <li>Update or reinstall the device driver.</li>
+            <li>Run an antivirus/malware scan.</li>
+            <li>Check for available software/OS updates.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= SYS: EMERGING TECH ================= -->
+    <section class="view" id="view-sys-emerging">
+      <div class="pageheader">
+        <h1>Emerging Technologies</h1>
+        <div class="meta">Section A &middot; Systems Technologies</div>
+      </div>
+      <div class="section">
+        <h2>Current exam-relevant technologies</h2>
+        <div class="card">
+          <ul>
+            <li><span class="term">Internet of Things (IoT)</span> &mdash; everyday devices connected to the Internet, able to send/receive data and be sensed or controlled remotely without direct human interaction.</li>
+            <li><span class="term">Wearable device</span> &mdash; a small computer worn on the body, e.g. a smartwatch or fitness tracker.</li>
+            <li><span class="term">Cloud computing</span> &mdash; storing/accessing data or programs over the Internet rather than locally.</li>
+            <li><span class="term">Grid computing</span> &mdash; combining the processing power of multiple networked computers to solve one large problem.</li>
+            <li><span class="term">3D printing</span> &mdash; building a physical object layer-by-layer from a digital model.</li>
+            <li><span class="term">Virtual/digital assistant</span> vs <span class="term">chatbot</span> &mdash; assistants adapt dynamically to a conversation; chatbots follow a more limited, rule-based script and struggle with interrupted conversations.</li>
+            <li><span class="term">Biometrics</span> &mdash; identifying a person by a unique physical trait (fingerprint, face, iris).</li>
+          </ul>
+          <div class="callout exam"><span class="label">Exam pattern</span>The Section C integrated scenario (Questions 8&ndash;9) regularly leans on emerging tech &mdash; IoT and grid computing definitions have both appeared as scenario-based recall questions.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= NET: INTERNET & WWW ================= -->
+    <section class="view" id="view-net-internet-www">
+      <div class="pageheader">
+        <h1>Internet, WWW &amp; Browsers</h1>
+        <div class="meta">Section B &middot; Internet &amp; Network Technologies</div>
+      </div>
+      <div class="section">
+        <h2>Core distinctions</h2>
+        <div class="card">
+          <ul>
+            <li><span class="term">Internet</span> &mdash; the physical global network of interconnected computers.</li>
+            <li><span class="term">World Wide Web (WWW)</span> &mdash; a service that runs on the Internet: the collection of linked webpages accessed through a browser.</li>
+            <li><span class="term">Website</span> &mdash; a collection of related webpages.</li>
+            <li><span class="term">Webpage</span> &mdash; a single document within a website.</li>
+            <li><span class="term">Browser</span> &mdash; software used to access and display webpages.</li>
+            <li><span class="term">Search engine</span> &mdash; a program/website that helps you find webpages using keywords.</li>
+          </ul>
+          <div class="callout warn"><span class="label">Common mistake</span>Internet vs WWW vs website is one of the most consistently penalised mix-ups on this paper. Internet = the network. WWW = the service. Website = one collection of pages on that service. Keep them straight.</div>
+          <div class="callout warn"><span class="label">Common mistake</span>Upload vs download direction gets flipped under pressure. <b>Upload</b> = sending data from your device to a server/the Internet. <b>Download</b> = receiving data from a server/the Internet onto your device.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= NET: CONNECTING ================= -->
+    <section class="view" id="view-net-connecting">
+      <div class="pageheader">
+        <h1>Connecting to the Internet</h1>
+        <div class="meta">Section B &middot; Internet &amp; Network Technologies</div>
+      </div>
+      <div class="section">
+        <h2>Key terms</h2>
+        <div class="card">
+          <ul>
+            <li><span class="term">ISP</span> &mdash; Internet Service Provider, a company that provides Internet access.</li>
+            <li><span class="term">Bandwidth</span> &mdash; the amount of data that can be transferred over a connection in a given time period.</li>
+            <li><span class="term">Broadband</span> &mdash; a high-speed, high-bandwidth, always-on connection.</li>
+          </ul>
+        </div>
+        <h2>Data package terminology</h2>
+        <div class="card">
+          <table class="notes">
+            <tr><th>Term</th><th>Meaning</th></tr>
+            <tr><td>Uncapped</td><td>No limit on the amount of data you can use.</td></tr>
+            <tr><td>Capped</td><td>A fixed data limit for a given period.</td></tr>
+            <tr><td>Shaped</td><td>Certain types of traffic (e.g. streaming, torrents) are deliberately slowed at certain times.</td></tr>
+            <tr><td>Unshaped</td><td>All traffic types are treated equally, at full available speed.</td></tr>
+            <tr><td>Throttled</td><td>Speed is deliberately reduced, often after a data cap is reached.</td></tr>
+          </table>
+          <div class="callout exam"><span class="label">Exam pattern</span>A 2021 Question 4 asked candidates to identify a WLAN connection from a scenario and explain how a router functions &mdash; know that a router's core job is directing/connecting traffic between different devices and networks.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= NET: TYPES ================= -->
+    <section class="view" id="view-net-types">
+      <div class="pageheader">
+        <h1>Network Types &amp; Hardware</h1>
+        <div class="meta">Section B &middot; Internet &amp; Network Technologies</div>
+      </div>
+      <div class="section">
+        <div class="callout">This is deliberately concise &mdash; your dedicated Networks Study App and Word guide already cover this section in full depth. Use this as a quick-reference recap alongside those.</div>
+        <h2>Network types by size</h2>
+        <div class="card">
+          <table class="notes">
+            <tr><th>Type</th><th>Scope</th></tr>
+            <tr><td>PAN</td><td>Personal area &mdash; devices around one person (e.g. Bluetooth earphones to phone).</td></tr>
+            <tr><td>HAN / SOHO</td><td>Home or small office/home office network.</td></tr>
+            <tr><td>LAN</td><td>Local area &mdash; one building or site.</td></tr>
+            <tr><td>WLAN</td><td>Wireless version of a LAN, using Wi-Fi.</td></tr>
+            <tr><td>MAN</td><td>Spans a city.</td></tr>
+            <tr><td>WAN</td><td>Spans a large geographic area, e.g. the Internet itself.</td></tr>
+          </table>
+        </div>
+        <h2>Why network at all?</h2>
+        <div class="card">
+          <ul>
+            <li>Sharing hardware (e.g. a printer) and software/updates.</li>
+            <li>Sharing an Internet connection.</li>
+            <li>Centralised security and data storage.</li>
+            <li>Communication between devices/people.</li>
+          </ul>
+        </div>
+        <h2>Wired vs wireless</h2>
+        <div class="card">
+          <table class="notes">
+            <tr><th></th><th>Wi-Fi (wireless)</th><th>Router/cable (wired)</th></tr>
+            <tr><td>Medium</td><td>No cables; electromagnetic waves</td><td>Copper or fibre-optic cabling</td></tr>
+            <tr><td>Movement</td><td>Move freely within the signal's footprint</td><td>Movement limited by cable length</td></tr>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= NET: SECURITY ================= -->
+    <section class="view" id="view-net-security">
+      <div class="pageheader">
+        <h1>Network &amp; Data Security</h1>
+        <div class="meta">Section B &middot; Internet &amp; Network Technologies</div>
+      </div>
+      <div class="section">
+        <h2>Securing a network</h2>
+        <div class="card">
+          <ul>
+            <li><span class="term">Firewall</span> &mdash; monitors and controls incoming/outgoing traffic based on security rules.</li>
+            <li><span class="term">Passwords/encryption</span> &mdash; restrict who can join or read traffic on the network.</li>
+            <li><span class="term">Restricted/whitelisted access</span> &mdash; only approved users or IP addresses can connect.</li>
+            <li><span class="term">Two-factor authentication</span> &mdash; a second, independent verification step beyond a password.</li>
+            <li><span class="term">Biometric access</span> &mdash; fingerprint/facial recognition, harder to fake or steal than a password.</li>
+          </ul>
+        </div>
+        <h2>Strong password practice</h2>
+        <div class="card">
+          <ul>
+            <li>Mix upper- and lower-case letters.</li>
+            <li>Include numbers and special characters.</li>
+            <li>Avoid easily guessed personal information (name, ID number).</li>
+            <li>Make it longer than 8 characters.</li>
+          </ul>
+        </div>
+        <h2>Why each login-security method actually works</h2>
+        <div class="card">
+          <table class="notes">
+            <tr><th>Method</th><th>Why it defeats the specific threat</th></tr>
+            <tr><td>On-screen/virtual keyboard</td><td>A keylogger records physical key presses, so clicking on-screen characters with a mouse leaves nothing for it to capture.</td></tr>
+            <tr><td>Requesting only part of the password</td><td>Even if an attacker intercepts that one exchange, they never see the complete password.</td></tr>
+            <tr><td>Two-factor authentication</td><td>The second piece of verification is sent to a separate device, so a stolen password alone isn't enough to log in.</td></tr>
+            <tr><td>Biometric device</td><td>Requires the person's actual physical trait (fingerprint, face) alongside or instead of a password, which can't simply be typed in from a stolen list.</td></tr>
+          </table>
+          <div class="callout exam"><span class="label">Exam pattern</span>Questions on this topic usually want two parts per method: "name the security feature" and "explain why it prevents this specific threat" &mdash; naming the feature alone (e.g. just "2FA") without linking it to the threat in the scenario tends to lose the second mark.</div>
+        </div>
+        <h2>Encrypted &amp; remote connections</h2>
+        <div class="card">
+          <p><span class="term">Encryption</span> scrambles data so it's unreadable to anyone without the correct key, protecting it while it travels across a network. A <span class="term">VPN (Virtual Private Network)</span> creates a secure, encrypted connection over the Internet, commonly used so remote/off-site users can safely access a private network as though they were physically on it.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= NET: DEEP WEB ================= -->
+    <section class="view" id="view-net-deepweb">
+      <div class="pageheader">
+        <h1>Surface, Deep &amp; Dark Web</h1>
+        <div class="meta">Section B &middot; Internet &amp; Network Technologies</div>
+      </div>
+      <div class="section">
+        <div class="card">
+          <ul>
+            <li><span class="term">Surface web</span> &mdash; indexed by standard search engines, freely accessible.</li>
+            <li><span class="term">Deep web</span> &mdash; not indexed by standard search engines (private databases, paid content) but still legal to access.</li>
+            <li><span class="term">Dark web</span> &mdash; a hidden part of the Internet requiring special software, associated with anonymity and often illegal activity.</li>
+          </ul>
+        </div>
+        <h2>Chatbots vs virtual assistants</h2>
+        <div class="card">
+          <table class="notes">
+            <tr><th>Chatbot</th><th>Virtual/digital assistant</th></tr>
+            <tr><td>Limited, rule-based decision-making</td><td>More dynamic, adaptive processing</td></tr>
+            <tr><td>Struggles to remember an interrupted conversation</td><td>Stays "on track" across a conversation</td></tr>
+            <tr><td>Weaker natural-language handling</td><td>More proficient language processing</td></tr>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= INFO: DATA/INFO/METADATA ================= -->
+    <section class="view" id="view-info-cycle">
+      <div class="pageheader">
+        <h1>Data, Information &amp; Metadata</h1>
+        <div class="meta">Section C &middot; Information Management</div>
+      </div>
+      <div class="section">
+        <div class="card">
+          <ul>
+            <li><span class="term">Data</span> &mdash; raw, unprocessed facts and figures.</li>
+            <li><span class="term">Information</span> &mdash; data that's been processed and organised into a meaningful, useful form.</li>
+            <li><span class="term">Metadata</span> &mdash; data that describes other data, e.g. a file's author, size, or date created.</li>
+          </ul>
+          <div class="callout">The syllabus also frames information handling as a cycle &mdash; roughly plan/question, find, evaluate, process, and present/acknowledge sources. I don't have your textbook's exact wording or step names for this yet, so treat this outline as a placeholder until we can check it against the book directly.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= INFO: FORMS ================= -->
+    <section class="view" id="view-info-forms">
+      <div class="pageheader">
+        <h1>Online Forms &amp; Validation</h1>
+        <div class="meta">Section C &middot; Information Management</div>
+      </div>
+      <div class="section">
+        <div class="card">
+          <ul>
+            <li><span class="term">Required field</span> &mdash; usually marked with an asterisk (*); must be completed before submission.</li>
+            <li><span class="term">Validation/format restriction</span> &mdash; e.g. forcing a date field into a specific format, so the data entered is consistent and usable by the system.</li>
+            <li><span class="term">CAPTCHA</span> &mdash; confirms the user is human, not an automated bot.</li>
+            <li><span class="term">Closed questions</span> (fixed set of answers, e.g. yes/no, radio buttons, drop-downs) are preferred in questionnaires because they're quicker and easier to capture and analyse than open-ended answers.</li>
+          </ul>
+          <div class="callout exam"><span class="label">Exam pattern</span>"Give TWO restrictions to ensure a date is entered correctly" is a recurring Question 5 style &mdash; think in terms of format enforcement (e.g. forcing dd/mm/yyyy, using a drop-down/date-picker instead of free text), not just "make it compulsory".</div>
+        </div>
+        <h2>Why online surveys/forms beat manual data collection</h2>
+        <div class="card">
+          <ul>
+            <li>Faster than collecting responses manually.</li>
+            <li>Cheaper &mdash; saves on printing/postage/research costs.</li>
+            <li>More accurate, since responses go directly into a digital system without being retyped.</li>
+            <li>Quicker and easier to analyse once collected.</li>
+            <li>More flexible &mdash; the order or content of questions can be changed easily.</li>
+          </ul>
+          <div class="callout warn"><span class="label">Common mistake</span>Don't just answer "it's easier" &mdash; the exam wants the specific reason (speed, cost, accuracy, ease of analysis, or flexibility), each counted as a separate distinct point.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= INFO: DATABASES ================= -->
+    <section class="view" id="view-info-db">
+      <div class="pageheader">
+        <h1>Databases &amp; Reports</h1>
+        <div class="meta">Section C &middot; Information Management</div>
+      </div>
+      <div class="section">
+        <h2>Core building blocks</h2>
+        <div class="card">
+          <ul>
+            <li><span class="term">Database</span> &mdash; stores, organises, and manages large amounts of related data so it can be searched, sorted, and reported on.</li>
+            <li><span class="term">Table</span> &mdash; holds records (rows) made up of fields (columns) about one type of entity, e.g. one table for learners, another for subjects.</li>
+            <li><span class="term">Field</span> &mdash; a single category of data within a record, e.g. Surname or Cell_Number.</li>
+            <li><span class="term">Primary key</span> &mdash; a field that uniquely identifies each record in a table, used so a record can never be duplicated or confused with another.</li>
+            <li><span class="term">Foreign key</span> &mdash; a copy of one table's primary key placed into a related table, used to build a relationship/link between the two tables.</li>
+          </ul>
+          <div class="callout exam"><span class="label">Exam pattern</span>"Explain what a primary key is" wants two parts: it uniquely identifies a record, <i>and</i> it's used to prevent duplication/allow accurate manipulation of the data &mdash; a one-line "it's unique" answer often only earns half the mark.</div>
+        </div>
+        <h2>Choosing data types</h2>
+        <div class="card">
+          <table class="notes">
+            <tr><th>Kind of data</th><th>Appropriate data type</th></tr>
+            <tr><td>Names, addresses, free text</td><td>Text / Short Text</td></tr>
+            <tr><td>Yes/No fields (e.g. "Paid?")</td><td>Yes/No (Boolean)</td></tr>
+            <tr><td>Phone numbers</td><td>Text &mdash; not Number, since numbers can't start with 0 or hold spaces/dashes correctly, and won't be used in calculations</td></tr>
+            <tr><td>Dates</td><td>Date/Time</td></tr>
+            <tr><td>Values used in calculations</td><td>Number or Currency</td></tr>
+            <tr><td>Email addresses that should be clickable</td><td>Hyperlink</td></tr>
+          </table>
+          <div class="callout warn"><span class="label">Common mistake</span>Phone/reference numbers are a classic trap &mdash; they look numeric but should almost always be a Text field, since a real Number field will drop a leading zero and can't be sorted/searched the same way.</div>
+        </div>
+        <h2>Relationships between tables</h2>
+        <div class="card">
+          <p>A relationship links two tables using a common field: the primary key of one table is placed into the related table as a foreign key. This avoids storing the same data twice across tables and keeps related records connected correctly.</p>
+        </div>
+        <h2>Forms &amp; reports</h2>
+        <div class="card">
+          <ul>
+            <li><span class="term">Database form</span> &mdash; a user-friendly on-screen layout for viewing, entering, or editing one record at a time, instead of working directly in a raw table.</li>
+            <li><span class="term">Database report</span> &mdash; presents selected, organised data in a readable, formatted way, often grouped or summarised, intended for printing/sharing rather than data entry.</li>
+            <li>Grouping records together (e.g. by learner, by category) makes it possible to show totals/counts per group &mdash; a summary function like Count or Sum is placed in the <b>group header/footer</b> section of the report, not the detail section.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= INFO: BIG DATA/EVALUATING ================= -->
+    <section class="view" id="view-info-bigdata">
+      <div class="pageheader">
+        <h1>Evaluating Sources &amp; Big Data</h1>
+        <div class="meta">Section C &middot; Information Management</div>
+      </div>
+      <div class="section">
+        <h2>Big data</h2>
+        <div class="card">
+          <p><span class="term">Big data</span> &mdash; extremely large, complex data sets analysed by computer to reveal patterns and trends. Benefits for a business include better decision-making, spotting customer trends, and more targeted marketing.</p>
+        </div>
+        <h2>Evaluating a source</h2>
+        <div class="card">
+          <ul>
+            <li>Check the author's credentials.</li>
+            <li>Check the publication date &mdash; is it current?</li>
+            <li>Check the domain/publisher for credibility.</li>
+            <li>Cross-check the claim against other reputable sources.</li>
+          </ul>
+          <div class="callout"><span class="label">Referencing</span>A bibliography acknowledges the sources used and lets a reader locate the original material &mdash; and helps you avoid plagiarism (presenting someone else's work as your own).</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= SOC: CRIME ================= -->
+    <section class="view" id="view-soc-crime">
+      <div class="pageheader">
+        <h1>Security &amp; Cybercrime</h1>
+        <div class="meta">Section D &middot; Social Implications</div>
+      </div>
+      <div class="section">
+        <h2>Social engineering &amp; deception</h2>
+        <div class="card">
+          <ul>
+            <li><span class="term">Social engineering</span> &mdash; manipulating a person into revealing confidential/sensitive information for fraudulent purposes.</li>
+            <li><span class="term">Reverse social engineering</span> &mdash; the attacker engineers a situation so the victim contacts <i>them</i> for help, then exploits that trust to gain access or information.</li>
+            <li><span class="term">Phishing</span> &mdash; fraudulent emails/messages disguised as coming from a legitimate source, aiming to trick the victim into directly handing over sensitive data (e.g. card details, login credentials).</li>
+            <li><span class="term">Spoofing</span> &mdash; disguising a website, email, or caller ID so it looks like it comes from a trusted source, typically to steal or impersonate an identity rather than to directly ask for data (e.g. a fake copy of a bank's website with a lookalike URL).</li>
+          </ul>
+          <div class="callout"><span class="label">Phishing vs spoofing</span>Phishing aims to get the victim to hand over information directly. Spoofing aims to disguise the attacker as a trusted identity so malicious activity can happen without the victim noticing &mdash; a spoofed site is often the delivery mechanism a phishing message links to.</div>
+          <div class="callout exam"><span class="label">Exam pattern</span>A 2024 Question 6 asked for two scenarios of reverse social engineering &mdash; think "attacker creates the problem, then poses as the helpful solution" (a fake vendor call, a fake job interview, sabotage followed by a fake fix).</div>
+        </div>
+        <h2>Malware types</h2>
+        <div class="card">
+          <table class="notes">
+            <tr><th>Type</th><th>What it does</th></tr>
+            <tr><td><b>Virus</b></td><td>Malicious code that attaches to a file/program and spreads when that file runs or is shared; can corrupt or delete data.</td></tr>
+            <tr><td><b>Worm</b></td><td>Spreads on its own across a network without needing to attach to a file or need a user to run anything.</td></tr>
+            <tr><td><b>Trojan</b></td><td>Disguised as legitimate/harmless software (e.g. an email attachment named like a normal file); once run, it carries out a hidden malicious action.</td></tr>
+            <tr><td><b>Spyware</b></td><td>Gathers data from the device/user (browsing habits, keystrokes, login credentials) and sends it to a third party without consent.</td></tr>
+            <tr><td><b>Ransomware</b></td><td>Locks or encrypts a user's data/device and demands payment to restore access.</td></tr>
+            <tr><td><b>Bot / "zombie"</b></td><td>A computer that has been compromised and can be controlled remotely, often without the owner's knowledge, so its processing power/resources can be used illegally (e.g. in a coordinated attack).</td></tr>
+          </table>
+          <div class="callout warn"><span class="label">Common mistake</span>"Virus" is often used as a catch-all in everyday speech, but the exam expects you to name the specific type that matches the scenario &mdash; a Trojan disguised as an attachment is not the same answer as a self-spreading worm.</div>
+        </div>
+        <h2>Detecting &amp; responding to malware</h2>
+        <div class="card">
+          <ul>
+            <li>Signs a computer may be infected: unusually slow performance, unexpected pop-ups, programs opening/closing on their own, unfamiliar programs running, or unusually high data usage.</li>
+            <li><span class="term">Quarantine</span> &mdash; isolating a suspicious/infected file so it can't run or spread, without deleting it outright, until it can be checked or safely removed.</li>
+            <li>Anti-spyware/antivirus software detects threats by comparing files against a database of known malware "definitions" &mdash; this database must be updated regularly so newly created malware can still be recognised.</li>
+            <li>Recovery steps for an infected removable drive: scan with antivirus software, or format/wipe the drive if the infection can't be fully removed.</li>
+          </ul>
+        </div>
+        <h2>Wireless &amp; access-related terms</h2>
+        <div class="card">
+          <table class="notes">
+            <tr><th>Term</th><th>Meaning</th></tr>
+            <tr><td><b>Wardriving</b></td><td>Searching for open/unsecured wireless networks, typically by driving around with a laptop and appropriate scanning software/antenna.</td></tr>
+            <tr><td><b>Piggybacking</b></td><td>Connecting to and using someone else's wireless network without permission.</td></tr>
+            <tr><td><b>Cookie</b></td><td>A small text file a website stores on the user's device to remember details/preferences for future visits &mdash; not malware itself, but a privacy consideration.</td></tr>
+            <tr><td><b>Spider/crawler software</b></td><td>Automated software that travels the web indexing pages so search engines can return results.</td></tr>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= SOC: PRIVACY ================= -->
+    <section class="view" id="view-soc-privacy">
+      <div class="pageheader">
+        <h1>Privacy &amp; Digital Footprint</h1>
+        <div class="meta">Section D &middot; Social Implications</div>
+      </div>
+      <div class="section">
+        <div class="card">
+          <ul>
+            <li><span class="term">Digital footprint</span> &mdash; the trail of data a person leaves behind through online activity.</li>
+            <li><span class="term">Passive footprint</span> &mdash; data collected without the user directly acting, e.g. browsing logs.</li>
+            <li><span class="term">Active footprint</span> &mdash; data the user deliberately shares, e.g. a social media post.</li>
+          </ul>
+          <div class="callout"><span class="label">Discussion-style question</span>"Does the Internet offer users privacy?" has appeared as an agree/disagree question. Either position can score, as long as you back it with two specific, distinct reasons.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= SOC: HEALTH ================= -->
+    <section class="view" id="view-soc-health">
+      <div class="pageheader">
+        <h1>Health, Ergonomics &amp; Green Computing</h1>
+        <div class="meta">Section D &middot; Social Implications</div>
+      </div>
+      <div class="section">
+        <h2>Health risks of heavy device use</h2>
+        <div class="card">
+          <ul>
+            <li>Eye strain from prolonged screen exposure (including HEV light).</li>
+            <li>Headaches, sleep disturbance, decreased attention span.</li>
+            <li>Repetitive strain injury from poor posture/positioning.</li>
+            <li>Behavioural addiction and isolation from excessive use.</li>
+          </ul>
+        </div>
+        <h2>Ergonomics</h2>
+        <div class="card">
+          <p>Recommended precautions: take regular breaks, use an adjustable/ergonomically designed chair, keyboard, and monitor height.</p>
+        </div>
+        <h2>Green computing</h2>
+        <div class="card">
+          <p><span class="term">Green computing</span> &mdash; using technology in an environmentally responsible, energy-efficient way, e.g. recycling e-waste, using energy-saving settings, or buying energy-efficient hardware.</p>
+          <div class="callout"><span class="label">Businesses saving resources</span>Saving paper (electronic documents instead of printing), saving communication cost (email/VoIP instead of calls), and saving time (faster typing/calculations) &mdash; a recurring three-part answer pattern.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= SOC: SOCIETY ================= -->
+    <section class="view" id="view-soc-society">
+      <div class="pageheader">
+        <h1>Digital Divide, Addiction &amp; Society</h1>
+        <div class="meta">Section D &middot; Social Implications</div>
+      </div>
+      <div class="section">
+        <div class="card">
+          <ul>
+            <li><span class="term">Digital divide</span> &mdash; the gap between people with easy access to computers/the Internet and those without.</li>
+            <li><span class="term">Internet addiction</span> &mdash; commonly linked to excessive social media use or online gaming.</li>
+          </ul>
+        </div>
+        <h2>Technology's impact on employment</h2>
+        <div class="card">
+          <table class="notes">
+            <tr><th>Way technology changes work</th><th>Impact on employees</th></tr>
+            <tr><td>Deskilling</td><td>Software removes the need for some traditional hands-on skills (e.g. computer-aided design replacing manual drafting).</td></tr>
+            <tr><td>(Re)training</td><td>Work practices change, so staff need to learn new software/systems to keep up.</td></tr>
+            <tr><td>Redundancy</td><td>New technology lets the same work be done by fewer staff, or outsourced elsewhere.</td></tr>
+            <tr><td>Working from home</td><td>Email, VoIP, video conferencing, and instant messaging make it possible to work away from a central office.</td></tr>
+            <tr><td>Workplace conditions</td><td>Often quieter and physically safer (no noisy typewriters, fewer heavy filing cabinets) &mdash; but new health risks appear, e.g. RSI, headaches, and eye strain from screen use.</td></tr>
+          </table>
+          <div class="callout exam"><span class="label">Exam pattern</span>"Discuss the impact of technology on the workplace" wants a specific <i>way</i> paired with its specific <i>impact</i> (as above) &mdash; a vague "people lose jobs" answer without naming the mechanism (deskilling, redundancy, etc.) typically only earns partial credit.</div>
+        </div>
+        <h2>Accessibility &amp; inclusion</h2>
+        <div class="card">
+          <p>A 2025 scenario question asked for hardware and software technologies that assist physically disabled users. Hardware: adapted keyboards/switches, eye-tracking devices, Braille displays. Software: voice recognition, screen readers, on-screen/predictive keyboards.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= COMM: SOCIAL ================= -->
+    <section class="view" id="view-comm-social">
+      <div class="pageheader">
+        <h1>Blogs, Wikis &amp; Social Media</h1>
+        <div class="meta">Section E &middot; Communication Technologies</div>
+      </div>
+      <div class="section">
+        <div class="card">
+          <ul>
+            <li><span class="term">Blog</span> &mdash; a regularly updated, informally written personal or business webpage.</li>
+            <li><span class="term">Wiki</span> &mdash; a website that lets multiple users collaboratively edit its content.</li>
+          </ul>
+          <div class="callout"><span class="label">Keeping a site engaging</span>Update content regularly, use an attractive/consistent design, respond to feedback/comments, and keep text concise and error-free.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= COMM: CONFERENCING ================= -->
+    <section class="view" id="view-comm-conf">
+      <div class="pageheader">
+        <h1>Web Conferencing &amp; VoIP</h1>
+        <div class="meta">Section E &middot; Communication Technologies</div>
+      </div>
+      <div class="section">
+        <div class="card">
+          <ul>
+            <li><span class="term">Webinar</span> &mdash; a live, interactive seminar/meeting conducted over the Internet, usually with video.</li>
+            <li><span class="term">VoIP</span> &mdash; Voice over Internet Protocol; making voice calls over the Internet instead of a traditional phone line.</li>
+            <li>Video call advantages: you can see gestures/body language, multiple participants can join, and it feels closer to an in-person conversation.</li>
+            <li>Common tools named in past papers: Zoom, Microsoft Teams, Google Meet/Hangouts, Cisco WebEx, GoToMeeting, TeamViewer.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= COMM: RSS ================= -->
+    <section class="view" id="view-comm-rss">
+      <div class="pageheader">
+        <h1>RSS, Podcasts &amp; QR Codes</h1>
+        <div class="meta">Section E &middot; Communication Technologies</div>
+      </div>
+      <div class="section">
+        <div class="card">
+          <ul>
+            <li><span class="term">RSS</span> &mdash; automatically delivers updated content to subscribers without them checking the site manually.</li>
+            <li><span class="term">Podcasting</span> &mdash; publishing audio/video files online for users to download or stream.</li>
+            <li><span class="term">QR code</span> &mdash; a two-dimensional barcode storing more data than a normal barcode; needs a device with a camera and appropriate software to read it.</li>
+            <li>Ways to notify people new content is available: SMS, a blog post, an RSS feed, email, or an app notification.</li>
+          </ul>
+          <div class="callout warn"><span class="label">Common mistake</span>Sharing large video/audio files by email runs into bandwidth limits, spam filters, and slow upload/download &mdash; that's why podcasting/streaming links are preferred over attachments.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= COMM: NETIQUETTE ================= -->
+    <section class="view" id="view-comm-netiquette">
+      <div class="pageheader">
+        <h1>Netiquette</h1>
+        <div class="meta">Section E &middot; Communication Technologies</div>
+      </div>
+      <div class="section">
+        <div class="card">
+          <p><span class="term">Netiquette</span> &mdash; the accepted rules of polite, respectful behaviour when communicating online.</p>
+          <p><span class="term">Synchronous</span> communication happens in real time (e.g. a video call). <span class="term">Asynchronous</span> communication doesn't need both people present at once (e.g. email).</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= F: OVERVIEW ================= -->
+    <section class="view" id="view-f-overview">
+      <div class="pageheader">
+        <h1>Paper 1 Overview &amp; Exam Setup</h1>
+        <div class="meta">Section F &middot; Paper 1 &middot; Practical (180 marks, 3 hours)</div>
+      </div>
+      <div class="section">
+        <div class="card">
+          <p>Paper 1 is the <span class="term">practical</span> paper: five sections, generally Word Processing, Spreadsheets, Databases, Web Design (HTML), and an Integrated Scenario question that mixes general theory with practical application. Content here is drawn from the exam instructions, questions, and memos in your project's IEB past papers (2021&ndash;2025), written in my own words.</p>
+          <div class="callout warn">
+            <span class="label">Paper numbering quirk</span>
+            Same swap as noted on the Theory deck: from 2021 onward, <b>Paper 1</b> is practical and Paper 2 is theory. In 2020 it ran the other way round &mdash; check the year before you reference a past paper by number.
+          </div>
+        </div>
+        <h2>Fixed exam-setup rules</h2>
+        <div class="card">
+          <ul>
+            <li>Rename your Data Files folder to your exam number before starting, e.g. <i>Data Files</i> becomes <i>1234567890</i>.</li>
+            <li>Use functions/formulas to calculate answers unless an instruction says otherwise &mdash; typed-in values instead of a formula usually lose the mark.</li>
+            <li>Default word-processing setup unless told otherwise: measuring units in centimetres, language English (South Africa), page size A4, margins 2.54 cm.</li>
+            <li>The Developer Tab must be enabled in Word and Excel before you start (needed for content controls, macros).</li>
+            <li>HTML must be coded in a plain text editor &mdash; Notepad, Notepad++, or WordPad. Microsoft Word may <b>not</b> be used to write HTML.</li>
+            <li>Save regularly, and only work inside the folder named for that question &mdash; don't rename or move files outside the structure given.</li>
+          </ul>
+          <div class="callout exam"><span class="label">Partial-mark safety net</span>If a formula or feature genuinely won't work, use the Student_Screenshots document: note the question number, paste a screenshot of the problem, and add a short explanation. This can earn part marks even without a working solution.</div>
+        </div>
+        <h2>How the five sections usually break down</h2>
+        <div class="card">
+          <table class="notes">
+            <tr><th>Section</th><th>Typical focus</th><th>Rough weight</th></tr>
+            <tr><td>Word Processing</td><td>Styles, TOC, track changes, mail merge, comments, layout</td><td>~45&ndash;53 marks</td></tr>
+            <tr><td>Spreadsheets</td><td>Formulas/functions, formatting, data tools, charts</td><td>~50&ndash;60 marks</td></tr>
+            <tr><td>Database</td><td>Table design, field properties, queries, forms, reports</td><td>~40&ndash;53 marks</td></tr>
+            <tr><td>Web Design (HTML)</td><td>Hand-coded HTML edits against a tag list</td><td>~16&ndash;20 marks</td></tr>
+            <tr><td>Integrated Scenario</td><td>Short applied questions spanning several applications</td><td>~15&ndash;20 marks</td></tr>
+          </table>
+          <div class="callout"><span class="label">Note</span>[Likely] &mdash; weightings vary a little year to year; treat these as a general planning guide for time allocation, not a guaranteed mark split for the exam you'll sit.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= F: WORD PROCESSING ================= -->
+    <section class="view" id="view-f-word">
+      <div class="pageheader">
+        <h1>Word Processing Toolkit</h1>
+        <div class="meta">Section F &middot; Paper 1 &middot; Word Processing</div>
+      </div>
+      <div class="section">
+        <h2>Styles &amp; Table of Contents</h2>
+        <div class="card">
+          <ul>
+            <li>An <span class="term">automatic Table of Contents</span> only pulls in text formatted with a recognised <b>Heading style</b> (or a custom style you've told Word to include). If a heading was typed in bold instead of styled, it won't appear in the TOC &mdash; you have to apply the style, not just make it look right.</li>
+            <li>You can create a <span class="term">custom style</span> (e.g. name it "SectionHeader") with specific font size, colour, and formatting, then apply it consistently so a one-level TOC can reference it.</li>
+            <li>Multilevel lists need the correct outline level applied to each line, not just visually indented text.</li>
+          </ul>
+          <div class="callout warn"><span class="label">Common mistake</span>Building a TOC before applying heading styles, or applying direct formatting (bold/size) instead of a style, are the two most common reasons a TOC comes out empty.</div>
+        </div>
+        <h2>Track changes, comments &amp; footnotes</h2>
+        <div class="card">
+          <ul>
+            <li><span class="term">Track Changes</span> records edits so others can review, accept, or reject them without the original work being lost.</li>
+            <li><span class="term">Comments</span> let you leave notes/suggestions for the document owner without editing the text itself; a comment can be linked to specific highlighted text.</li>
+            <li>Track changes markup can be set to show only insertions and deletions (hiding formatting changes) for a cleaner review view.</li>
+            <li>A <span class="term">footnote</span> gives extra information or a source reference at the bottom of the page, linked to a small number/symbol in the body text; an <span class="term">endnote</span> does the same but collects references at the end of the document. Word can convert a footnote to an endnote and back.</li>
+          </ul>
+        </div>
+        <h2>Layout &amp; formatting features</h2>
+        <div class="card">
+          <table class="notes">
+            <tr><th>Feature</th><th>What it's for</th></tr>
+            <tr><td>Section break</td><td>Splits a document into parts that can each have independent formatting/page numbering (e.g. different headers on different sections).</td></tr>
+            <tr><td>Hanging indent</td><td>First line of a paragraph sits at the margin; all following lines are indented (common in reference lists).</td></tr>
+            <tr><td>Orphan/Widow control</td><td>Keeps paragraph lines together so a single line isn't left stranded at the top/bottom of a page.</td></tr>
+            <tr><td>Bookmark</td><td>Marks a location in a document so it can be jumped to or linked to directly.</td></tr>
+            <tr><td>Hyperlink</td><td>Clickable link to a web address, email, or bookmark within the document.</td></tr>
+            <tr><td>Different odd/even header or footer</td><td>Lets facing pages show different header/footer content (e.g. file name only on odd pages).</td></tr>
+          </table>
+          <div class="callout exam"><span class="label">Exam pattern</span>Paragraph/line spacing questions ask for exact values (e.g. "12 pt before and after," "line spacing Multiple 1.75") &mdash; the mark is for the precise number, not just "increased spacing."</div>
+        </div>
+        <h2>Mail merge</h2>
+        <div class="card">
+          <ul>
+            <li>Mail merge links a template document to a data source (commonly a .csv file) so personalised copies can be produced for each record.</li>
+            <li>A typical mail-merge task: insert the required fields into the template, sort the data source by a chosen field, then complete the merge into a single combined output document.</li>
+          </ul>
+        </div>
+        <h2>Metadata &amp; saving formats</h2>
+        <div class="card">
+          <ul>
+            <li><span class="term">Metadata</span> in a word-processing document includes things like author, subject, company, dates created/modified, size, page/word count, title, tags, comments, template, status, and categories.</li>
+            <li>Ways to make a document usable by someone without the same software/version: save in an earlier file version, save as PDF or RTF, or save as a plain text file.</li>
+          </ul>
+        </div>
+        <h2>Accessibility &amp; document design</h2>
+        <div class="card">
+          <p><span class="term">Readability</span> in this context means how well someone experiences the document &mdash; including whether a screen-reader user or visually impaired person can follow it. Word features that help with collaboration and readability: Track Changes, Comments, and shared/collaboration tools (co-authoring). Improving readability for a visually impaired reader can include increasing line spacing or decreasing dense text blocks.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= F: EXCEL CORE ================= -->
+    <section class="view" id="view-f-excel-core">
+      <div class="pageheader">
+        <h1>Excel &mdash; Core Formulas</h1>
+        <div class="meta">Section F &middot; Paper 1 &middot; Spreadsheets</div>
+      </div>
+      <div class="section">
+        <h2>Formula vs function</h2>
+        <div class="card">
+          <p>A <span class="term">function</span> is built into the application (e.g. SUM, IF). A <span class="term">formula</span> is a calculation you build yourself using cell references, operators, and (optionally) functions combined together.</p>
+        </div>
+        <h2>Conditional counting &amp; summing</h2>
+        <div class="card">
+          <table class="notes">
+            <tr><th>Need</th><th>Formula pattern</th></tr>
+            <tr><td>Count cells matching one condition</td><td><code>=COUNTIF(range,"criteria")</code></td></tr>
+            <tr><td>Count empty cells</td><td><code>=COUNTBLANK(range)</code> or <code>=COUNTIF(range,"")</code></td></tr>
+            <tr><td>Count non-empty cells</td><td><code>=COUNTA(range)</code></td></tr>
+            <tr><td>Count matching two or more conditions</td><td><code>=COUNTIFS(range1,"criteria1",range2,"criteria2")</code></td></tr>
+            <tr><td>Sum cells matching one condition</td><td><code>=SUMIF(range,"criteria",sum_range)</code></td></tr>
+            <tr><td>Sum cells matching two or more conditions</td><td><code>=SUMIFS(sum_range,range1,"criteria1",range2,"criteria2")</code></td></tr>
+          </table>
+          <div class="callout warn"><span class="label">Common mistake</span>SUMIF/SUMIFS <b>add values together</b> &mdash; they can't tell you how many records match. If a question asks "how many," that's a COUNTIF/COUNTIFS job, even if the data looks numeric.</div>
+        </div>
+        <h2>Ranking, extremes &amp; rounding</h2>
+        <div class="card">
+          <table class="notes">
+            <tr><th>Need</th><th>Formula pattern</th></tr>
+            <tr><td>Nth smallest value</td><td><code>=SMALL(range,n)</code></td></tr>
+            <tr><td>Nth largest value</td><td><code>=LARGE(range,n)</code></td></tr>
+            <tr><td>Round down to a set number of decimals</td><td><code>=ROUNDDOWN(number,digits)</code> &mdash; e.g. <code>=ROUNDDOWN(4.87,1)</code> → 4.8</td></tr>
+            <tr><td>Round up to a set number of decimals</td><td><code>=ROUNDUP(number,digits)</code> &mdash; e.g. <code>=ROUNDUP(2.3,0)</code> → 3</td></tr>
+            <tr><td>Ordinary rounding</td><td><code>=ROUND(number,digits)</code></td></tr>
+          </table>
+        </div>
+        <h2>Logical (IF-family) formulas</h2>
+        <div class="card">
+          <table class="notes">
+            <tr><th>Need</th><th>Formula pattern</th></tr>
+            <tr><td>Single condition</td><td><code>=IF(condition,value_if_true,value_if_false)</code></td></tr>
+            <tr><td>Nested nested conditions (three or more outcomes)</td><td><code>=IF(cond1,result1,IF(cond2,result2,result3))</code></td></tr>
+            <tr><td>Cleaner multi-outcome alternative</td><td><code>=IFS(cond1,result1,cond2,result2,cond3,result3)</code></td></tr>
+          </table>
+          <div class="callout exam"><span class="label">Exam pattern</span>A three-tier classification (e.g. "High/Medium/Low") is commonly marked correct however it's built &mdash; nested IF or IFS both score, as long as the thresholds and order are right.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= F: EXCEL LOOKUP/TEXT/DATE ================= -->
+    <section class="view" id="view-f-excel-lookup">
+      <div class="pageheader">
+        <h1>Excel &mdash; Lookup, Text &amp; Date Functions</h1>
+        <div class="meta">Section F &middot; Paper 1 &middot; Spreadsheets</div>
+      </div>
+      <div class="section">
+        <h2>Looking up values</h2>
+        <div class="card">
+          <table class="notes">
+            <tr><th>Need</th><th>Formula pattern</th></tr>
+            <tr><td>Look up a value down a column</td><td><code>=VLOOKUP(lookup_value,table_range,col_index,FALSE)</code></td></tr>
+            <tr><td>Look up a value across a row</td><td><code>=HLOOKUP(lookup_value,table_range,row_index,FALSE)</code></td></tr>
+            <tr><td>Modern lookup with built-in "not found" handling</td><td><code>=XLOOKUP(lookup_value,lookup_array,return_array,"NotFound",0)</code></td></tr>
+            <tr><td>Combine lookup with a dynamic column/row position</td><td>Nest <code>MATCH()</code> inside VLOOKUP/HLOOKUP as the column or row index.</td></tr>
+          </table>
+          <div class="callout"><span class="label">FALSE / exact match</span>The last argument (FALSE, or 0 in XLOOKUP) tells Excel to find an exact match only &mdash; leaving it out or using TRUE risks matching the wrong, "closest" row.</div>
+        </div>
+        <h2>Text functions</h2>
+        <div class="card">
+          <table class="notes">
+            <tr><th>Need</th><th>Formula pattern</th></tr>
+            <tr><td>Characters from the left</td><td><code>=LEFT(text,num_chars)</code></td></tr>
+            <tr><td>Characters from the right</td><td><code>=RIGHT(text,num_chars)</code></td></tr>
+            <tr><td>Characters from the middle</td><td><code>=MID(text,start_num,num_chars)</code></td></tr>
+            <tr><td>Position of a character (e.g. a space or @)</td><td><code>=FIND("character",text,start_num)</code></td></tr>
+            <tr><td>Join text and cell values together</td><td><code>=CONCATENATE(text1,text2,...)</code> or the shorthand <code>&amp;</code> operator, e.g. <code>=A3&amp;LEFT(F3,FIND("@",F3,1)-1)</code></td></tr>
+          </table>
+          <div class="callout exam"><span class="label">Exam pattern</span>Extracting part of a value (like a floor number from a room code, or a username from an email) is almost always a LEFT/RIGHT/MID combined with FIND to locate the split point dynamically &mdash; not a fixed number that only works for one row.</div>
+        </div>
+        <h2>Date &amp; random functions</h2>
+        <div class="card">
+          <table class="notes">
+            <tr><th>Need</th><th>Formula pattern</th></tr>
+            <tr><td>Current date</td><td><code>=TODAY()</code> (or <code>=NOW()</code> for date and time)</td></tr>
+            <tr><td>Random whole number in a range</td><td><code>=RANDBETWEEN(bottom,top)</code></td></tr>
+          </table>
+        </div>
+        <h2>Wildcards in criteria</h2>
+        <div class="card">
+          <p>A <span class="term">wildcard</span> (e.g. <code>*</code> or a partial string like <code>"Smi*"</code>) is used in COUNTIF/SUMIF/query criteria to match based on a partial match, rather than requiring an exact match &mdash; e.g. returning every record starting with "Smi" regardless of what follows.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= F: EXCEL DATA TOOLS ================= -->
+    <section class="view" id="view-f-excel-tools">
+      <div class="pageheader">
+        <h1>Excel &mdash; Data Tools &amp; Charts</h1>
+        <div class="meta">Section F &middot; Paper 1 &middot; Spreadsheets</div>
+      </div>
+      <div class="section">
+        <h2>Formatting &amp; layout tools</h2>
+        <div class="card">
+          <ul>
+            <li><span class="term">Merge &amp; Center</span> &mdash; combines selected cells into one and centres the content, commonly used for titles across a row.</li>
+            <li><span class="term">Freeze Panes</span> &mdash; keeps chosen rows/columns visible on screen while scrolling through the rest of the sheet.</li>
+            <li><span class="term">Data Validation</span> &mdash; restricts what can be typed into a cell (e.g. whole numbers only, greater than 0) and can show a custom input message or error alert.</li>
+            <li><span class="term">Conditional Formatting</span> &mdash; automatically changes a cell's appearance based on its value meeting a rule.</li>
+            <li>Named ranges, tab colours, and row height/column width are all common small-mark formatting instructions &mdash; read the exact value asked for (e.g. "row height 42.00") rather than eyeballing it.</li>
+          </ul>
+        </div>
+        <h2>Sorting, filtering &amp; validation</h2>
+        <div class="card">
+          <ul>
+            <li>Data can be sorted or filtered on more than one column at once (e.g. sort by surname, then filter to exclude certain categories).</li>
+            <li>Data Validation rules are commonly asked for percentage/mark fields (e.g. restrict entries to between 0 and 100) to stop invalid data being entered in the first place.</li>
+          </ul>
+        </div>
+        <h2>Grouping, subtotals &amp; outlines</h2>
+        <div class="card">
+          <p>The <span class="term">Subtotal</span> tool automatically inserts summary rows (e.g. a Count or Sum) at each change in a chosen column, and can group/collapse the detail rows into an outline view. It can also insert a page break between each group automatically.</p>
+        </div>
+        <h2>Charts</h2>
+        <div class="card">
+          <ul>
+            <li>Choose a chart type that fits the comparison being made &mdash; a clustered column chart for comparing categories is a frequent choice.</li>
+            <li>Chart elements commonly asked for: chart title text, axis minimum/maximum bounds, major unit spacing on an axis, and a border around the title.</li>
+            <li>Series data ranges are sometimes non-contiguous (multiple selected blocks) &mdash; hold Ctrl while selecting each range for the chart source.</li>
+          </ul>
+        </div>
+        <h2>Import &amp; export between applications</h2>
+        <div class="card">
+          <ul>
+            <li>To move spreadsheet data into a database application, use <span class="term">Import/Get External Data</span> rather than retyping it.</li>
+            <li><span class="term">Exporting</span> is the general term for transferring data from one application (e.g. a database) into another format, without simply copying and pasting.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= F: DATABASE TABLES ================= -->
+    <section class="view" id="view-f-db-tables">
+      <div class="pageheader">
+        <h1>Database &mdash; Tables &amp; Field Properties</h1>
+        <div class="meta">Section F &middot; Paper 1 &middot; Database (Access)</div>
+      </div>
+      <div class="section">
+        <h2>Keys &amp; imports</h2>
+        <div class="card">
+          <ul>
+            <li>A <span class="term">primary key</span> uniquely identifies each record; a table should only have one, and it's often necessary to remove an incorrectly-assigned one before setting the correct field.</li>
+            <li>Records can be imported into an existing table directly from an Excel file or a text/CSV file, rather than retyped.</li>
+          </ul>
+        </div>
+        <h2>Field properties &amp; validation</h2>
+        <div class="card">
+          <table class="notes">
+            <tr><th>Property</th><th>What it controls</th></tr>
+            <tr><td>Field size</td><td>Maximum number of characters/digits a field will store.</td></tr>
+            <tr><td>Validation rule</td><td>A logical condition data must satisfy, e.g. <code>&gt;=0 And &lt;=100</code> for a percentage, or a date restriction like "no dates before 01/01/1980."</td></tr>
+            <tr><td>Validation text</td><td>The custom error message shown when the validation rule is broken.</td></tr>
+            <tr><td>Input mask</td><td>Forces data to be typed in a specific pattern (see character sheet below).</td></tr>
+            <tr><td>Default value / calculated field</td><td>Auto-fills or auto-calculates a value when the table is viewed (e.g. a running total).</td></tr>
+            <tr><td>Data type: Hyperlink</td><td>Lets a field (e.g. an email address) be clicked directly to open/send.</td></tr>
+            <tr><td>Lookup / combo box</td><td>Restricts entry to values pulled from another table, shown as a drop-down.</td></tr>
+          </table>
+        </div>
+        <h2>Input mask character sheet</h2>
+        <div class="card">
+          <table class="notes">
+            <tr><th>Character</th><th>Meaning</th></tr>
+            <tr><td><code>0</code></td><td>A digit (0&ndash;9) must be entered.</td></tr>
+            <tr><td><code>9</code></td><td>A digit can be entered, optional.</td></tr>
+            <tr><td><code>#</code></td><td>Digit, space, plus, or minus can be entered; optional.</td></tr>
+            <tr><td><code>L</code></td><td>A letter must be entered.</td></tr>
+            <tr><td><code>?</code></td><td>A letter can be entered, optional.</td></tr>
+            <tr><td><code>A</code></td><td>A letter or digit must be entered.</td></tr>
+            <tr><td><code>a</code></td><td>A letter or digit can be entered, optional.</td></tr>
+            <tr><td><code>&amp;</code> / <code>C</code></td><td>Any character/space required (&amp;) or optional (C).</td></tr>
+            <tr><td><code>&gt;</code> / <code>&lt;</code></td><td>Forces following characters to upper case / lower case.</td></tr>
+            <tr><td><code>\</code></td><td>The next character displays literally (escapes the mask code).</td></tr>
+          </table>
+          <div class="callout exam"><span class="label">Exam pattern</span>A format like <code>&gt;LLL099</code> means: force upper case, then three required letters, then two required digits and one optional digit &mdash; read each character left to right against this table rather than guessing.</div>
+        </div>
+        <h2>Table &amp; export tasks</h2>
+        <div class="card">
+          <p>Common small-mark table tasks: change alternate row background colour, change a field's data length, and export a table's contents to a CSV file with field names included on the first row.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= F: DATABASE QUERIES/FORMS/REPORTS ================= -->
+    <section class="view" id="view-f-db-queries">
+      <div class="pageheader">
+        <h1>Database &mdash; Queries, Forms &amp; Reports</h1>
+        <div class="meta">Section F &middot; Paper 1 &middot; Database (Access)</div>
+      </div>
+      <div class="section">
+        <h2>Query criteria patterns</h2>
+        <div class="card">
+          <ul>
+            <li><span class="term">AND logic</span> (both conditions true) &mdash; put both criteria in the <i>same</i> criteria row under their respective fields.</li>
+            <li><span class="term">OR logic</span> (either condition true) &mdash; put the criteria in <i>separate</i> rows (the query grid's "or" row), or use OR directly in one field's criteria.</li>
+            <li><span class="term">Wildcard/partial match</span> &mdash; e.g. a country field "contains south" uses a wildcard pattern rather than an exact match.</li>
+            <li><span class="term">Totals query</span> &mdash; groups records (e.g. by country) and aggregates a numeric field (e.g. sums experience ratings) per group.</li>
+            <li>Sorting a query result and choosing which fields are visible are both usually separate, explicitly marked steps &mdash; don't skip setting the sort order even if the question only emphasises the fields.</li>
+          </ul>
+          <div class="callout warn"><span class="label">Common mistake</span>Only showing the fields the question names as output is not automatically "AND" or "OR" &mdash; the difference is entirely about which row the criteria sit in in the query design grid.</div>
+        </div>
+        <h2>Forms</h2>
+        <div class="card">
+          <ul>
+            <li>A form can be built from more than one related table at once, and grouped by the "parent" table so related child records display together.</li>
+            <li>A text box control can be converted into a combo box that looks up values from another table, matching the same behaviour as a table-level lookup field.</li>
+            <li>A command button can be added to a form (e.g. in the footer) to trigger an action, such as adding a new record, with a custom caption.</li>
+            <li>Header/label text and its formatting (e.g. forcing it onto one line) are common small-mark form-design tasks.</li>
+          </ul>
+        </div>
+        <h2>Reports</h2>
+        <div class="card">
+          <ul>
+            <li>A report is typically built from selected fields across one or more tables, then <span class="term">grouped</span> by a chosen field so related records are clustered together.</li>
+            <li>A text box can be inserted into a group footer to automatically count or total the records within that group (e.g. number of delegates per organisation).</li>
+            <li>Labels (like an exam number) are commonly required in the report header, as a separate step from the grouping/totalling tasks.</li>
+          </ul>
+          <div class="callout exam"><span class="label">Exam pattern</span>Query, form, and report questions are usually marked in discrete steps (create the object → apply the specific property → save) &mdash; partially completing an object without saving it under the exact requested name typically loses marks even if the logic was right.</div>
+        </div>
+        <h2>Applications recap</h2>
+        <div class="card">
+          <p>Typical business use-cases the exam expects you to be able to state: <span class="term">spreadsheet</span> for calculations/invoices/financial statements; <span class="term">word processing</span> for correspondence/contracts/minutes; <span class="term">database</span> for employee/stock/supplier data; <span class="term">email</span> for communication; <span class="term">web browser</span> for research. Marks go to the specific use given, not just naming the application.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= F: HTML TAG REFERENCE ================= -->
+    <section class="view" id="view-f-html-tags">
+      <div class="pageheader">
+        <h1>HTML &mdash; Tag Reference</h1>
+        <div class="meta">Section F &middot; Paper 1 &middot; Web Design</div>
+      </div>
+      <div class="section">
+        <div class="callout warn"><span class="label">Rule</span>HTML must be typed by hand into a plain text editor (Notepad, Notepad++, or WordPad). Microsoft Word may not be used, since it inserts non-HTML formatting behind the scenes.</div>
+        <h2>Document outline &amp; structure</h2>
+        <div class="card">
+          <table class="notes">
+            <tr><th>Element</th><th>Tags</th><th>Common attributes</th></tr>
+            <tr><td>HTML document</td><td><code>&lt;HTML&gt;&lt;/HTML&gt;</code></td><td>&mdash;</td></tr>
+            <tr><td>Head</td><td><code>&lt;HEAD&gt;&lt;/HEAD&gt;</code></td><td>&mdash;</td></tr>
+            <tr><td>Title</td><td><code>&lt;TITLE&gt;&lt;/TITLE&gt;</code></td><td>&mdash;</td></tr>
+            <tr><td>Body</td><td><code>&lt;BODY&gt;&lt;/BODY&gt;</code></td><td>BACKGROUND, BGCOLOR, TEXT</td></tr>
+            <tr><td>Heading</td><td><code>&lt;H1&gt;&lt;/H1&gt;</code></td><td>ALIGN</td></tr>
+            <tr><td>Paragraph</td><td><code>&lt;P&gt;&lt;/P&gt;</code></td><td>ALIGN</td></tr>
+            <tr><td>Line break</td><td><code>&lt;BR /&gt;</code> (self-closing)</td><td>&mdash;</td></tr>
+            <tr><td>Horizontal rule</td><td><code>&lt;HR /&gt;</code> (self-closing)</td><td>ALIGN, COLOR, SIZE, WIDTH</td></tr>
+            <tr><td>Centre</td><td><code>&lt;CENTER&gt;&lt;/CENTER&gt;</code></td><td>&mdash;</td></tr>
+          </table>
+        </div>
+        <h2>Text formatting, links &amp; images</h2>
+        <div class="card">
+          <table class="notes">
+            <tr><th>Element</th><th>Tags</th><th>Common attributes</th></tr>
+            <tr><td>Comment</td><td><code>&lt;!-- --&gt;</code></td><td>Text between these tags does not display on the page.</td></tr>
+            <tr><td>Bold</td><td><code>&lt;B&gt;&lt;/B&gt;</code></td><td>&mdash;</td></tr>
+            <tr><td>Italics</td><td><code>&lt;I&gt;&lt;/I&gt;</code></td><td>&mdash;</td></tr>
+            <tr><td>Font</td><td><code>&lt;FONT&gt;&lt;/FONT&gt;</code></td><td>COLOR, FACE, SIZE</td></tr>
+            <tr><td>Link</td><td><code>&lt;A&gt;&lt;/A&gt;</code></td><td>HREF, TARGET, TITLE (TITLE text shows as a hover tooltip)</td></tr>
+            <tr><td>Image</td><td><code>&lt;IMG /&gt;</code> (self-closing)</td><td>SRC, ALT, ALIGN, HEIGHT, WIDTH, BORDER, TITLE</td></tr>
+          </table>
+        </div>
+        <h2>Lists &amp; tables</h2>
+        <div class="card">
+          <table class="notes">
+            <tr><th>Element</th><th>Tags</th><th>Common attributes</th></tr>
+            <tr><td>Ordered list</td><td><code>&lt;OL&gt;&lt;/OL&gt;</code></td><td>TYPE</td></tr>
+            <tr><td>Unordered list</td><td><code>&lt;UL&gt;&lt;/UL&gt;</code></td><td>TYPE</td></tr>
+            <tr><td>List item</td><td><code>&lt;LI&gt;&lt;/LI&gt;</code></td><td>&mdash;</td></tr>
+            <tr><td>Table</td><td><code>&lt;TABLE&gt;&lt;/TABLE&gt;</code></td><td>BORDER, WIDTH, HEIGHT, BGCOLOR, CELLPADDING, CELLSPACING</td></tr>
+            <tr><td>Table row</td><td><code>&lt;TR&gt;&lt;/TR&gt;</code></td><td>HEIGHT, BGCOLOR, BORDER</td></tr>
+            <tr><td>Table cell / data</td><td><code>&lt;TD&gt;&lt;/TD&gt;</code></td><td>ALIGN, VALIGN, WIDTH, BORDER, COLSPAN, ROWSPAN, BGCOLOR</td></tr>
+            <tr><td>Table heading cell</td><td><code>&lt;TH&gt;&lt;/TH&gt;</code></td><td>Same as TD</td></tr>
+            <tr><td>Table caption</td><td><code>&lt;CAPTION&gt;&lt;/CAPTION&gt;</code></td><td>ALIGN</td></tr>
+          </table>
+          <div class="callout"><span class="label">Note</span>[Likely] &mdash; the exact attribute list shown per tag varies slightly by year's insert sheet; a fresh copy of the current Appendix is provided in the exam itself, so treat this as a study reference rather than the definitive list to memorise.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= F: HTML WORKED PATTERNS ================= -->
+    <section class="view" id="view-f-html-patterns">
+      <div class="pageheader">
+        <h1>HTML &mdash; Worked Exam Patterns</h1>
+        <div class="meta">Section F &middot; Paper 1 &middot; Web Design</div>
+      </div>
+      <div class="section">
+        <h2>Typical task-to-syntax mapping</h2>
+        <div class="card">
+          <table class="notes">
+            <tr><th>Instruction style</th><th>What to write</th></tr>
+            <tr><td>Set the page title</td><td><code>&lt;TITLE&gt;Your Title Here&lt;/TITLE&gt;</code> inside <code>&lt;HEAD&gt;</code></td></tr>
+            <tr><td>Set a background colour by hex code</td><td><code>&lt;BODY BGCOLOR="#BB1B1B"&gt;</code></td></tr>
+            <tr><td>Colour specific text</td><td>Wrap the text in <code>&lt;FONT COLOR="white"&gt;...&lt;/FONT&gt;</code></td></tr>
+            <tr><td>Remove a table's border / set its width</td><td><code>&lt;TABLE BORDER="0" WIDTH="75%"&gt;</code></td></tr>
+            <tr><td>Insert an image at a fixed width</td><td><code>&lt;IMG SRC="rocketship.png" WIDTH="200" /&gt;</code></td></tr>
+            <tr><td>Make an image a clickable link</td><td><code>&lt;A HREF="https://example.com"&gt;&lt;IMG SRC="mars.gif" /&gt;&lt;/A&gt;</code></td></tr>
+            <tr><td>Show hover text over an image</td><td>Add a <code>TITLE</code> attribute to the <code>&lt;IMG&gt;</code> tag, e.g. <code>TITLE="Mars in 4k"</code></td></tr>
+            <tr><td>Heading with a specific level, centred</td><td><code>&lt;H2 ALIGN="center"&gt;Want to live on Mars?&lt;/H2&gt;</code></td></tr>
+            <tr><td>Turn a block of text into a bulleted list</td><td>Wrap each item in <code>&lt;LI&gt;&lt;/LI&gt;</code>, all inside <code>&lt;UL&gt;&lt;/UL&gt;</code></td></tr>
+            <tr><td>Hide text so it doesn't display on the page</td><td>Wrap it in <code>&lt;!-- text --&gt;</code></td></tr>
+          </table>
+          <div class="callout exam"><span class="label">Exam pattern</span>HTML section instructions are usually one small, self-contained edit per numbered item (1&ndash;2 marks each). Make each change, save, and re-open the file in a browser to check it visually before moving to the next instruction &mdash; a missing closing tag can silently break everything below it.</div>
+        </div>
+        <h2>Debugging checklist</h2>
+        <div class="card">
+          <ul>
+            <li>Every opening tag needs a matching closing tag, except explicitly self-closing tags like <code>&lt;BR /&gt;</code>, <code>&lt;HR /&gt;</code>, and <code>&lt;IMG /&gt;</code>.</li>
+            <li>Attribute values should be inside quotation marks, e.g. <code>WIDTH="200"</code>.</li>
+            <li>Tags can be uppercase or lowercase in HTML, but the exam's own tag sheet uses uppercase &mdash; matching that convention keeps your code easy for you (and a marker) to check against it.</li>
+            <li>If a page "looks wrong" after an edit, check the tag just before your change first &mdash; an unclosed tag anywhere above will often cascade and break everything that follows.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+function showView(id){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  const target = document.getElementById('view-'+id);
+  if(target) target.classList.add('active');
+  document.querySelectorAll('.navitem').forEach(n=>n.classList.remove('active'));
+  const navBtn = document.querySelector('.navitem[data-view="'+id+'"]');
+  if(navBtn) navBtn.classList.add('active');
+  document.querySelector('.main').scrollTo(0,0);
+  window.scrollTo(0,0);
+}
+
+document.querySelectorAll('.navitem').forEach(item=>{
+  item.addEventListener('click',()=>showView(item.dataset.view));
+});
+
+/* ============ Sidebar search ============ */
+(function(){
+  const index = [];
+  let counter = 0;
+  document.querySelectorAll('.view').forEach(view=>{
+    const viewId = view.id.replace('view-','');
+    const titleEl = view.querySelector('.pageheader h1');
+    const sectionTitle = titleEl ? titleEl.textContent.trim() : viewId;
+    const nodes = view.querySelectorAll('.card p, .card li, .card td, .callout, .section h2');
+    nodes.forEach(el=>{
+      const text = el.textContent.replace(/\s+/g,' ').trim();
+      if(text.length < 3) return;
+      counter++;
+      const searchId = 'sr-'+counter;
+      el.setAttribute('data-search-id', searchId);
+      index.push({id:searchId, viewId:viewId, section:sectionTitle, text:text, el:el});
+    });
+  });
+
+  const input = document.getElementById('searchInput');
+  const resultsBox = document.getElementById('searchResults');
+  let currentMatches = [];
+  let activeIndex = -1;
+
+  function escapeHtml(s){
+    return s.replace(/[&<>]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  }
+
+  function highlight(text, query){
+    const escText = escapeHtml(text);
+    const escQuery = escapeHtml(query).replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+    if(!escQuery) return escText;
+    const re = new RegExp('('+escQuery+')','ig');
+    return escText.replace(re,'<mark>$1</mark>');
+  }
+
+  function snippet(text, query){
+    const lower = text.toLowerCase();
+    const q = query.toLowerCase();
+    const pos = lower.indexOf(q);
+    if(pos < 0) return text.slice(0,110)+(text.length>110?'…':'');
+    const start = Math.max(0, pos-40);
+    const end = Math.min(text.length, pos+q.length+70);
+    return (start>0?'…':'')+text.slice(start,end)+(end<text.length?'…':'');
+  }
+
+  function renderResults(query){
+    resultsBox.innerHTML = '';
+    activeIndex = -1;
+    if(!query){ resultsBox.classList.remove('open'); currentMatches=[]; return; }
+    const q = query.toLowerCase();
+    currentMatches = index.filter(item=>item.text.toLowerCase().includes(q)).slice(0,25);
+    if(currentMatches.length === 0){
+      resultsBox.innerHTML = '<div class="search-empty">No matches found.</div>';
+      resultsBox.classList.add('open');
+      return;
+    }
+    currentMatches.forEach((item,i)=>{
+      const row = document.createElement('div');
+      row.className = 'search-result';
+      row.dataset.index = i;
+      const snip = snippet(item.text, query);
+      row.innerHTML = '<span class="sr-section">'+escapeHtml(item.section)+'</span><span class="sr-snippet">'+highlight(snip, query)+'</span>';
+      row.addEventListener('click', ()=>jumpTo(item));
+      row.addEventListener('mouseenter', ()=>setActive(i));
+      resultsBox.appendChild(row);
+    });
+    resultsBox.classList.add('open');
+  }
+
+  function setActive(i){
+    const rows = resultsBox.querySelectorAll('.search-result');
+    rows.forEach(r=>r.classList.remove('hi'));
+    if(i>=0 && i<rows.length){
+      rows[i].classList.add('hi');
+      rows[i].scrollIntoView({block:'nearest'});
+      activeIndex = i;
+    }
+  }
+
+  function jumpTo(item){
+    showView(item.viewId);
+    resultsBox.classList.remove('open');
+    setTimeout(()=>{
+      const target = document.querySelector('[data-search-id="'+item.id+'"]');
+      if(target){
+        target.scrollIntoView({behavior:'smooth', block:'center'});
+        target.classList.remove('search-jump-flash');
+        void target.offsetWidth;
+        target.classList.add('search-jump-flash');
+      }
+    }, 60);
+  }
+
+  input.addEventListener('input', ()=>renderResults(input.value.trim()));
+
+  input.addEventListener('keydown', e=>{
+    if(e.key === 'ArrowDown'){
+      e.preventDefault();
+      if(currentMatches.length) setActive(Math.min(activeIndex+1, currentMatches.length-1));
+    } else if(e.key === 'ArrowUp'){
+      e.preventDefault();
+      if(currentMatches.length) setActive(Math.max(activeIndex-1, 0));
+    } else if(e.key === 'Enter'){
+      e.preventDefault();
+      if(currentMatches.length === 0) return;
+      const pick = activeIndex >= 0 ? currentMatches[activeIndex] : currentMatches[0];
+      jumpTo(pick);
+    } else if(e.key === 'Escape'){
+      resultsBox.classList.remove('open');
+      input.blur();
+    }
+  });
+
+  document.addEventListener('click', e=>{
+    if(!e.target.closest('.search-wrap')) resultsBox.classList.remove('open');
+  });
+})();
+
+/* ============ Mobile drawer ============ */
+(function(){
+  const sidebar = document.getElementById('sidebarNav');
+  const backdrop = document.getElementById('sidebarBackdrop');
+  const menuBtn = document.getElementById('menuBtn');
+  if(!sidebar || !menuBtn) return;
+
+  function openDrawer(){
+    sidebar.classList.add('open');
+    backdrop.classList.add('open');
+  }
+  function closeDrawer(){
+    sidebar.classList.remove('open');
+    backdrop.classList.remove('open');
+  }
+  menuBtn.addEventListener('click', openDrawer);
+  backdrop.addEventListener('click', closeDrawer);
+
+  sidebar.querySelectorAll('.navitem').forEach(item=>{
+    item.addEventListener('click', closeDrawer);
+  });
+  const searchResultsEl = document.getElementById('searchResults');
+  if(searchResultsEl){
+    searchResultsEl.addEventListener('click', e=>{
+      if(e.target.closest('.search-result')) closeDrawer();
+    });
+  }
+  const searchInputEl = document.getElementById('searchInput');
+  if(searchInputEl){
+    searchInputEl.addEventListener('keydown', e=>{
+      if(e.key === 'Enter') closeDrawer();
+    });
+  }
+})();
+</script>
+</body>
+</html>
